@@ -1,0 +1,63 @@
+
+We define generic asset model for users to choose:
+
+    >>> from thinkfar.model import AssetModel
+    >>> big_ticket_item = AssetModel(name=u'Big ticket item',
+    ...     description=u'Generic representation of a identifieble big ticket item: e.g. a bike')
+    >>> big_ticket_item_key = big_ticket_item.put()
+    >>> commodity_stock = AssetModel(name=u'Commodity stock',
+    ...     description=u'Generic representation of commodity stock: e.g. a clan of gingerbread men')
+    >>> commodity_stock_key = commodity_stock.put()
+
+Most stuff refers to the currently logged user:
+
+    >>> from google.appengine.api.users import User
+    >>> current_user = User(email=u'syd@pf.com')
+
+Users have one or more portfolios of assets:
+
+    >>> from thinkfar.model import Portfolio
+    >>> piper_belongings = Portfolio(owner=current_user, name=u'Piper Belongings')
+    >>> piper_belongings
+    <Portfolio object name=u'Piper Belongings' owner=u'syd@pf.com'>
+    >>> piper_belongings_key = piper_belongings.put()
+
+and we can associate each asset to a porfolio.
+
+    >>> from thinkfar.gae.model import Asset
+    >>> from datetime import date
+
+I've got a bike.
+
+    >>> bike = Asset(asset_model=big_ticket_item, name=u'Bike', 
+    ...     identity=u'My good looking bike', portfolio=piper_belongings)
+    >>> bike
+    <Asset object name=u'Bike' identity=u'My good looking bike' portfolio=u'Piper Belongings' owner=u'syd@pf.com'>
+    >>> bike_key = bike.put()
+    >>> bike.buy(date=date(1967, 3, 23), price=100.)
+    >>> bike.balance(date(1967, 3, 22))
+    0.0
+    >>> bike.balance(date(1967, 3, 23))
+    1.0
+
+I've got a clan of gingerbread men. Here a man, there a man, lots of gingerbread men.
+
+    >>> clan = Asset(asset_model=commodity_stock, name='Clan of gingerbread men',
+    ...     portfolio=piper_belongings)
+    >>> clan_key = clan.put()
+    >>> clan.buy(20., date=date(1967, 3, 22), price=5.)
+    >>> clan.buy(20., date=date(1967, 3, 23), price=5.)
+
+Take a couple if you wish. They're on the dish.
+
+    >>> clan.sell(2., date=date(1967, 3, 24))
+    >>> clan.balance(date(1967, 3, 23))
+    40.0
+    >>> clan.balance(date(1967, 3, 24))
+    38.0
+
+I'll give you anything, everything if you want things.
+
+    >>> len(piper_belongings.assets.fetch(1000)) == 2
+    True
+
