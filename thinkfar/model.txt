@@ -24,7 +24,7 @@ Users have one or more portfolios of assets:
 
 and we can associate each asset to a porfolio.
 
-    >>> from thinkfar.gae.model import Asset
+    >>> from thinkfar.model import Asset
     >>> from datetime import date
 
 I've got a bike.
