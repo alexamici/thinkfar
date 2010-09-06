@@ -9,4 +9,9 @@
     renderer="templates/portfolio.pt"
     />
 
+  <static
+    name="static"
+    path="templates/static"
+    />
+
 </configure>
