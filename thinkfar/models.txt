@@ -1,7 +1,7 @@
 
 We define generic asset model for users to choose:
 
-    >>> from thinkfar.model import AssetModel
+    >>> from thinkfar.models import AssetModel
     >>> big_ticket_item = AssetModel(name=u'Big ticket item',
     ...     description=u'Generic representation of a identifieble big ticket item: e.g. a bike')
     >>> big_ticket_item_key = big_ticket_item.put()
@@ -16,7 +16,7 @@ Most stuff refers to the currently logged user:
 
 Users have one or more portfolios of assets:
 
-    >>> from thinkfar.model import Portfolio
+    >>> from thinkfar.models import Portfolio
     >>> piper_belongings = Portfolio(owner=current_user, name=u'Piper Belongings')
     >>> piper_belongings
     <Portfolio object name=u'Piper Belongings' owner=u'syd@pf.com'>
@@ -24,7 +24,7 @@ Users have one or more portfolios of assets:
 
 and we can associate each asset to a porfolio.
 
-    >>> from thinkfar.model import Asset
+    >>> from thinkfar.models import Asset
     >>> from datetime import date
 
 I've got a bike.
