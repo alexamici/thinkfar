@@ -1,3 +1,2 @@
-
-def portfolio_view(request):
-    return {}
+def my_view(request):
+    return {'project':'thinkfar'}

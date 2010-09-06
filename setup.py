@@ -1,28 +1,40 @@
-from setuptools import setup, find_packages
-import sys, os
+import os
 
-version = '0.0'
+from setuptools import setup, find_packages
+
+here = os.path.abspath(os.path.dirname(__file__))
+README = open(os.path.join(here, 'README.txt')).read()
+CHANGES = open(os.path.join(here, 'CHANGES.txt')).read()
+
+requires = [
+    'setuptools',
+    'repoze.bfg',
+]
 
 setup(
     name='thinkfar',
-    version=version,
-    description="",
-    long_description="""\
-""",
-    classifiers=[], # Get strings from http://pypi.python.org/pypi?%3Aaction=list_classifiers
-    keywords='',
+    version='0.0',
+    description='thinkfar',
+    long_description=README + '\n\n' +  CHANGES,
+    classifiers=[
+        "Programming Language :: Python",
+        "Framework :: BFG",
+        "Topic :: Internet :: WWW/HTTP",
+        "Topic :: Internet :: WWW/HTTP :: WSGI :: Application",
+    ],
     author='Alessandro Amici',
     author_email='alexamici@gmail.com',
     url='',
-    license='',
-    packages=find_packages(exclude=['ez_setup', 'examples', 'tests']),
+    keywords='web wsgi bfg',
+    packages=find_packages(),
     include_package_data=True,
     zip_safe=False,
-    install_requires=[
-        'setuptools',
-        'repoze.bfg',
-    ],
-    entry_points="""
-    # -*- Entry points: -*-
-    """,
+    install_requires=requires,
+    tests_require=requires,
+    test_suite="thinkfar",
+    entry_points = """\
+        [paste.app_factory]
+        app = thinkfar.run:app
+    """
 )
+

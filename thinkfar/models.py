@@ -5,6 +5,15 @@ from google.appengine.ext.db import TextProperty, DateProperty
 from google.appengine.ext.db import UserProperty, ReferenceProperty, SelfReferenceProperty
 
 
+class MyModel(object):
+    pass
+
+root = MyModel()
+
+def get_root(request):
+    return root
+
+
 class Portfolio(Model):
     owner = UserProperty(required=True)
     name = StringProperty(required=True, default=u'Default Portfolio')
