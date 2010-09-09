@@ -5,10 +5,10 @@ from google.appengine.ext.db import TextProperty, DateProperty
 from google.appengine.ext.db import UserProperty, ReferenceProperty, SelfReferenceProperty
 
 
-class MyModel(object):
+class Root(object):
     pass
 
-root = MyModel()
+root = Root()
 
 def get_root(request):
     return root

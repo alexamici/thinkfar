@@ -1,2 +1,2 @@
-def my_view(request):
+def home(request):
     return {'project':'thinkfar'}

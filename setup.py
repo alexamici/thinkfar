@@ -13,7 +13,7 @@ requires = [
 
 setup(
     name='thinkfar',
-    version='0.0',
+    version='0.1',
     description='thinkfar',
     long_description=README + '\n\n' +  CHANGES,
     classifiers=[

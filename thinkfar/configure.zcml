@@ -4,9 +4,9 @@
   <include package="repoze.bfg.includes" />
 
   <view
-     context=".models.MyModel"
-     view=".views.my_view"
-     renderer="templates/mytemplate.pt"
+     context=".models.Root"
+     view=".views.home"
+     renderer="templates/home.pt"
      />
 
   <static

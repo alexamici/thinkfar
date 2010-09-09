@@ -12,9 +12,9 @@ class ViewTests(unittest.TestCase):
         self.config.end()
 
     def test_my_view(self):
-        from thinkfar.views import my_view
+        from thinkfar.views import home
         request = testing.DummyRequest()
-        info = my_view(request)
+        info = home(request)
         self.assertEqual(info['project'], 'thinkfar')
 
 
