@@ -12,6 +12,10 @@
 </div>
 <div id="header">
   <div id="menu">
+    <ul>
+      <li><a href="/">Home</a></li>
+      <li><a tal:attributes="href login_logout_url" tal:content="login_logout_label">Log in</a></li>
+    </ul>
   </div>
 </div>
 <div id="wrapper">
