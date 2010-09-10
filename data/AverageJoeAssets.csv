@@ -1,4 +1,3 @@
-key,name,description,long_description
-1,Real Estate,A Real Estate Property with an identity,
-2,Vehicle,A Vehicle with an identity,
-3,Stocks,A financial instrument with a ticker on Yahoo!,
+key,portfolio,asset_model,name,identity,long_identity
+1001,1001,1001,Joe Home,"2350 Sweet Home Road, Amherst, NY, United States",
+1002,1002,1001,Jane Home,"113 Jane Street, New York, NY, United States",
