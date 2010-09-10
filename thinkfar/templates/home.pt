@@ -10,11 +10,15 @@
 <div id="logo">
   <h2>${project}</h2>
 </div>
+<div id="header">
+  <div id="menu">
+  </div>
+</div>
 <div id="wrapper">
   <div id="page">
     <div id="content">
       <div class="post">
-	<h1 class="title">See beyond the end of your nose</h1>
+        <h1 class="title">think beyond the end of your nose</h1>
       </div>
     </div>
     <div style="clear: both;">&nbsp;</div>
