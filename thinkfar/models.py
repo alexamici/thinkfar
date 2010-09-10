@@ -18,6 +18,9 @@ class Portfolio(Model):
     owner = UserProperty(required=True)
     name = StringProperty(required=True, default=u'Default Portfolio')
 
+    def absolute_url(self):
+        return '/portfolio/%d' % self.key().id()
+
     def __repr__(self):
         return u'<%s object name=%r owner=%r>' % \
             (self.__class__.__name__, self.name, self.owner.nickname())
@@ -44,6 +47,9 @@ class Asset(Model):
     identity = StringProperty()
     long_identity = TextProperty()
 
+    def absolute_url(self):
+        return '/asset/%d' % self.key().id()
+
     @property
     def has_identity(self):
         return self.identity is not None
@@ -62,6 +68,9 @@ class Asset(Model):
         trades = Trade.all().filter('asset =', self.key()).filter('date <=', date).fetch(1000)
         # return float 0. if no trades for the sake of consistency
         return 1. * sum(t.ammount for t in trades)
+
+    def unit_value(self):
+        return '$10.'
 
     def __repr__(self):
         if self.has_identity:

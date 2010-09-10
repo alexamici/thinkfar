@@ -19,12 +19,17 @@
     <div id="content">
       <div class="post">
         <h1 class="title">think beyond the end of your nose</h1>
-        <h2 tal:condition="portfolios">User Portfolios</h2>
-        <ul>
-          <li tal:repeat="portfolio portfolios">
-            <a tal:attributes="href portfolio.absolute_url()" tal:content="portfolio.name">Portfolio</a>
-          </li>
-        </ul>
+        <h2 tal:content="'Portfolio: %s at %s' % (portfolio.name, date.isoformat())">Portfolio</h2>
+        <table>
+          <tr tal:repeat="asset portfolio.assets">
+            <td>
+              <a tal:attributes="href asset.absolute_url(); title asset.identity"
+                tal:content="asset.name">Asset</a>
+            </td>
+            <td tal:content="asset.balance(date)">100</td>
+            <td tal:content="asset.unit_value()">$10.</td>
+          </tr>
+        </table>
       </div>
     </div>
     <div style="clear: both;">&nbsp;</div>

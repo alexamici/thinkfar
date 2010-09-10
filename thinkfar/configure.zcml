@@ -1,6 +1,5 @@
 <configure xmlns="http://namespaces.repoze.org/bfg">
 
-  <!-- this must be included for the view declarations to work -->
   <include package="repoze.bfg.includes" />
 
   <view
@@ -12,6 +11,13 @@
   <static
      name="static"
      path="templates/static"
+     />
+
+  <route
+     name="portfolio"
+     path="/portfolio/:id"
+     view=".views.portfolio"
+     view_renderer="templates/portfolio.pt"
      />
 
 </configure>
