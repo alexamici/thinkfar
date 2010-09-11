@@ -6,7 +6,7 @@ from google.appengine.ext.db import UserProperty, ReferenceProperty, SelfReferen
 
 
 class Root(object):
-    title = u'thinkfar'
+    title = u'think beyond the end of your nose'
 
 root = Root()
 
@@ -17,6 +17,7 @@ def get_root(request):
 class Portfolio(Model):
     owner = UserProperty(required=True)
     name = StringProperty(required=True, default=u'Default Portfolio')
+    description = StringProperty()
 
     @property
     def id(self):
