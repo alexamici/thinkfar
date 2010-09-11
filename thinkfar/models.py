@@ -33,6 +33,19 @@ class Portfolio(Model):
         # return float 0. if no trades for the sake of consistency
         return 1. * sum(t.price for t in trades if t.ammount < 0.)
 
+    def cumulative_cost(self, date):
+        trades = Trade.all().filter('asset IN', list(self.assets)).filter('date <=', date).fetch(1000)
+        # return float 0. if no trades for the sake of consistency
+        return 1. * sum(t.cost for t in trades)
+
+    def estimated_bid(self, date):
+        assets = Asset.all().filter('portfolio =', self).fetch(1000)
+        return 1. * sum(a.estimated_bid(date) for a in assets)
+
+    def estimated_ask(self, date):
+        assets = Asset.all().filter('portfolio =', self).fetch(1000)
+        return 1. * sum(a.estimated_ask(date) for a in assets)
+
     def __repr__(self):
         return u'<%s object name=%r owner=%r>' % \
             (self.__class__.__name__, self.name, self.owner.nickname())
@@ -87,10 +100,21 @@ class Asset(Model):
         # return float 0. if no trades for the sake of consistency
         return 1. * sum(t.price for t in trades if t.ammount > 0.)
 
+    def cumulative_cost(self, date):
+        trades = Trade.all().filter('asset =', self.key()).filter('date <=', date).fetch(1000)
+        # return float 0. if no trades for the sake of consistency
+        return 1. * sum(t.cost for t in trades)
+
     def cumulative_sell(self, date):
         trades = Trade.all().filter('asset =', self.key()).filter('date <=', date).fetch(1000)
         # return float 0. if no trades for the sake of consistency
         return 1. * sum(t.price for t in trades if t.ammount < 0.)
+
+    def estimated_bid(self, date):
+        return 100.0
+
+    def estimated_ask(self, date):
+        return 100.0
 
     def __repr__(self):
         if self.has_identity:

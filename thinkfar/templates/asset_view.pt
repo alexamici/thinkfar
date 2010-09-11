@@ -9,21 +9,35 @@
         <h1 class="title">${title}</h1>
         <h3>asset at ${date.isoformat()}</h3>
         <table>
-          <tr>
-            <td>${asset.name}</td>
-            <td>${asset.balance(date)}</td>
-            <td>${asset.cumulative_buy(date)}</td>
-            <td>${asset.cumulative_sell(date)}</td>
-            <td>${asset.cumulative_sell(date)-asset.cumulative_buy(date)}</td>
-          </tr>
-          <tr tal:repeat="trade asset.trades">
-            <td>
-              <a href="${request.application_url}/trades/${trade.id}">${trade.date}</a>
-            </td>
-            <td>${trade.ammount}</td>
-            <td>${trade.price}</td>
-            <td>${trade.cost}</td>
-         </tr>
+          <thead>
+            <tr>
+              <th>Trade date</th>
+              <th>Amount</th>
+              <th>Price</th>
+              <th>Cost</th>
+              <th>Balance</th>
+            </tr>
+          </thead>
+          <tbody align="right">
+            <tr tal:repeat="trade asset.trades">
+              <td>
+                <a href="${request.application_url}/trade/${trade.id}">${trade.date}</a>
+              </td>
+              <td>${trade.ammount}</td>
+              <td>${trade.price}</td>
+              <td>${trade.cost}</td>
+              <td>${asset.balance(trade.date)}</td>
+            </tr>
+          </tbody>
+          <tfoot align="right">
+            <tr>
+              <td>Total</td>
+              <td></td>
+              <td>${asset.cumulative_sell(date)-asset.cumulative_buy(date)}</td>
+              <td>${asset.cumulative_cost(date)}</td>
+              <td>${asset.balance(date)}</td>
+            </tr>
+          </tfoot>
         </table>
       </div>
     </div>

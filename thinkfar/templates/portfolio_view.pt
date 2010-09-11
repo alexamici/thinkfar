@@ -13,8 +13,11 @@
             <tr>
               <th>Asset name</th>
               <th>Amount</th>
+              <th>E. Bid</th>
+              <th>E. Ask</th>
               <th>Cum. buy</th>
               <th>Cum. sell</th>
+              <th>Cum. cost</th>
               <th>Cum. balance</th>
             </tr>
           </thead>
@@ -24,8 +27,11 @@
                 <a href="${request.application_url}/asset/${asset.id}" title="${asset.identity}">${asset.name}</a>
               </td>
               <td>${asset.balance(date)}</td>
+              <td>${asset.estimated_bid(date)}</td>
+              <td>${asset.estimated_ask(date)}</td>
               <td>${asset.cumulative_buy(date)}</td>
               <td>${asset.cumulative_sell(date)}</td>
+              <td>${asset.cumulative_cost(date)}</td>
               <td>${asset.cumulative_sell(date)-asset.cumulative_buy(date)}</td>
             </tr>
           </tbody>
@@ -33,8 +39,11 @@
             <tr>
               <td>Total</td>
               <td></td>
+              <td>${portfolio.estimated_bid(date)}</td>
+              <td>${portfolio.estimated_ask(date)}</td>
               <td>${portfolio.cumulative_buy(date)}</td>
               <td>${portfolio.cumulative_sell(date)}</td>
+              <td>${portfolio.cumulative_cost(date)}</td>
               <td>${portfolio.cumulative_sell(date)-portfolio.cumulative_buy(date)}</td>
             </tr>
           </tfoot>
