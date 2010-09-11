@@ -50,14 +50,22 @@ I've got a clan of gingerbread men. Here a man, there a man, lots of gingerbread
 
 Take a couple if you wish. They're on the dish.
 
-    >>> clan.sell(2., date=date(1967, 3, 24))
+    >>> clan.sell(2., date=date(1967, 3, 24), price=2.)
     >>> clan.balance(date(1967, 3, 23))
     40.0
+    >>> clan.cumulative_buy(date(1967, 3, 24))
+    10.0
     >>> clan.balance(date(1967, 3, 24))
     38.0
+    >>> clan.cumulative_sell(date(1967, 3, 24))
+    2.0
 
 I'll give you anything, everything if you want things.
 
     >>> len(piper_belongings.assets.fetch(1000)) == 2
     True
+    >>> piper_belongings.cumulative_buy(date(1967, 3, 24))
+    110.0
+    >>> piper_belongings.cumulative_sell(date(1967, 3, 24))
+    2.0
 
