@@ -1,3 +1,5 @@
 key,portfolio,asset_model,name,identity,long_identity
 1001,1001,1001,Joe Home,"2350 Sweet Home Road, Amherst, NY, United States",
 1002,1002,1001,Jane Home,"113 Jane Street, New York, NY, United States",
+1003,1001,1002,Joe Car,25991,
+1004,1002,1002,Jane Car,21082,

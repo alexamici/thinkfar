@@ -32,7 +32,15 @@
             </td>
             <td tal:content="asset.balance(date)">100</td>
             <td tal:content="asset.cumulative_buy(date)">$10.</td>
-            <td tal:content="asset.cumulative_sell(date)">$10.</td>
+            <td tal:content="asset.cumulative_sell(date)">$12.</td>
+            <td tal:content="asset.cumulative_sell(date)-asset.cumulative_buy(date)">$2.</td>
+          </tr>
+          <tr>
+            <td>Total</td>
+            <td></td>
+            <td tal:content="portfolio.cumulative_buy(date)">$10.</td>
+            <td tal:content="portfolio.cumulative_sell(date)">$12.</td>
+            <td tal:content="portfolio.cumulative_sell(date)-portfolio.cumulative_buy(date)">$2.</td>
           </tr>
         </table>
       </div>

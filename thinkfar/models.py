@@ -18,6 +18,16 @@ class Portfolio(Model):
     owner = UserProperty(required=True)
     name = StringProperty(required=True, default=u'Default Portfolio')
 
+    def cumulative_buy(self, date):
+        trades = Trade.all().filter('asset IN', list(self.assets)).filter('date <=', date).fetch(1000)
+        # return float 0. if no trades for the sake of consistency
+        return 1. * sum(t.price for t in trades if t.ammount > 0.)
+
+    def cumulative_sell(self, date):
+        trades = Trade.all().filter('asset IN', list(self.assets)).filter('date <=', date).fetch(1000)
+        # return float 0. if no trades for the sake of consistency
+        return 1. * sum(t.price for t in trades if t.ammount < 0.)
+
     def absolute_url(self):
         return '/portfolio/%d' % self.key().id()
 
