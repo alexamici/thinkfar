@@ -6,11 +6,12 @@
   <div metal:fill-slot="content">
     <div id="content">
       <div class="post">
-        <h1 class="title">think beyond the end of your nose</h1>
-        <h2 tal:condition="portfolios">User Portfolios</h2>
+        <h1 class="title">${title}</h1>
+        <h3 tal:condition="portfolios">${user.nickname()} portfolios:</h3>
         <ul>
           <li tal:repeat="portfolio portfolios">
-            <a href="${request.application_url}/portfolio/${portfolio.id}">${portfolio.name}</a>
+            <a href="${request.application_url}/portfolio/${portfolio.id}"
+              title="${portfolio.description}">${portfolio.name}</a>
           </li>
         </ul>
       </div>

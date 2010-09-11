@@ -6,25 +6,38 @@
   <div metal:fill-slot="content">
     <div id="content">
       <div class="post">
-        <h1 class="title">think beyond the end of your nose</h1>
-        <h2 tal:content="'Portfolio: %s at %s' % (portfolio.name, date.isoformat())">Portfolio</h2>
+        <h1 class="title">${title}</h1>
+        <h3>portfolio at ${date.isoformat()}</h3>
         <table>
-          <tr tal:repeat="asset portfolio.assets">
-            <td>
-              <a href="${request.application_url}/asset/${asset.id}" title="${asset.identity}">${asset.name}</a>
-            </td>
-            <td>${asset.balance(date)}</td>
-            <td>${asset.cumulative_buy(date)}</td>
-            <td>${asset.cumulative_sell(date)}</td>
-            <td>${asset.cumulative_sell(date)-asset.cumulative_buy(date)}</td>
-          </tr>
-          <tr>
-            <td>Total</td>
-            <td></td>
-            <td>${portfolio.cumulative_buy(date)}</td>
-            <td>${portfolio.cumulative_sell(date)}</td>
-            <td>${portfolio.cumulative_sell(date)-portfolio.cumulative_buy(date)}</td>
-          </tr>
+          <thead>
+            <tr>
+              <th>Asset name</th>
+              <th>Amount</th>
+              <th>Cum. buy</th>
+              <th>Cum. sell</th>
+              <th>Cum. balance</th>
+            </tr>
+          </thead>
+          <tbody align="right">
+            <tr tal:repeat="asset portfolio.assets">
+              <td>
+                <a href="${request.application_url}/asset/${asset.id}" title="${asset.identity}">${asset.name}</a>
+              </td>
+              <td>${asset.balance(date)}</td>
+              <td>${asset.cumulative_buy(date)}</td>
+              <td>${asset.cumulative_sell(date)}</td>
+              <td>${asset.cumulative_sell(date)-asset.cumulative_buy(date)}</td>
+            </tr>
+          </tbody>
+          <tfoot align="right">
+            <tr>
+              <td>Total</td>
+              <td></td>
+              <td>${portfolio.cumulative_buy(date)}</td>
+              <td>${portfolio.cumulative_sell(date)}</td>
+              <td>${portfolio.cumulative_sell(date)-portfolio.cumulative_buy(date)}</td>
+            </tr>
+          </tfoot>
         </table>
       </div>
     </div>

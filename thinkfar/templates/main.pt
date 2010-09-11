@@ -5,17 +5,18 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="content-type" content="text/html; charset=utf-8" />
-<title>${context.title}</title>
+<title>${title} - thinkfar</title>
 <link href="${request.application_url}/static/default.css" rel="stylesheet" type="text/css" />
 </head>
 <body>
 <div id="logo">
-  <h2>${context.title}</h2>
+  <h1>thinkfar</h1>
+  <h2>think beyond the end of your nose</h2>
 </div>
 <div id="header">
   <div id="menu">
     <ul>
-      <li><a class="current_page_item" href="${request.application_url}">Home</a></li>
+      <li><a href="${request.application_url}">Home</a></li>
       <li><a href="${loggedin_url}">${loggedin_label}</a></li>
     </ul>
   </div>

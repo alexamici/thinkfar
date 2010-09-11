@@ -21,10 +21,10 @@ def common_namespace(request):
         'user': user, 'main': main}
     return namespace
 
-def root_view(request):
+def root_view(context, request):
     namespace = common_namespace(request)
     portfolios = Portfolio.all().filter('owner =', namespace['user']).fetch(per_user_portfolio_limit)
-    namespace.update({'portfolios': portfolios})
+    namespace.update({'portfolios': portfolios, 'title': context.title})
     return namespace
 
 def portfolio_view(request):
@@ -34,7 +34,8 @@ def portfolio_view(request):
     if portfolio is None or portfolio.owner != get_current_user():
         return HTTPUnauthorized()
     today = date.today()
-    namespace.update({'project': 'thinkfar', 'portfolio': portfolio, 'date': today})
+    namespace.update({'context': portfolio, 'portfolio': portfolio, 'date': today, 
+        'title': '%s -> %s' % (portfolio.owner.nickname(), portfolio.name)})
     return namespace
 
 def asset_view(request):
@@ -44,5 +45,6 @@ def asset_view(request):
     if asset is None or asset.portfolio.owner != get_current_user():
         return HTTPUnauthorized()
     today = date.today()
-    namespace.update({'project': 'thinkfar', 'asset': asset, 'date': today})
+    namespace.update({'project': 'thinkfar', 'asset': asset, 'date': today, 
+        'title': '%s -> %s -> %s' % (asset.portfolio.owner.nickname(), asset.portfolio.name, asset.name)})
     return namespace

@@ -5,10 +5,9 @@
     metal:use-macro="main.macros['main']">
   <div metal:fill-slot="content">
     <div id="content">
-
       <div class="post">
-        <h1 class="title">think beyond the end of your nose</h1>
-        <h2>Asset: ${asset.name} at ${date.isoformat()}</h2>
+        <h1 class="title">${title}</h1>
+        <h3>asset at ${date.isoformat()}</h3>
         <table>
           <tr>
             <td>${asset.name}</td>
