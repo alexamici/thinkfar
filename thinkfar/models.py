@@ -6,7 +6,7 @@ from google.appengine.ext.db import UserProperty, ReferenceProperty, SelfReferen
 
 
 class Root(object):
-    pass
+    title = u'thinkfar'
 
 root = Root()
 
