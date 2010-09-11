@@ -69,8 +69,15 @@ class Asset(Model):
         # return float 0. if no trades for the sake of consistency
         return 1. * sum(t.ammount for t in trades)
 
-    def unit_value(self):
-        return '$10.'
+    def cumulative_buy(self, date):
+        trades = Trade.all().filter('asset =', self.key()).filter('date <=', date).fetch(1000)
+        # return float 0. if no trades for the sake of consistency
+        return 1. * sum(t.price for t in trades if t.ammount > 0.)
+
+    def cumulative_sell(self, date):
+        trades = Trade.all().filter('asset =', self.key()).filter('date <=', date).fetch(1000)
+        # return float 0. if no trades for the sake of consistency
+        return 1. * sum(t.price for t in trades if t.ammount < 0.)
 
     def __repr__(self):
         if self.has_identity:

@@ -31,7 +31,8 @@
                 tal:content="asset.name">Asset</a>
             </td>
             <td tal:content="asset.balance(date)">100</td>
-            <td tal:content="asset.unit_value()">$10.</td>
+            <td tal:content="asset.cumulative_buy(date)">$10.</td>
+            <td tal:content="asset.cumulative_sell(date)">$10.</td>
           </tr>
         </table>
       </div>
