@@ -13,8 +13,8 @@
 <div id="header">
   <div id="menu">
     <ul>
-      <li><a class="current_page_item" href="/">Home</a></li>
-      <li><a tal:attributes="href login_logout_url" tal:content="login_logout_label">Log in</a></li>
+      <li><a class="current_page_item" href="${request.application_url}">Home</a></li>
+      <li><a href="${login_logout_url}">${login_logout_label}</a></li>
     </ul>
   </div>
 </div>
