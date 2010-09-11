@@ -27,8 +27,7 @@
         <table>
           <tr tal:repeat="asset portfolio.assets">
             <td>
-              <a tal:attributes="href asset.absolute_url(); title asset.identity"
-                tal:content="asset.name">Asset</a>
+              <a href="${request.application_url}/asset/${asset.id}" title="${asset.identity}">${asset.name}</a>
             </td>
             <td tal:content="asset.balance(date)">100</td>
             <td tal:content="asset.cumulative_buy(date)">$10.</td>

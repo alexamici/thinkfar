@@ -26,7 +26,7 @@
         <h2 tal:condition="portfolios">User Portfolios</h2>
         <ul>
           <li tal:repeat="portfolio portfolios">
-            <a tal:attributes="href portfolio.absolute_url()" tal:content="portfolio.name">Portfolio</a>
+            <a href="${request.application_url}/portfolio/${portfolio.id}">${portfolio.name}</a>
           </li>
         </ul>
       </div>
