@@ -4,8 +4,8 @@
 
   <view
      context=".models.Root"
-     view=".views.home"
-     renderer="templates/home.pt"
+     view=".views.root_view"
+     renderer="templates/root_view.pt"
      />
 
   <static
@@ -16,8 +16,15 @@
   <route
      name="portfolio"
      path="/portfolio/:id"
-     view=".views.portfolio"
-     view_renderer="templates/portfolio.pt"
+     view=".views.portfolio_view"
+     view_renderer="templates/portfolio_view.pt"
+     />
+
+  <route
+     name="asset"
+     path="/asset/:id"
+     view=".views.asset_view"
+     view_renderer="templates/asset_view.pt"
      />
 
 </configure>

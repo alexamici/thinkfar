@@ -1,0 +1,48 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:tal="http://xml.zope.org/namespaces/tal">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title>${project}</title>
+<link href="${request.application_url}/static/default.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="logo">
+  <h2>${project}</h2>
+</div>
+<div id="header">
+  <div id="menu">
+    <ul>
+      <li><a href="/">Home</a></li>
+      <li><a tal:attributes="href login_logout_url" tal:content="login_logout_label">Log in</a></li>
+    </ul>
+  </div>
+</div>
+<div id="wrapper">
+  <div id="page">
+    <div id="content">
+      <div class="post">
+        <h1 class="title">think beyond the end of your nose</h1>
+        <h2 tal:content="'Asset: %s at %s' % (asset.name, date.isoformat())">Asset</h2>
+        <table>
+          <tr>
+            <td>
+              <a tal:attributes="href asset.absolute_url(); title asset.identity"
+                tal:content="asset.name">Asset</a>
+            </td>
+            <td tal:content="asset.balance(date)">100</td>
+            <td tal:content="asset.cumulative_buy(date)">$10.</td>
+            <td tal:content="asset.cumulative_sell(date)">$12.</td>
+            <td tal:content="asset.cumulative_sell(date)-asset.cumulative_buy(date)">$2.</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+    <div style="clear: both;">&nbsp;</div>
+  </div>
+</div>
+<div id="footer">
+  <p id="legal">Copyright (c) 2010 Alessandro Amici. All Rights Reserved.</p>
+</div>
+</body>
+</html>
