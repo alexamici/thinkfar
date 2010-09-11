@@ -108,6 +108,10 @@ class Trade(Model):
     price = FloatProperty(required=True)
     cost = FloatProperty(default=0.)
 
+    @property
+    def id(self):
+        return self.key().id()
+
 class EstimatedValue(Model):
     """Estimated value including ask/bid spread"""
     estimated_value_date = DateProperty()

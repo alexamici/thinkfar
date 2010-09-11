@@ -26,14 +26,20 @@
         <h2>Asset: ${asset.name} at ${date.isoformat()}</h2>
         <table>
           <tr>
-            <td>
-              <a href="${request.application_url}/asset/${asset.id}" title="${asset.identity}">${asset.name}</a>
-            </td>
+            <td>${asset.name}</td>
             <td>${asset.balance(date)}</td>
             <td>${asset.cumulative_buy(date)}</td>
             <td>${asset.cumulative_sell(date)}</td>
             <td>${asset.cumulative_sell(date)-asset.cumulative_buy(date)}</td>
           </tr>
+          <tr tal:repeat="trade asset.trades">
+            <td>
+              <a href="${request.application_url}/trades/${trade.id}">${trade.date}</a>
+            </td>
+            <td>${trade.ammount}</td>
+            <td>${trade.price}</td>
+            <td>${trade.cost}</td>
+         </tr>
         </table>
       </div>
     </div>
