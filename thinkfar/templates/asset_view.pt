@@ -23,7 +23,7 @@
               <td>
                 <a href="${request.application_url}/trade/${trade.id}">${trade.date}</a>
               </td>
-              <td>${trade.ammount}</td>
+              <td>${trade.amount}</td>
               <td>${trade.price}</td>
               <td>${trade.cost}</td>
               <td>${asset.balance(trade.date)}</td>

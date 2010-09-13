@@ -26,12 +26,12 @@ class Portfolio(Model):
     def cumulative_buy(self, date):
         trades = Trade.all().filter('asset IN', list(self.assets)).filter('date <=', date).fetch(1000)
         # return float 0. if no trades for the sake of consistency
-        return 1. * sum(t.price for t in trades if t.ammount > 0.)
+        return 1. * sum(t.price for t in trades if t.amount > 0.)
 
     def cumulative_sell(self, date):
         trades = Trade.all().filter('asset IN', list(self.assets)).filter('date <=', date).fetch(1000)
         # return float 0. if no trades for the sake of consistency
-        return 1. * sum(t.price for t in trades if t.ammount < 0.)
+        return 1. * sum(t.price for t in trades if t.amount < 0.)
 
     def cumulative_cost(self, date):
         trades = Trade.all().filter('asset IN', list(self.assets)).filter('date <=', date).fetch(1000)
@@ -80,11 +80,11 @@ class Asset(Model):
     def has_identity(self):
         return self.identity is not None
 
-    def buy(self, ammount=1., **keys):
-        self.trade(ammount=ammount, **keys)
+    def buy(self, amount=1., **keys):
+        self.trade(amount=amount, **keys)
 
-    def sell(self, ammount=1., price=0., **keys):
-        self.trade(ammount=-ammount, price=price, **keys)
+    def sell(self, amount=1., price=0., **keys):
+        self.trade(amount=-amount, price=price, **keys)
 
     def trade(self, **keys):
         trade = Trade(asset=self, **keys)
@@ -93,12 +93,12 @@ class Asset(Model):
     def balance(self, date):
         trades = Trade.all().filter('asset =', self.key()).filter('date <=', date).fetch(1000)
         # return float 0. if no trades for the sake of consistency
-        return 1. * sum(t.ammount for t in trades)
+        return 1. * sum(t.amount for t in trades)
 
     def cumulative_buy(self, date):
         trades = Trade.all().filter('asset =', self.key()).filter('date <=', date).fetch(1000)
         # return float 0. if no trades for the sake of consistency
-        return 1. * sum(t.price for t in trades if t.ammount > 0.)
+        return 1. * sum(t.price for t in trades if t.amount > 0.)
 
     def cumulative_cost(self, date):
         trades = Trade.all().filter('asset =', self.key()).filter('date <=', date).fetch(1000)
@@ -108,7 +108,7 @@ class Asset(Model):
     def cumulative_sell(self, date):
         trades = Trade.all().filter('asset =', self.key()).filter('date <=', date).fetch(1000)
         # return float 0. if no trades for the sake of consistency
-        return 1. * sum(t.price for t in trades if t.ammount < 0.)
+        return 1. * sum(t.price for t in trades if t.amount < 0.)
 
     def estimated_bid(self, date):
         return 100.0
@@ -128,7 +128,7 @@ class Asset(Model):
 class Trade(Model):
     """Asset trade"""
     asset = ReferenceProperty(Asset, required=True, collection_name='trades')
-    ammount = FloatProperty(required=True)
+    amount = FloatProperty(required=True)
     date = DateProperty(required=True)
     price = FloatProperty(required=True)
     cost = FloatProperty(default=0.)
