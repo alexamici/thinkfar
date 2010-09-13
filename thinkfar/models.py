@@ -31,12 +31,12 @@ class Portfolio(Model):
     def cumulative_sell(self, date):
         trades = Trade.all().filter('asset IN', list(self.assets)).filter('date <=', date).fetch(1000)
         # return float 0. if no trades for the sake of consistency
-        return 1. * sum(t.price for t in trades if t.amount < 0.)
+        return 1. * sum(t.value for t in trades if t.amount < 0.)
 
-    def cumulative_cost(self, date):
+    def cumulative_spread(self, date):
         trades = Trade.all().filter('asset IN', list(self.assets)).filter('date <=', date).fetch(1000)
         # return float 0. if no trades for the sake of consistency
-        return 1. * sum(t.cost for t in trades)
+        return 1. * sum(t.price - t.value for t in trades)
 
     def estimated_bid(self, date):
         assets = Asset.all().filter('portfolio =', self).fetch(1000)
@@ -86,8 +86,10 @@ class Asset(Model):
     def sell(self, amount=1., price=0., **keys):
         self.trade(amount=-amount, price=price, **keys)
 
-    def trade(self, **keys):
+    def trade(self, taxes=0., commissions=0., **keys):
         trade = Trade(asset=self, **keys)
+        if 'value' not in keys:
+            trade.set_value_from_price(taxes=taxes, commissions=commissions)
         trade.put()
 
     def balance(self, date):
@@ -100,15 +102,15 @@ class Asset(Model):
         # return float 0. if no trades for the sake of consistency
         return 1. * sum(t.price for t in trades if t.amount > 0.)
 
-    def cumulative_cost(self, date):
+    def cumulative_spread(self, date):
         trades = Trade.all().filter('asset =', self.key()).filter('date <=', date).fetch(1000)
         # return float 0. if no trades for the sake of consistency
-        return 1. * sum(t.cost for t in trades)
+        return 1. * sum(t.price - t.value for t in trades)
 
     def cumulative_sell(self, date):
         trades = Trade.all().filter('asset =', self.key()).filter('date <=', date).fetch(1000)
         # return float 0. if no trades for the sake of consistency
-        return 1. * sum(t.price for t in trades if t.amount < 0.)
+        return 1. * sum(t.value for t in trades if t.amount < 0.)
 
     def estimated_bid(self, date):
         return 100.0
@@ -131,11 +133,14 @@ class Trade(Model):
     amount = FloatProperty(required=True)
     date = DateProperty(required=True)
     price = FloatProperty(required=True)
-    cost = FloatProperty(default=0.)
+    value = FloatProperty(default=0.)
 
     @property
     def id(self):
         return self.key().id()
+
+    def set_value_from_price(self, taxes=0., commissions=0.):
+        self.value = self.price - taxes - commissions
 
 class EstimatedValue(Model):
     """Estimated value including ask/bid spread"""

@@ -17,7 +17,7 @@
               <th>E. Ask</th>
               <th>Cum. buy</th>
               <th>Cum. sell</th>
-              <th>Cum. cost</th>
+              <th>Cum. spread</th>
               <th>Cum. balance</th>
             </tr>
           </thead>
@@ -31,7 +31,7 @@
               <td>${asset.estimated_ask(date)}</td>
               <td>${asset.cumulative_buy(date)}</td>
               <td>${asset.cumulative_sell(date)}</td>
-              <td>${asset.cumulative_cost(date)}</td>
+              <td>${asset.cumulative_spread(date)}</td>
               <td>${asset.cumulative_sell(date)-asset.cumulative_buy(date)}</td>
             </tr>
           </tbody>
@@ -43,7 +43,7 @@
               <td>${portfolio.estimated_ask(date)}</td>
               <td>${portfolio.cumulative_buy(date)}</td>
               <td>${portfolio.cumulative_sell(date)}</td>
-              <td>${portfolio.cumulative_cost(date)}</td>
+              <td>${portfolio.cumulative_spread(date)}</td>
               <td>${portfolio.cumulative_sell(date)-portfolio.cumulative_buy(date)}</td>
             </tr>
           </tfoot>

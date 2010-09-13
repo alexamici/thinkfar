@@ -14,7 +14,8 @@
               <th>Trade date</th>
               <th>Amount</th>
               <th>Price</th>
-              <th>Cost</th>
+              <th>Value</th>
+              <th>Spread</th>
               <th>Balance</th>
             </tr>
           </thead>
@@ -25,7 +26,8 @@
               </td>
               <td>${trade.amount}</td>
               <td>${trade.price}</td>
-              <td>${trade.cost}</td>
+              <td>${trade.value}</td>
+              <td>${trade.price-trade.value}</td>
               <td>${asset.balance(trade.date)}</td>
             </tr>
           </tbody>
@@ -34,7 +36,7 @@
               <td>Total</td>
               <td></td>
               <td>${asset.cumulative_sell(date)-asset.cumulative_buy(date)}</td>
-              <td>${asset.cumulative_cost(date)}</td>
+              <td>${asset.cumulative_spread(date)}</td>
               <td>${asset.balance(date)}</td>
             </tr>
           </tfoot>
