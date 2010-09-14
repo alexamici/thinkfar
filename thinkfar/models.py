@@ -118,7 +118,7 @@ class Asset(Model):
         return 100.0
 
     def estimated_ask(self, date):
-        return 100.0
+        return 110.0
 
     def __repr__(self):
         if self.has_identity:
