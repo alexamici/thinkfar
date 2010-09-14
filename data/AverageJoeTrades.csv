@@ -1,4 +1,4 @@
-key,asset,amount,date,price,value
+key,asset,amount,date,buyer_price,seller_value
 1001,1001,1.0,2001-01-20,250000,200000
 1002,1002,1.0,2005-06-12,200000,180000
 1003,1003,1.0,2008-02-21,25000,20000

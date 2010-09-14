@@ -13,8 +13,8 @@
             <tr>
               <th>Trade date</th>
               <th>Amount</th>
-              <th>Price</th>
-              <th>Value</th>
+              <th>Buyer Price</th>
+              <th>Seller Value</th>
               <th>Spread</th>
               <th>Balance</th>
             </tr>
@@ -25,9 +25,9 @@
                 <a href="${request.application_url}/trade/${trade.id}">${trade.date}</a>
               </td>
               <td>${trade.amount}</td>
-              <td>${trade.price}</td>
-              <td>${trade.value}</td>
-              <td>${trade.price-trade.value}</td>
+              <td>${trade.buyer_price}</td>
+              <td>${trade.seller_value}</td>
+              <td>${trade.buyer_price-trade.seller_value}</td>
               <td>${asset.balance(trade.date)}</td>
             </tr>
           </tbody>

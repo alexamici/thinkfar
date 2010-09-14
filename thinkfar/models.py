@@ -1,4 +1,4 @@
-
+# 'Price is what you pay. Value is what you get.' Warren Buffett, 2008.
 
 from google.appengine.ext.db import Model, FloatProperty, StringProperty, BooleanProperty
 from google.appengine.ext.db import TextProperty, DateProperty
@@ -26,17 +26,17 @@ class Portfolio(Model):
     def cumulative_buy(self, date):
         trades = Trade.all().filter('asset IN', list(self.assets)).filter('date <=', date).fetch(1000)
         # return float 0. if no trades for the sake of consistency
-        return 1. * sum(t.price for t in trades if t.amount > 0.)
+        return 1. * sum(t.buyer_price for t in trades if t.amount > 0.)
 
     def cumulative_sell(self, date):
         trades = Trade.all().filter('asset IN', list(self.assets)).filter('date <=', date).fetch(1000)
         # return float 0. if no trades for the sake of consistency
-        return 1. * sum(t.value for t in trades if t.amount < 0.)
+        return 1. * sum(t.seller_value for t in trades if t.amount < 0.)
 
     def cumulative_spread(self, date):
         trades = Trade.all().filter('asset IN', list(self.assets)).filter('date <=', date).fetch(1000)
         # return float 0. if no trades for the sake of consistency
-        return 1. * sum(t.price - t.value for t in trades)
+        return 1. * sum(t.buyer_price - t.seller_value for t in trades)
 
     def estimated_bid(self, date):
         assets = Asset.all().filter('portfolio =', self).fetch(1000)
@@ -80,11 +80,13 @@ class Asset(Model):
     def has_identity(self):
         return self.identity is not None
 
-    def buy(self, amount=1., **keys):
-        self.trade(amount=amount, **keys)
+    def buy(self, amount=1., price=None, **keys):
+        self.trade(amount=amount, buyer_price=price, **keys)
 
+    # FIXME: on a sell you may not care about the buyer total price
+    #   price should really be value
     def sell(self, amount=1., price=0., **keys):
-        self.trade(amount=-amount, price=price, **keys)
+        self.trade(amount=-amount, buyer_price=price, **keys)
 
     def trade(self, taxes=0., commissions=0., **keys):
         trade = Trade(asset=self, **keys)
@@ -100,17 +102,17 @@ class Asset(Model):
     def cumulative_buy(self, date):
         trades = Trade.all().filter('asset =', self.key()).filter('date <=', date).fetch(1000)
         # return float 0. if no trades for the sake of consistency
-        return 1. * sum(t.price for t in trades if t.amount > 0.)
+        return 1. * sum(t.buyer_price for t in trades if t.amount > 0.)
 
     def cumulative_spread(self, date):
         trades = Trade.all().filter('asset =', self.key()).filter('date <=', date).fetch(1000)
         # return float 0. if no trades for the sake of consistency
-        return 1. * sum(t.price - t.value for t in trades)
+        return 1. * sum(t.buyer_price - t.seller_value for t in trades)
 
     def cumulative_sell(self, date):
         trades = Trade.all().filter('asset =', self.key()).filter('date <=', date).fetch(1000)
         # return float 0. if no trades for the sake of consistency
-        return 1. * sum(t.value for t in trades if t.amount < 0.)
+        return 1. * sum(t.seller_value for t in trades if t.amount < 0.)
 
     def estimated_bid(self, date):
         return 100.0
@@ -128,19 +130,24 @@ class Asset(Model):
                 self.portfolio.name, self.portfolio.owner.nickname())
 
 class Trade(Model):
-    """Asset trade"""
+    """A representation of a financial/commercial trade that includes the spread
+    between buyer_price and seller_value due to taxes, fees, etc.
+
+    The basic idea is to separate total price paid by the seller in the
+    transaction from what the seller actually receives."""
+
     asset = ReferenceProperty(Asset, required=True, collection_name='trades')
     amount = FloatProperty(required=True)
     date = DateProperty(required=True)
-    price = FloatProperty(required=True)
-    value = FloatProperty(default=0.)
+    buyer_price = FloatProperty(required=True)
+    seller_value = FloatProperty(default=0.)
 
     @property
     def id(self):
         return self.key().id()
 
     def set_value_from_price(self, taxes=0., commissions=0.):
-        self.value = self.price - taxes - commissions
+        self.seller_value = self.buyer_price - taxes - commissions
 
 class EstimatedValue(Model):
     """Estimated value including ask/bid spread"""
