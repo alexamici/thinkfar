@@ -83,15 +83,15 @@ class Asset(Model):
     def buy(self, amount=1., price=None, **keys):
         self.trade(amount=amount, buyer_price=price, **keys)
 
-    # FIXME: on a sell you may not care about the buyer total price
-    #   price should really be value
-    def sell(self, amount=1., price=0., **keys):
-        self.trade(amount=-amount, buyer_price=price, **keys)
+    def sell(self, amount=1., value=0., **keys):
+        self.trade(amount=-amount, seller_value=value, **keys)
 
-    def trade(self, taxes=0., commissions=0., **keys):
-        trade = Trade(asset=self, **keys)
-        if 'value' not in keys:
-            trade.set_value_from_price(taxes=taxes, commissions=commissions)
+    def trade(self, buyer_price=None, seller_value=None, taxes=0., fees=0., **keys):
+        if buyer_price is None and seller_value is not None:
+            buyer_price = seller_value + taxes + fees
+        elif seller_value is None and buyer_price is not None:
+            seller_value = buyer_price - taxes - fees
+        trade = Trade(asset=self, buyer_price=buyer_price, seller_value=seller_value, **keys)
         trade.put()
 
     def balance(self, date):
@@ -145,9 +145,6 @@ class Trade(Model):
     @property
     def id(self):
         return self.key().id()
-
-    def set_value_from_price(self, taxes=0., commissions=0.):
-        self.seller_value = self.buyer_price - taxes - commissions
 
 class EstimatedValue(Model):
     """Estimated value including ask/bid spread"""

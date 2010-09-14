@@ -50,7 +50,7 @@ I've got a clan of gingerbread men. Here a man, there a man, lots of gingerbread
 
 Take a couple if you wish. They're on the dish.
 
-    >>> clan.sell(2., date=date(1967, 3, 24), price=2.)
+    >>> clan.sell(2., date=date(1967, 3, 24), value=2.)
     >>> clan.balance(date(1967, 3, 23))
     40.0
     >>> clan.cumulative_buy(date(1967, 3, 24))
