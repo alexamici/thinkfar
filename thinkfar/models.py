@@ -146,12 +146,6 @@ class Trade(Model):
     def id(self):
         return self.key().id()
 
-class EstimatedValue(Model):
-    """Estimated value including ask/bid spread"""
-    estimated_value_date = DateProperty()
-    estimated_value_ask = FloatProperty()
-    estimated_value_bid = FloatProperty()
-
 class Liability(Model):
     owner = UserProperty()
     name = StringProperty(required=True)
