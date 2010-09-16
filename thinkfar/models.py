@@ -136,8 +136,8 @@ class Trade(Model):
     transaction from what the seller actually receives."""
 
     asset = ReferenceProperty(Asset, required=True, collection_name='trades')
-    amount = FloatProperty(required=True)
     date = DateProperty(required=True)
+    amount = FloatProperty(required=True)
     buyer_price = FloatProperty(required=True)
     seller_value = FloatProperty(default=0.)
     description = TextProperty()
@@ -148,12 +148,12 @@ class Trade(Model):
 
 class YearlyIncomeExpenses(Model):
     """"""
+    asset = ReferenceProperty(Asset, required=True, collection_name='yearly_income_expenses')
     name = StringProperty(required=True)
     end_date = DateProperty()
     yearly_income_expense = FloatProperty()
     is_estimated = BooleanProperty(default=False)
     description = TextProperty()
-    asset = ReferenceProperty(Asset, required=True, collection_name='yearly_income_expenses')
 
 class Liability(Model):
     owner = UserProperty()
