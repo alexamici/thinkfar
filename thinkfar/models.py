@@ -17,7 +17,7 @@ def get_root(request):
 class Portfolio(Model):
     owner = UserProperty(required=True)
     name = StringProperty(required=True, default=u'Default Portfolio')
-    description = StringProperty()
+    description = TextProperty()
 
     @property
     def id(self):
@@ -57,12 +57,11 @@ class Account(Model):
 
 class AssetModel(Model):
     name = StringProperty(required=True)
-    description = StringProperty()
-    long_description = TextProperty()
+    description = TextProperty()
 
     def __repr__(self):
-        return u'<%s object name=%r description=%r>' % \
-            (self.__class__.__name__, self.name, self.description)
+        return u'<%s object name=%r>' % \
+            (self.__class__.__name__, self.name)
 
 class Asset(Model):
     """Base asset class"""
@@ -141,6 +140,7 @@ class Trade(Model):
     date = DateProperty(required=True)
     buyer_price = FloatProperty(required=True)
     seller_value = FloatProperty(default=0.)
+    description = TextProperty()
 
     @property
     def id(self):
