@@ -146,6 +146,15 @@ class Trade(Model):
     def id(self):
         return self.key().id()
 
+class YearlyIncomeExpenses(Model):
+    """"""
+    name = StringProperty(required=True)
+    end_date = DateProperty()
+    yearly_income_expense = FloatProperty()
+    is_estimated = BooleanProperty(default=False)
+    description = TextProperty()
+    asset = ReferenceProperty(Asset, required=True, collection_name='yearly_income_expenses')
+
 class Liability(Model):
     owner = UserProperty()
     name = StringProperty(required=True)
