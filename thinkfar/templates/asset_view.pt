@@ -7,7 +7,7 @@
     <div id="content">
       <div class="post">
         <h1 class="title">${title}</h1>
-        <h3>asset at ${date.isoformat()}</h3>
+        <h3>asset trade history as of ${date.isoformat()}</h3>
         <table>
           <thead>
             <tr>
@@ -35,9 +35,45 @@
             <tr>
               <td>Total</td>
               <td></td>
-              <td>${asset.cumulative_sell(date)-asset.cumulative_buy(date)}</td>
+              <td></td>
+              <td></td>
               <td>${asset.cumulative_spread(date)}</td>
               <td>${asset.balance(date)}</td>
+            </tr>
+          </tfoot>
+        </table>
+        <h3>asset income/expenses history as of ${date.isoformat()}</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Start date</th>
+              <th>End date</th>
+              <th>Income/Expenses</th>
+              <th>Is estimated?</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody align="right">
+            <tr tal:repeat="income_expenses asset.yearly_income_expenses">
+              <td>
+                <a href="${request.application_url}/income_expenses/${income_expenses.id}">${income_expenses.name}</a>
+              </td>
+              <td>${income_expenses.start_date()}</td>
+              <td>${income_expenses.end_date}</td>
+              <td>${income_expenses.yearly_income_expenses}</td>
+              <td>${income_expenses.is_estimated}</td>
+              <td>${income_expenses.description}</td>
+            </tr>
+          </tbody>
+          <tfoot align="right">
+            <tr>
+              <td>Total</td>
+              <td></td>
+              <td></td>
+              <td>${asset.estimated_yearly_income_expenses(date)}</td>
+              <td></td>
+              <td></td>
             </tr>
           </tfoot>
         </table>

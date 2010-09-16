@@ -19,6 +19,7 @@
               <th>Cum. sell</th>
               <th>Cum. spread</th>
               <th>Cum. balance</th>
+              <th>Income/expenses</th>
             </tr>
           </thead>
           <tbody align="right">
@@ -33,6 +34,7 @@
               <td>${asset.cumulative_sell(date)}</td>
               <td>${asset.cumulative_spread(date)}</td>
               <td>${asset.cumulative_sell(date)-asset.cumulative_buy(date)}</td>
+              <td>${asset.estimated_yearly_income_expenses(date)}</td>
             </tr>
           </tbody>
           <tfoot align="right">
@@ -45,6 +47,7 @@
               <td>${portfolio.cumulative_sell(date)}</td>
               <td>${portfolio.cumulative_spread(date)}</td>
               <td>${portfolio.cumulative_sell(date)-portfolio.cumulative_buy(date)}</td>
+              <td>${portfolio.estimated_yearly_income_expenses(date)}</td>
             </tr>
           </tfoot>
         </table>

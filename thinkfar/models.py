@@ -46,6 +46,9 @@ class Portfolio(Model):
         assets = Asset.all().filter('portfolio =', self).fetch(1000)
         return 1. * sum(a.estimated_ask(date) for a in assets)
 
+    def estimated_yearly_income_expenses(self, date):
+        return sum(a.estimated_yearly_income_expenses(date) for a in self.assets)
+
     def __repr__(self):
         return u'<%s object name=%r owner=%r>' % \
             (self.__class__.__name__, self.name, self.owner.nickname())
@@ -119,6 +122,9 @@ class Asset(Model):
     def estimated_ask(self, date):
         return 110.0
 
+    def estimated_yearly_income_expenses(self, date):
+        return sum(r.yearly_income_expenses for r in self.yearly_income_expenses if r.end_date is None or r.end_date > date)
+
     def __repr__(self):
         if self.has_identity:
             identification = u'identity=%r' % self.identity
@@ -151,9 +157,17 @@ class YearlyIncomeExpenses(Model):
     asset = ReferenceProperty(Asset, required=True, collection_name='yearly_income_expenses')
     name = StringProperty(required=True)
     end_date = DateProperty()
-    yearly_income_expense = FloatProperty()
+    yearly_income_expenses = FloatProperty()
     is_estimated = BooleanProperty(default=False)
     description = TextProperty()
+
+    @property
+    def id(self):
+        return self.key().id()
+
+    def start_date(self):
+        return '1999-01-01'
+        
 
 class Liability(Model):
     owner = UserProperty()
