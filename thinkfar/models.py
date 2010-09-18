@@ -24,27 +24,25 @@ class Portfolio(Model):
         return self.key().id()
 
     def cumulative_buy(self, date):
-        trades = Trade.all().filter('asset IN', list(self.assets)).filter('date <=', date).fetch(1000)
+        trades = Trade.all().filter('asset IN', list(self.assets)).filter('date <=', date)
         # return float 0. if no trades for the sake of consistency
         return 1. * sum(t.buyer_price for t in trades if t.amount > 0.)
 
     def cumulative_sell(self, date):
-        trades = Trade.all().filter('asset IN', list(self.assets)).filter('date <=', date).fetch(1000)
+        trades = Trade.all().filter('asset IN', list(self.assets)).filter('date <=', date)
         # return float 0. if no trades for the sake of consistency
         return 1. * sum(t.seller_value for t in trades if t.amount < 0.)
 
     def cumulative_spread(self, date):
-        trades = Trade.all().filter('asset IN', list(self.assets)).filter('date <=', date).fetch(1000)
+        trades = Trade.all().filter('asset IN', list(self.assets)).filter('date <=', date)
         # return float 0. if no trades for the sake of consistency
         return 1. * sum(t.buyer_price - t.seller_value for t in trades)
 
     def estimated_bid(self, date):
-        assets = Asset.all().filter('portfolio =', self).fetch(1000)
-        return 1. * sum(a.estimated_bid(date) for a in assets)
+        return 1. * sum(a.estimated_bid(date) for a in self.assets)
 
     def estimated_ask(self, date):
-        assets = Asset.all().filter('portfolio =', self).fetch(1000)
-        return 1. * sum(a.estimated_ask(date) for a in assets)
+        return 1. * sum(a.estimated_ask(date) for a in self.assets)
 
     def estimated_yearly_income_expenses(self, date):
         return sum(a.estimated_yearly_income_expenses(date) for a in self.assets)
@@ -97,22 +95,22 @@ class Asset(Model):
         trade.put()
 
     def balance(self, date):
-        trades = Trade.all().filter('asset =', self.key()).filter('date <=', date).fetch(1000)
+        trades = self.trades.filter('date <=', date)
         # return float 0. if no trades for the sake of consistency
         return 1. * sum(t.amount for t in trades)
 
     def cumulative_buy(self, date):
-        trades = Trade.all().filter('asset =', self.key()).filter('date <=', date).fetch(1000)
+        trades = self.trades.filter('date <=', date)
         # return float 0. if no trades for the sake of consistency
         return 1. * sum(t.buyer_price for t in trades if t.amount > 0.)
 
     def cumulative_spread(self, date):
-        trades = Trade.all().filter('asset =', self.key()).filter('date <=', date).fetch(1000)
+        trades = self.trades.filter('date <=', date)
         # return float 0. if no trades for the sake of consistency
         return 1. * sum(t.buyer_price - t.seller_value for t in trades)
 
     def cumulative_sell(self, date):
-        trades = Trade.all().filter('asset =', self.key()).filter('date <=', date).fetch(1000)
+        trades = self.trades.filter('date <=', date)
         # return float 0. if no trades for the sake of consistency
         return 1. * sum(t.seller_value for t in trades if t.amount < 0.)
 
