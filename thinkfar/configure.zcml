@@ -26,5 +26,9 @@
      view=".views.asset_view"
      view_renderer="templates/asset_view.pt"
      />
-
+ 
+  <view
+     name="setup_test_portfolios"
+     view=".views.setup_test_portfolios"
+     />
 </configure>

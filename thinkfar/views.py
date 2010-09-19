@@ -4,8 +4,9 @@ from datetime import date
 from google.appengine.api.users import get_current_user, create_login_url, create_logout_url
 from repoze.bfg.chameleon_zpt import get_template
 from webob.exc import HTTPUnauthorized
+from webob import Response
 
-from .models import Portfolio, Asset
+from .models import Portfolio, Asset, AssetModel
 
 
 # global limits
@@ -48,3 +49,12 @@ def asset_view(request):
     namespace.update({'project': 'thinkfar', 'asset': asset, 'date': today, 
         'title': '%s -> %s -> %s' % (asset.portfolio.owner.nickname(), asset.portfolio.name, asset.name)})
     return namespace
+
+def setup_test_portfolios(request):
+    joe_p = Portfolio(name="Average Joe Portfolio", owner=get_current_user())
+    joe_p.put()
+    home = Asset(name='Joe Home',description="2350 Sweet Home Road, Amherst, NY, United States",
+        portfolio=joe_p, asset_model=AssetModel.get_by_id(1001))
+    home.put()
+    return Response()
+    
