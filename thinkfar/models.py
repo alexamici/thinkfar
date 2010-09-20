@@ -56,6 +56,25 @@ class Account(Model):
     description = TextProperty()
     parent_account = SelfReferenceProperty()
 
+class Transaction(Model):
+    date = DateProperty(required=True)
+
+    def is_balanced(self):
+        return sum(te.amount for te in self.transaction_entries) is 0.
+
+    def add_entries(self, entries):
+        balance = sum(te.amount for te in self.transaction_entries) + sum(e[1] for e in entries)
+        if balance is not 0.:
+            raise ValueError('Unbalanced transaction: %r' % balance)
+        for e in entries:
+            te = TransactionEntry(transaction=self, account=e[0], amount=e[1])
+            te.put()
+
+class TransactionEntry(Model):
+    transaction = ReferenceProperty(Transaction, 'transaction_entries')
+    account = ReferenceProperty(Account, 'transaction_entries')
+    amount = FloatProperty()
+
 class AssetModel(Model):
     name = StringProperty(required=True)
     description = TextProperty()

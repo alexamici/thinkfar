@@ -1,0 +1,13 @@
+key,name,description,parent_account
+1001,Assets,Assets,1001
+2001,Liabilities,Liabilities,2001
+3001,Capital,Capital,3001
+1100,Properties,Properties,1001
+1101,Real Estate,Real Estate,1100
+1102,Vehicles,Vehicles,1100
+1103,Gold,Gold,1100
+1104,Jewelry,Jewelry,1100
+1200,Credit,Credit,1001
+1201,Bank Account,Bank Account,1200
+1202,Gov. Bonds,Gov. Bonds,1200
+1203,Corporate Bonds,Corporate Bonds,1200
