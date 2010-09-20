@@ -3,3 +3,4 @@ key,name,description,long_description
 1002,Vehicle,A Vehicle with an identity,
 1003,Stocks,A financial instrument with a ticker on Yahoo!,
 1004,Job,A job/profession,
+1005,Currency,"A formal monetary asset (a dollar, an ounce of gold, etc)",

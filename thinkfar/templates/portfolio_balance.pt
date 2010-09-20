@@ -11,31 +11,22 @@
         <table>
           <thead>
             <tr>
-              <th>Asset name</th>
-              <th>Amount</th>
-              <th>E. Bid</th>
-              <th>E. Ask</th>
-              <th>Cum. balance</th>
+              <th>Account</th>
+              <th>Denomination</th>
+              <th>Balance</th>
             </tr>
           </thead>
-          <tbody align="right">
-            <tr tal:repeat="asset portfolio.assets">
-              <td>
-                <a href="${request.application_url}/asset/${asset.id}" title="${asset.identity}">${asset.name}</a>
-              </td>
-              <td>${asset.balance(date)}</td>
-              <td>${asset.estimated_bid(date)}</td>
-              <td>${asset.estimated_ask(date)}</td>
-              <td>${asset.cumulative_sell(date)-asset.cumulative_buy(date)}</td>
+          <tbody align="right" tal:define="none portfolio.setup_skel()">
+            <tr tal:repeat="account portfolio.accounts()">
+              <td>${account.definition.name}</td>
+              <td>${account.denomination.identity}</td>
+              <td>${account.balance(date)}</td>
             </tr>
           </tbody>
           <tfoot align="right">
             <tr>
               <td>Total</td>
               <td></td>
-              <td>${portfolio.estimated_bid(date)}</td>
-              <td>${portfolio.estimated_ask(date)}</td>
-              <td>${portfolio.cumulative_sell(date)-portfolio.cumulative_buy(date)}</td>
             </tr>
           </tfoot>
         </table>

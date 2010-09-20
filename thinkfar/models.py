@@ -23,6 +23,22 @@ class Portfolio(Model):
     def id(self):
         return self.key().id()
 
+    def setup_skel(self):
+        if list(self.assets):
+            return
+        eur = Asset(portfolio=self, asset_model=AssetModel.get_by_id(1005), name='Cash EUR', identity='EUR')
+        eur.put()
+        usd = Asset(portfolio=self, asset_model=AssetModel.get_by_id(1005), name='Cash USD', identity='USD')
+        usd.put()
+        gold = Asset(portfolio=self, asset_model=AssetModel.get_by_id(1005), name='Cash GOLD', identity='GOLD')
+        gold.put()
+        for definition in AccountDefinition.all():
+            account = Account(definition=definition, denomination=eur)
+            account.put()
+
+    def accounts(self):
+        return Account.all().filter('denomination IN', list(self.assets))
+
     def cumulative_buy(self, date):
         trades = Trade.all().filter('asset IN', list(self.assets)).filter('date <=', date)
         # return float 0. if no trades for the sake of consistency
@@ -50,30 +66,6 @@ class Portfolio(Model):
     def __repr__(self):
         return u'<%s object name=%r owner=%r>' % \
             (self.__class__.__name__, self.name, self.owner.nickname())
-
-class Account(Model):
-    name = StringProperty(required=True)
-    description = TextProperty()
-    parent_account = SelfReferenceProperty()
-
-class Transaction(Model):
-    date = DateProperty(required=True)
-
-    def is_balanced(self):
-        return sum(te.amount for te in self.transaction_entries) is 0.
-
-    def add_entries(self, entries):
-        balance = sum(te.amount for te in self.transaction_entries) + sum(e[1] for e in entries)
-        if balance is not 0.:
-            raise ValueError('Unbalanced transaction: %r' % balance)
-        for e in entries:
-            te = TransactionEntry(transaction=self, account=e[0], amount=e[1])
-            te.put()
-
-class TransactionEntry(Model):
-    transaction = ReferenceProperty(Transaction, 'transaction_entries')
-    account = ReferenceProperty(Account, 'transaction_entries')
-    amount = FloatProperty()
 
 class AssetModel(Model):
     name = StringProperty(required=True)
@@ -151,6 +143,45 @@ class Asset(Model):
             (self.__class__.__name__, self.name, identification,
                 self.portfolio.name, self.portfolio.owner.nickname())
 
+class AccountDefinition(Model):
+    name = StringProperty(required=True)
+    description = TextProperty()
+    parent_account = SelfReferenceProperty()
+
+    @property
+    def id(self):
+        return self.key().id()
+
+class Account(Model):
+    definition = ReferenceProperty(AccountDefinition, required=True, collection_name='accounts')
+    denomination = ReferenceProperty(Asset, required=True, collection_name='accounts')
+
+    def balance(self, date):
+        return sum(te.amount for te in self.transaction_entries if te.transaction.data <= date)
+
+class Transaction(Model):
+    date = DateProperty(required=True)
+    description = TextProperty()
+
+    def is_balanced(self):
+        return sum(te.amount for te in self.transaction_entries) is 0.
+
+    def add_entries(self, entries):
+        balance = sum(te.amount for te in self.transaction_entries) + sum(e[1] for e in entries)
+        if balance is not 0.:
+            raise ValueError('Unbalanced transaction: %r' % balance)
+        for e in entries:
+            te = TransactionEntry(transaction=self, account=e[0], amount=e[1])
+            te.put()
+
+class TransactionEntry(Model):
+    transaction = ReferenceProperty(Transaction, required=True, collection_name='transaction_entries')
+    account = ReferenceProperty(Account, required=True, collection_name='transaction_entries')
+    amount = FloatProperty(required=True)
+
+
+# OBSOLETE
+
 class Trade(Model):
     """A representation of a financial/commercial trade that includes the spread
     between buyer_price and seller_value due to taxes, fees, etc.
@@ -184,15 +215,4 @@ class YearlyIncomeExpenses(Model):
 
     def start_date(self):
         return '1999-01-01'
-        
 
-class Liability(Model):
-    owner = UserProperty()
-    name = StringProperty(required=True)
-    group_under = SelfReferenceProperty()
-    outstanding_debt = FloatProperty()
-    market_price = FloatProperty()
-
-    def __repr__(self):
-        return u'<%s object name="%s" owner="%s">' % \
-            (self.__class__.__name__, self.name, self.owner.nickname())

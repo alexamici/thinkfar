@@ -7,6 +7,7 @@ key,name,description,parent_account
 1102,Vehicles,Vehicles,1100
 1103,Gold,Gold,1100
 1104,Jewelry,Jewelry,1100
+1105,Cash,Cash,1100
 1200,Credit,Credit,1001
 1201,Bank Account,Bank Account,1200
 1202,Gov. Bonds,Gov. Bonds,1200
