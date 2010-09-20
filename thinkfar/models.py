@@ -53,8 +53,8 @@ class Portfolio(Model):
 
 class Account(Model):
     name = StringProperty(required=True)
-    group_under = SelfReferenceProperty()
-    order_number = FloatProperty()
+    description = TextProperty()
+    parent_account = SelfReferenceProperty()
 
 class AssetModel(Model):
     name = StringProperty(required=True)

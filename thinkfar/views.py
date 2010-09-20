@@ -28,7 +28,7 @@ def root_view(context, request):
     namespace.update({'portfolios': portfolios, 'title': context.title})
     return namespace
 
-def portfolio_view(request):
+def portfolio_default(request):
     namespace = common_namespace(request)
     id = int(request.matchdict['id'])
     portfolio = Portfolio.get_by_id(id)
@@ -38,6 +38,8 @@ def portfolio_view(request):
     namespace.update({'context': portfolio, 'portfolio': portfolio, 'date': today, 
         'title': '%s -> %s' % (portfolio.owner.nickname(), portfolio.name)})
     return namespace
+
+portfolio_balance = portfolio_income = portfolio_default
 
 def asset_view(request):
     namespace = common_namespace(request)

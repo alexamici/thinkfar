@@ -14,10 +14,24 @@
      />
 
   <route
-     name="portfolio"
+     name="portfolio_default"
      path="/portfolio/:id"
-     view=".views.portfolio_view"
-     view_renderer="templates/portfolio_view.pt"
+     view=".views.portfolio_default"
+     view_renderer="templates/portfolio_default.pt"
+     />
+
+  <route
+     name="portfolio_balance"
+     path="/portfolio/:id/balance"
+     view=".views.portfolio_balance"
+     view_renderer="templates/portfolio_balance.pt"
+     />
+
+  <route
+     name="portfolio_income"
+     path="/portfolio/:id/income"
+     view=".views.portfolio_income"
+     view_renderer="templates/portfolio_income.pt"
      />
 
   <route
