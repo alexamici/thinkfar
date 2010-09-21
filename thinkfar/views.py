@@ -6,7 +6,7 @@ from repoze.bfg.chameleon_zpt import get_template
 from webob.exc import HTTPUnauthorized
 from webob import Response
 
-from .models import Portfolio, Asset, AssetModel
+from .models import Portfolio, Asset, AssetModel, AccountDefinition
 
 
 # global limits
@@ -52,11 +52,43 @@ def asset_view(request):
         'title': '%s -> %s -> %s' % (asset.portfolio.owner.nickname(), asset.portfolio.name, asset.name)})
     return namespace
 
+def drop_kind(kindname):
+    from google.appengine.ext import db
+    from time import sleep
+
+    while True:
+        q = db.GqlQuery("SELECT __key__ FROM %s" % (kindname,))
+        if q.count() == 0:
+            break
+        db.delete(q.fetch(200))
+        sleep(0.5)
+
+def load_kind(kind, instance_keys=None, parent=None):
+    if instance_keys is None:
+        instance_keys = kind.base_instances
+    for keys in instance_keys:
+        children = keys.pop('children', ())
+        keys['parent_account'] = parent
+        instance = kind(**keys)
+        instance.put()
+        load_kind(kind, instance_keys=children, parent=instance)
+
+def initdb(request):
+    # drop instances of all kinds
+    for kindname in ('Portfolio', 'AssetModel', 'Asset',
+            'AccountDefinition', 'Account', 'Transaction', 'TransactionEntry', 'Trade'):
+        drop_kind(kindname)
+    # create objects assumed to be present
+    for kind in (AssetModel, AccountDefinition):
+        load_kind(kind)
+    return Response(body='Done')
+
+
 def setup_test_portfolios(request):
     joe_p = Portfolio(name="Average Joe Portfolio", owner=get_current_user())
     joe_p.put()
     home = Asset(name='Joe Home',description="2350 Sweet Home Road, Amherst, NY, United States",
         portfolio=joe_p, asset_model=AssetModel.get_by_id(1001))
     home.put()
-    return Response()
-    
+    return Response(body='Done')
+

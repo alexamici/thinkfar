@@ -42,30 +42,6 @@ class Portfolio(Model):
     def accounts(self):
         return Account.all().filter('denomination IN', list(self.assets))
 
-    def cumulative_buy(self, date):
-        trades = Trade.all().filter('asset IN', list(self.assets)).filter('date <=', date)
-        # return float 0. if no trades for the sake of consistency
-        return 1. * sum(t.buyer_price for t in trades if t.amount > 0.)
-
-    def cumulative_sell(self, date):
-        trades = Trade.all().filter('asset IN', list(self.assets)).filter('date <=', date)
-        # return float 0. if no trades for the sake of consistency
-        return 1. * sum(t.seller_value for t in trades if t.amount < 0.)
-
-    def cumulative_spread(self, date):
-        trades = Trade.all().filter('asset IN', list(self.assets)).filter('date <=', date)
-        # return float 0. if no trades for the sake of consistency
-        return 1. * sum(t.buyer_price - t.seller_value for t in trades)
-
-    def estimated_bid(self, date):
-        return 1. * sum(a.estimated_bid(date) for a in self.assets)
-
-    def estimated_ask(self, date):
-        return 1. * sum(a.estimated_ask(date) for a in self.assets)
-
-    def estimated_yearly_income_expenses(self, date):
-        return sum(a.estimated_yearly_income_expenses(date) for a in self.assets)
-
     def __repr__(self):
         return u'<%s object name=%r owner=%r>' % \
             (self.__class__.__name__, self.name, self.owner.nickname())
@@ -73,6 +49,14 @@ class Portfolio(Model):
 class AssetModel(Model):
     name = StringProperty(required=True)
     description = TextProperty()
+    parent_account_code = StringProperty()
+
+    base_instances = (
+        {'name': 'Currency', 'parent_account_code': '1001'},
+        {'name': 'Land', 'parent_account_code': '1600'},
+        {'name': 'Building', 'parent_account_code': '1680'},
+        {'name': 'Credit Card', 'parent_account_code': '2707'},
+    )
 
     def __repr__(self):
         return u'<%s object name=%r>' % \
@@ -124,30 +108,6 @@ class Asset(Model):
             if a.definition is None:
                 return a
 
-    def cumulative_buy(self, date):
-        trades = self.trades.filter('date <=', date)
-        # return float 0. if no trades for the sake of consistency
-        return 1. * sum(t.buyer_price for t in trades if t.amount > 0.)
-
-    def cumulative_spread(self, date):
-        trades = self.trades.filter('date <=', date)
-        # return float 0. if no trades for the sake of consistency
-        return 1. * sum(t.buyer_price - t.seller_value for t in trades)
-
-    def cumulative_sell(self, date):
-        trades = self.trades.filter('date <=', date)
-        # return float 0. if no trades for the sake of consistency
-        return 1. * sum(t.seller_value for t in trades if t.amount < 0.)
-
-    def estimated_bid(self, date):
-        return 100.0
-
-    def estimated_ask(self, date):
-        return 110.0
-
-    def estimated_yearly_income_expenses(self, date):
-        return sum(r.yearly_income_expenses for r in self.yearly_income_expenses if r.end_date is None or r.end_date > date)
-
     def __repr__(self):
         if self.has_identity:
             identification = u'identity=%r' % self.identity
@@ -157,10 +117,27 @@ class Asset(Model):
             (self.__class__.__name__, self.name, identification,
                 self.portfolio.name, self.portfolio.owner.nickname())
 
+# GIFI reference http://www.newlearner.com/courses/hts/bat4m/pdf/gifiguide.pdf
 class AccountDefinition(Model):
+    code = StringProperty(required=True)
     name = StringProperty(required=True)
     description = TextProperty()
-    parent_account = SelfReferenceProperty()
+    parent_account = SelfReferenceProperty(collection_name='children_accounts')
+
+    base_instances = (
+        {'code': '2599', 'name': 'Total assets', 'children': (
+            {'code': '1599', 'name': 'Total current assets', 'children': (
+                {'code': '1001', 'name': 'Cash'},
+            )},
+            {'code': '2008', 'name': 'Total tangible capital assets'},
+            {'code': '2178', 'name': 'Total intangible capital assets'},
+            {'code': '2589', 'name': 'Total long-term assets'},
+        )},
+        {'code': '3499', 'name': 'Total liabilities'},
+        {'code': '3620', 'name': 'Total equity'},
+        {'code': '8299', 'name': 'Total revenue'},
+        {'code': '9368', 'name': 'Total expenses'},
+    )
 
     @property
     def id(self):
@@ -180,9 +157,11 @@ class Transaction(Model):
     description = TextProperty()
 
     def is_balanced(self):
-        denominations = set(te.account.denomination for te in self.transaction_entries)
-        for d in denominations:
-            balance = sum(te.amount for te in self.transaction_entries if te.account.denomination is d)
+        # transaction_entities belonging to inventory accounts are not balanced
+        balanced_transaction_entities = filter(lambda te: te.account.description is not None, self.transaction_entries)
+        balanced_denominations = set(te.account.denomination for te in balanced_transaction_entities)
+        for d in balanced_denominations:
+            balance = sum(te.amount for te in balanced_transaction_entities if te.account.denomination is d)
             if balance:
                 return False
         return True
@@ -211,30 +190,6 @@ class Trade(Model):
     The basic idea is to separate total price paid by the seller in the
     transaction from what the seller actually receives."""
 
-    asset = ReferenceProperty(Asset, required=True, collection_name='trades')
-    date = DateProperty(required=True)
-    amount = FloatProperty(required=True)
-    buyer_price = FloatProperty(required=True)
-    seller_value = FloatProperty(default=0.)
-    description = TextProperty()
-
     @property
     def id(self):
         return self.key().id()
-
-class YearlyIncomeExpenses(Model):
-    """"""
-    asset = ReferenceProperty(Asset, required=True, collection_name='yearly_income_expenses')
-    name = StringProperty(required=True)
-    end_date = DateProperty()
-    yearly_income_expenses = FloatProperty()
-    is_estimated = BooleanProperty(default=False)
-    description = TextProperty()
-
-    @property
-    def id(self):
-        return self.key().id()
-
-    def start_date(self):
-        return '1999-01-01'
-
