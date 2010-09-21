@@ -48,7 +48,7 @@ I've got a clan of gingerbread men. Here a man, there a man, lots of gingerbread
     >>> clan = Asset(asset_model=commodity_stock, name='Clan of gingerbread men',
     ...     portfolio=piper_belongings)
     >>> clan_key = clan.put()
-    >>> clan.buy(20., date=date(1967, 3, 22), price=5., value=5.)
+    >>> clan.buy(20., date=date(1967, 3, 22), price=5.)
     >>> clan.buy(20., date=date(1967, 3, 23), price=5.)
 
 Take a couple if you wish. They're on the dish.

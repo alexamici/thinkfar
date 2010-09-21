@@ -108,13 +108,15 @@ class Asset(Model):
     def sell(self, amount=1., value=0., **keys):
         self.trade(amount=-amount, seller_value=value, **keys)
 
-    def trade(self, buyer_price=None, seller_value=None, taxes=0., fees=0., **keys):
+    def trade(self, buyer_price=None, seller_value=None, taxes=0., fees=0.,
+            date=None, amount=None, description=None):
         if buyer_price is None and seller_value is not None:
             buyer_price = seller_value + taxes + fees
         elif seller_value is None and buyer_price is not None:
             seller_value = buyer_price - taxes - fees
-        trade = Trade(asset=self, buyer_price=buyer_price, seller_value=seller_value, **keys)
+        trade = Transaction(date=date, description=description)
         trade.put()
+        trade.add_entries(((self.account, amount),))
 
     @property
     def account(self):
@@ -171,7 +173,7 @@ class Account(Model):
     parent_account = SelfReferenceProperty()
 
     def balance(self, date):
-        return sum(te.amount for te in self.transaction_entries if te.transaction.data <= date)
+        return sum(te.amount for te in self.transaction_entries if te.transaction.date <= date)
 
 class Transaction(Model):
     date = DateProperty(required=True)
@@ -188,7 +190,8 @@ class Transaction(Model):
     def add_entries(self, entries):
         balance = sum(te.amount for te in self.transaction_entries) + sum(e[1] for e in entries)
         if balance is not 0.:
-            raise ValueError('Unbalanced transaction: %r' % balance)
+            pass
+            # raise ValueError('Unbalanced transaction: %r' % balance)
         for e in entries:
             te = TransactionEntry(transaction=self, account=e[0], amount=e[1])
             te.put()
