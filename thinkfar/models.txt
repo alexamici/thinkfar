@@ -2,6 +2,9 @@
 We define generic asset model for users to choose:
 
     >>> from thinkfar.models import AssetModel
+    >>> currency = AssetModel(name=u'Currency',
+    ...     description=u'Currency')
+    >>> currency_key = currency.put()
     >>> big_ticket_item = AssetModel(name=u'Big ticket item',
     ...     description=u'Generic representation of a identifieble big ticket item: e.g. a bike')
     >>> big_ticket_item_key = big_ticket_item.put()
@@ -35,9 +38,9 @@ I've got a bike.
     <Asset object name=u'Bike' identity=u'My good looking bike' portfolio=u'Piper Belongings' owner=u'syd@pf.com'>
     >>> bike_key = bike.put()
     >>> bike.buy(date=date(1967, 3, 23), price=100., taxes=10.)
-    >>> bike.balance(date(1967, 3, 22))
+    >>> bike.account.balance(date(1967, 3, 22))
     0.0
-    >>> bike.balance(date(1967, 3, 23))
+    >>> bike.account.balance(date(1967, 3, 23))
     1.0
 
 I've got a clan of gingerbread men. Here a man, there a man, lots of gingerbread men.
@@ -51,11 +54,11 @@ I've got a clan of gingerbread men. Here a man, there a man, lots of gingerbread
 Take a couple if you wish. They're on the dish.
 
     >>> clan.sell(2., date=date(1967, 3, 24), value=2.)
-    >>> clan.balance(date(1967, 3, 23))
+    >>> clan.account.balance(date(1967, 3, 23))
     40.0
     >>> clan.cumulative_buy(date(1967, 3, 24))
     10.0
-    >>> clan.balance(date(1967, 3, 24))
+    >>> clan.account.balance(date(1967, 3, 24))
     38.0
     >>> clan.cumulative_sell(date(1967, 3, 24))
     2.0

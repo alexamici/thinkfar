@@ -23,18 +23,21 @@ class Portfolio(Model):
     def id(self):
         return self.key().id()
 
-    def setup_skel(self):
-        if list(self.assets):
-            return
-        eur = Asset(portfolio=self, asset_model=AssetModel.get_by_id(1005), name='Cash EUR', identity='EUR')
+    def put(self):
+        if self.is_saved():
+            return super(Portfolio, self).put()
+        key = super(Portfolio, self).put()
+        currency = AssetModel.all().filter('name =', 'Currency').fetch(1)[0]
+        eur = Asset(portfolio=self, asset_model=currency, name='Cash EUR', identity='EUR')
         eur.put()
-        usd = Asset(portfolio=self, asset_model=AssetModel.get_by_id(1005), name='Cash USD', identity='USD')
+        usd = Asset(portfolio=self, asset_model=currency, name='Cash USD', identity='USD')
         usd.put()
-        gold = Asset(portfolio=self, asset_model=AssetModel.get_by_id(1005), name='Cash GOLD', identity='GOLD')
+        gold = Asset(portfolio=self, asset_model=currency, name='Cash GOLD', identity='GOLD')
         gold.put()
         for definition in AccountDefinition.all():
             account = Account(definition=definition, denomination=eur)
             account.put()
+        return key
 
     def accounts(self):
         return Account.all().filter('denomination IN', list(self.assets))
@@ -91,6 +94,14 @@ class Asset(Model):
     def has_identity(self):
         return self.identity is not None
 
+    def put(self):
+        if self.is_saved():
+            return super(Asset, self).put()
+        key = super(Asset, self).put()
+        balance = Account(definition=None, denomination=self)
+        balance.put()
+        return key
+
     def buy(self, amount=1., price=None, **keys):
         self.trade(amount=amount, buyer_price=price, **keys)
 
@@ -105,10 +116,11 @@ class Asset(Model):
         trade = Trade(asset=self, buyer_price=buyer_price, seller_value=seller_value, **keys)
         trade.put()
 
-    def balance(self, date):
-        trades = self.trades.filter('date <=', date)
-        # return float 0. if no trades for the sake of consistency
-        return 1. * sum(t.amount for t in trades)
+    @property
+    def account(self):
+        for a in self.accounts:
+            if a.definition is None:
+                return a
 
     def cumulative_buy(self, date):
         trades = self.trades.filter('date <=', date)
@@ -153,8 +165,10 @@ class AccountDefinition(Model):
         return self.key().id()
 
 class Account(Model):
-    definition = ReferenceProperty(AccountDefinition, required=True, collection_name='accounts')
+    # if definition is None the account is the balance of the denomination asset
+    definition = ReferenceProperty(AccountDefinition, collection_name='accounts')
     denomination = ReferenceProperty(Asset, required=True, collection_name='accounts')
+    parent_account = SelfReferenceProperty()
 
     def balance(self, date):
         return sum(te.amount for te in self.transaction_entries if te.transaction.data <= date)
@@ -164,7 +178,12 @@ class Transaction(Model):
     description = TextProperty()
 
     def is_balanced(self):
-        return sum(te.amount for te in self.transaction_entries) is 0.
+        denominations = set(te.account.denomination for te in self.transaction_entries)
+        for d in denominations:
+            balance = sum(te.amount for te in self.transaction_entries if te.account.denomination is d)
+            if balance:
+                return False
+        return True
 
     def add_entries(self, entries):
         balance = sum(te.amount for te in self.transaction_entries) + sum(e[1] for e in entries)
