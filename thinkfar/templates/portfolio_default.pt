@@ -23,31 +23,33 @@
             </tr>
           </thead>
           <tbody align="right">
-            <tr tal:repeat="asset portfolio.assets">
+            <tal:asset tal:repeat="asset portfolio.assets">
+            <tr tal:condition="asset.account.balance(date)">
               <td>
                 <a href="${request.application_url}/asset/${asset.id}" title="${asset.identity}">${asset.name}</a>
               </td>
-              <td>${asset.balance(date)}</td>
-              <td>${asset.estimated_bid(date)}</td>
-              <td>${asset.estimated_ask(date)}</td>
-              <td>${asset.cumulative_buy(date)}</td>
-              <td>${asset.cumulative_sell(date)}</td>
-              <td>${asset.cumulative_spread(date)}</td>
-              <td>${asset.cumulative_sell(date)-asset.cumulative_buy(date)}</td>
-              <td>${asset.estimated_yearly_income_expenses(date)}</td>
+              <td>${asset.account.balance(date)}</td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
             </tr>
+            </tal:asset>
           </tbody>
           <tfoot align="right">
             <tr>
               <td>Total</td>
               <td></td>
-              <td>${portfolio.estimated_bid(date)}</td>
-              <td>${portfolio.estimated_ask(date)}</td>
-              <td>${portfolio.cumulative_buy(date)}</td>
-              <td>${portfolio.cumulative_sell(date)}</td>
-              <td>${portfolio.cumulative_spread(date)}</td>
-              <td>${portfolio.cumulative_sell(date)-portfolio.cumulative_buy(date)}</td>
-              <td>${portfolio.estimated_yearly_income_expenses(date)}</td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
             </tr>
           </tfoot>
         </table>

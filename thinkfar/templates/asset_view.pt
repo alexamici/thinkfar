@@ -12,6 +12,7 @@
           <thead>
             <tr>
               <th>Trade date</th>
+              <th>Description</th>
               <th>Amount</th>
               <th>Buyer Price</th>
               <th>Seller Value</th>
@@ -20,16 +21,19 @@
             </tr>
           </thead>
           <tbody align="right">
-            <tr tal:repeat="trade asset.trades">
+            <tal:entry tal:repeat="entry asset.account.transaction_entries">
+            <tr tal:condition="entry.transaction.date &lt;= date">
               <td>
-                <a href="${request.application_url}/trade/${trade.id}">${trade.date}</a>
+                <a href="${request.application_url}/transaction/${entry.transaction.id}">${entry.transaction.date}</a>
               </td>
-              <td>${trade.amount}</td>
-              <td>${trade.buyer_price}</td>
-              <td>${trade.seller_value}</td>
-              <td>${trade.buyer_price-trade.seller_value}</td>
-              <td>${asset.balance(trade.date)}</td>
+              <td>${entry.transaction.description or '-'}</td>
+              <td>${entry.amount}</td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td>${asset.account.balance(entry.transaction.date)}</td>
             </tr>
+            </tal:entry>
           </tbody>
           <tfoot align="right">
             <tr>
@@ -37,11 +41,13 @@
               <td></td>
               <td></td>
               <td></td>
-              <td>${asset.cumulative_spread(date)}</td>
-              <td>${asset.balance(date)}</td>
+              <td></td>
+              <td></td>
+              <td>${asset.account.balance(date)}</td>
             </tr>
           </tfoot>
         </table>
+<tal:comment tal:condition="False">
         <h3>asset income/expenses history as of ${date.isoformat()}</h3>
         <table>
           <thead>
@@ -77,6 +83,7 @@
             </tr>
           </tfoot>
         </table>
+</tal:comment>
       </div>
     </div>
   </div>

@@ -16,19 +16,22 @@
               <th>Balance</th>
             </tr>
           </thead>
-          <tbody align="right" tal:define="none portfolio.setup_skel()">
-            <tr tal:repeat="account portfolio.accounts()">
-              <td>${account.definition.name}</td>
+          <tbody align="right">
+            <tal:totalaccount tal:repeat="total_account portfolio.total_accounts()">
+            <tal:account tal:repeat="account total_account.children_accounts">
+            <tr tal:condition="account.definition and account.balance(date)">
+              <td align="left">${account.definition.name}</td>
               <td>${account.denomination.identity}</td>
               <td>${account.balance(date)}</td>
             </tr>
-          </tbody>
-          <tfoot align="right">
+            </tal:account>
             <tr>
-              <td>Total</td>
-              <td></td>
+              <th align="left">${total_account.definition.name}</th>
+              <th>${total_account.denomination.identity}</th>
+              <th>${total_account.balance(date)}</th>
             </tr>
-          </tfoot>
+            </tal:totalaccount>
+          </tbody>
         </table>
       </div>
     </div>
