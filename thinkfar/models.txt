@@ -1,16 +1,11 @@
 
 We define generic asset model for users to choose:
 
+    >>> from thinkfar.views import initdb
+    >>> initdb()
     >>> from thinkfar.models import AssetModel
-    >>> currency = AssetModel(name=u'Currency',
-    ...     description=u'Currency')
-    >>> currency_key = currency.put()
-    >>> big_ticket_item = AssetModel(name=u'Big ticket item',
-    ...     description=u'Generic representation of a identifieble big ticket item: e.g. a bike')
-    >>> big_ticket_item_key = big_ticket_item.put()
-    >>> commodity_stock = AssetModel(name=u'Commodity stock',
-    ...     description=u'Generic representation of commodity stock: e.g. a clan of gingerbread men')
-    >>> commodity_stock_key = commodity_stock.put()
+    >>> big_ticket_item = AssetModel.get_by_name('Vehicle')
+    >>> commodity_stock = AssetModel.get_by_name('Commodity')
 
 Most stuff refers to the currently logged user:
 
@@ -24,6 +19,9 @@ Users have one or more portfolios of assets:
     >>> piper_belongings
     <Portfolio object name=u'Piper Belongings' owner=u'syd@pf.com'>
     >>> piper_belongings_key = piper_belongings.put()
+    >>> piper_belongings.default_cash_asset.name
+    u'Cash USD'
+    >>> piper_belongings.default_cash_opening_balance(10000.)
 
 and we can associate each asset to a porfolio.
 
@@ -56,25 +54,9 @@ Take a couple if you wish. They're on the dish.
     >>> clan.sell(2., date=date(1967, 3, 24), value=2.)
     >>> clan.account.balance(date(1967, 3, 23))
     40.0
-    >>> clan.cumulative_buy(date(1967, 3, 24))
-    10.0
-    >>> clan.account.balance(date(1967, 3, 24))
-    38.0
-    >>> clan.cumulative_sell(date(1967, 3, 24))
-    2.0
 
 I'll give you anything, everything if you want things.
 
-    >>> len(piper_belongings.assets.fetch(1000)) == 2
-    True
-    >>> piper_belongings.cumulative_buy(date(1967, 3, 24))
-    110.0
-    >>> piper_belongings.cumulative_sell(date(1967, 3, 24))
-    2.0
-    >>> piper_belongings.cumulative_spread(date(1967, 3, 24))
-    10.0
-    >>> piper_belongings.estimated_ask(date(1967, 3, 24))
-    220.0
-    >>> piper_belongings.estimated_bid(date(1967, 3, 24))
-    200.0
-
+    >>> len(piper_belongings.assets.fetch(1000))
+    5
+    >>> list(piper_belongings.accounts())
