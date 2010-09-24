@@ -43,7 +43,7 @@
 
   <view
      name="initdb"
-     view=".views.initdb"
+     view=".views.initdb_view"
      />
 
   <view
