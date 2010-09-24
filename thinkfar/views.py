@@ -6,7 +6,7 @@ from repoze.bfg.chameleon_zpt import get_template
 from webob.exc import HTTPUnauthorized
 from webob import Response
 
-from .models import Portfolio, Asset, AssetModel, AccountDefinition
+from .models import Portfolio, Asset, AssetModel, AccountDefinition, Transaction
 
 
 # global limits
@@ -73,7 +73,7 @@ def load_kind(kind, instance_keys=None, parent=None):
         instance.put()
         load_kind(kind, instance_keys=children, parent=instance)
 
-def initdb(request):
+def initdb():
     # drop instances of all kinds
     for kindname in ('Portfolio', 'AssetModel', 'Asset',
             'AccountDefinition', 'Account', 'Transaction', 'TransactionEntry', 'Trade'):
@@ -81,14 +81,19 @@ def initdb(request):
     # create objects assumed to be present
     for kind in (AssetModel, AccountDefinition):
         load_kind(kind)
+
+def initdb_view(request):
+    initdb()
     return Response(body='Done')
 
 
 def setup_test_portfolios(request):
     joe_p = Portfolio(name="Average Joe Portfolio", owner=get_current_user())
     joe_p.put()
+    joe_p.default_cash_opening_balance(200000.)
     home = Asset(name='Joe Home',description="2350 Sweet Home Road, Amherst, NY, United States",
-        portfolio=joe_p, asset_model=AssetModel.get_by_id(1001))
+        portfolio=joe_p, asset_model=AssetModel.get_by_name('Building'))
     home.put()
+    home.buy(date=date(2001, 12, 21), price=150000.)
+    home.sell(date=date(2010, 12, 12), value=270000.)
     return Response(body='Done')
-
