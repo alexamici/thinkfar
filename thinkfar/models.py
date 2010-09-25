@@ -31,14 +31,16 @@ class Portfolio(Model):
         key = super(Portfolio, self).put()
         currency = AssetModel.all().filter('name =', 'Currency').fetch(1)[0]
         usd = Asset(portfolio=self, asset_model=currency, name='Cash USD', identity='USD')
-        usd.put()
+        usd.put(init_cash=True)
+        for definition in AccountDefinition.all():
+            account = Account(definition=definition, denomination=usd)
+            account.put()
+        usd_balance = Account(definition=usd.parent_account.definition, denomination=usd, asset=usd)
+        usd_balance.put()
         eur = Asset(portfolio=self, asset_model=currency, name='Cash EUR', identity='EUR')
         eur.put()
         gold = Asset(portfolio=self, asset_model=currency, name='Cash GOLD', identity='GOLD')
         gold.put()
-        for definition in AccountDefinition.all():
-            account = Account(definition=definition, denomination=usd)
-            account.put()
         return key
 
     @property
@@ -67,8 +69,8 @@ class Portfolio(Model):
     def all_accounts(self):
         return Account.all().filter('denomination IN', list(self.assets))
 
-    def account_by_code(self, code):
-        accounts = [a for a in self.accounts() if a.definition and a.definition.code == code]
+    def account_by_code(self, code, asset=None):
+        accounts = [a for a in self.accounts() if a.definition and a.definition.code == code and a.asset == asset]
         if len(accounts) == 0:
             raise ValueError('No account with code %r' % code)
         elif len(accounts) > 1:
@@ -123,12 +125,16 @@ class Asset(Model):
     def has_identity(self):
         return self.identity is not None
 
-    def put(self):
+    def put(self, init_cash=False):
         if self.is_saved():
             return super(Asset, self).put()
         key = super(Asset, self).put()
         balance = Account(definition=None, denomination=self)
         balance.put()
+        if not init_cash:
+            price_balance = Account(definition=self.parent_account.definition,
+                denomination=self.portfolio.default_cash_asset, asset=self)
+            price_balance.put()
         return key
 
     def buy(self, amount=1., price=None, **keys):
@@ -151,7 +157,7 @@ class Asset(Model):
 
     @property
     def account(self):
-        for a in self.accounts:
+        for a in self.denomination_accounts:
             if a.definition is None:
                 return a
 
@@ -209,7 +215,8 @@ class AccountDefinition(Model):
 class Account(Model):
     # if definition is None the account is the balance of the denomination asset
     definition = ReferenceProperty(AccountDefinition, collection_name='accounts')
-    denomination = ReferenceProperty(Asset, required=True, collection_name='accounts')
+    denomination = ReferenceProperty(Asset, required=True, collection_name='denomination_accounts')
+    asset = ReferenceProperty(Asset, default=None, collection_name='accounts')
 
     @property
     def children_accounts(self):
@@ -240,8 +247,8 @@ class Account(Model):
             name = self.definition.name
             in_balance_sheet = self.definition.in_balance_sheet
             code = self.definition.code
-        return u'<%s object denomination=%r name=%r code=%r in_balance_sheet=%r>' % \
-            (self.__class__.__name__, self.denomination.identity, name, code, in_balance_sheet)
+        return u'<%s object denomination=%r name=%r code=%r asset=%r in_balance_sheet=%r>' % \
+            (self.__class__.__name__, self.denomination.identity, name, code, self.asset, in_balance_sheet)
 
 class Transaction(Model):
     date = DateProperty(required=True)
