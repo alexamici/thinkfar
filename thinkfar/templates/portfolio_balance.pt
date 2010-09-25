@@ -17,17 +17,27 @@
             </tr>
           </thead>
           <tbody align="right">
-            <tal:totalaccount tal:repeat="total_account portfolio.total_accounts()">
-            <tal:account tal:repeat="account total_account.children_accounts">
+            <tal:totalaccount tal:repeat="total_account portfolio.total_balance_sheet_accounts()">
+            <tal:subtotalaccount tal:repeat="subtotal_account total_account.children_accounts">
+            <tal:account tal:repeat="account subtotal_account.children_accounts">
             <tr tal:condition="account.definition and account.balance(date)">
-              <td align="left">${account.definition.name}</td>
+              <td align="left">&nbsp;&nbsp;&nbsp;&nbsp;${account.definition.name}</td>
               <td>${account.denomination.identity}</td>
               <td>${account.balance(date)}</td>
+              <td></td>
             </tr>
             </tal:account>
+            <tr tal:condition="subtotal_account.definition and subtotal_account.balance(date)">
+              <th align="left">&nbsp;&nbsp;${subtotal_account.definition.name}</th>
+              <th>${subtotal_account.denomination.identity}</th>
+              <th></th>
+              <th>${subtotal_account.balance(date)}</th>
+            </tr>
+            </tal:subtotalaccount>
             <tr>
               <th align="left">${total_account.definition.name}</th>
               <th>${total_account.denomination.identity}</th>
+              <th></th>
               <th>${total_account.balance(date)}</th>
             </tr>
             </tal:totalaccount>

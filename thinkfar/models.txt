@@ -59,4 +59,5 @@ I'll give you anything, everything if you want things.
 
     >>> len(piper_belongings.assets.fetch(1000))
     5
-    >>> list(piper_belongings.accounts())
+    >>> len(piper_belongings.total_accounts())
+    5

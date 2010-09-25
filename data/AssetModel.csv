@@ -1,5 +1,9 @@
 parent_account_code,name,key,description
-1001,Currency,3002,
-1600,Land,3003,
-1680,Building,3004,
-2707,Credit Card,3005,
+1001,Currency,1,
+1122,Commodity,2,
+1600,Land,3,
+1680,Building,4,
+1740,Vehicle,5,
+2707,Credit Card,6,
+2010,Job,7,
+3141,Mortgage,8,

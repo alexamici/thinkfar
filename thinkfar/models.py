@@ -58,6 +58,9 @@ class Portfolio(Model):
         return [a for a in Account.all().filter('denomination =', self.default_cash_asset)
             if a.definition and a.definition.parent_account is None]
 
+    def total_balance_sheet_accounts(self):
+        return [a for a in self.total_accounts() if a.definition.in_balance_sheet]
+
     def accounts(self):
         return Account.all().filter('denomination =', self.default_cash_asset)
 
@@ -65,7 +68,12 @@ class Portfolio(Model):
         return Account.all().filter('denomination IN', list(self.assets))
 
     def account_by_code(self, code):
-        return [a for a in self.accounts() if a.definition and a.definition.code == code][0]
+        accounts = [a for a in self.accounts() if a.definition and a.definition.code == code]
+        if len(accounts) == 0:
+            raise ValueError('No account with code %r' % code)
+        elif len(accounts) > 1:
+            raise ValueError('Multiple accounts with code %r' % code)
+        return accounts[0]
 
     def __repr__(self):
         return u'<%s object name=%r owner=%r>' % \
@@ -84,6 +92,7 @@ class AssetModel(Model):
         {'name': 'Vehicle', 'parent_account_code': '1740'},
         {'name': 'Credit Card', 'parent_account_code': '2707'},
         {'name': 'Job', 'parent_account_code': '2010'},
+        {'name': 'Mortgage', 'parent_account_code': '3141'},
     )
 
     @classmethod
@@ -123,9 +132,13 @@ class Asset(Model):
         return key
 
     def buy(self, amount=1., price=None, **keys):
+        if price == None:
+            price = amount
         self.trade(amount=amount, value=-price, **keys)
 
-    def sell(self, amount=1., value=0., **keys):
+    def sell(self, amount=1., value=None, **keys):
+        if value == None:
+            value = amount
         self.trade(amount=-amount, value=value, **keys)
 
     def trade(self, value=None, taxes=0., fees=0.,
@@ -155,6 +168,7 @@ class Asset(Model):
 class AccountDefinition(Model):
     code = StringProperty(required=True)
     name = StringProperty(required=True)
+    in_balance_sheet = BooleanProperty(default=True)
     description = TextProperty()
     parent_account = SelfReferenceProperty(collection_name='children_accounts')
 
@@ -174,10 +188,18 @@ class AccountDefinition(Model):
             )},
             {'code': '2589', 'name': 'Total long-term assets'},
         )},
-        {'code': '3499', 'name': 'Total liabilities'},
+        {'code': '3499', 'name': 'Total liabilities', 'children': (
+            {'code': '3139', 'name': 'Total current liabilities', 'children': (
+                {'code': '2600', 'name': 'Bank overdraft'},
+                {'code': '2707', 'name': 'Credit card loans'},
+            )},
+            {'code': '3450', 'name': 'Total long-term liabilities', 'children': (
+                {'code': '3141', 'name': 'Mortgages'},
+            )},
+        )},
         {'code': '3620', 'name': 'Total equity'},
-        {'code': '8299', 'name': 'Total revenue'},
-        {'code': '9368', 'name': 'Total expenses'},
+        {'code': '8299', 'name': 'Total revenue', 'in_balance_sheet': False},
+        {'code': '9368', 'name': 'Total expenses', 'in_balance_sheet': False},
     )
 
     @property
@@ -212,10 +234,14 @@ class Account(Model):
     def __repr__(self):
         if self.definition is None:
             name = self.denomination.name
+            in_balance_sheet = True
+            code = None
         else:
-            name =self.definition.name
-        return u'<%s object denomination=%r name=%r>' % \
-            (self.__class__.__name__, self.denomination.identity, name)
+            name = self.definition.name
+            in_balance_sheet = self.definition.in_balance_sheet
+            code = self.definition.code
+        return u'<%s object denomination=%r name=%r code=%r in_balance_sheet=%r>' % \
+            (self.__class__.__name__, self.denomination.identity, name, code, in_balance_sheet)
 
 class Transaction(Model):
     date = DateProperty(required=True)

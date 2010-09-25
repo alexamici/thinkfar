@@ -90,10 +90,24 @@ def initdb_view(request):
 def setup_test_portfolios(request):
     joe_p = Portfolio(name="Average Joe Portfolio", owner=get_current_user())
     joe_p.put()
-    joe_p.default_cash_opening_balance(200000.)
-    home = Asset(name='Joe Home',description="2350 Sweet Home Road, Amherst, NY, United States",
+    joe_p.default_cash_opening_balance(100000.)
+    land = Asset(name='Joe Field', portfolio=joe_p, asset_model=AssetModel.get_by_name('Land'))
+    land.put()
+    land.buy(date=date(1998, 1, 3), price=10000.)
+    home = Asset(name='Joe Home', description="2350 Sweet Home Road, Amherst, NY, United States",
         portfolio=joe_p, asset_model=AssetModel.get_by_name('Building'))
     home.put()
     home.buy(date=date(2001, 12, 21), price=150000.)
-    home.sell(date=date(2010, 12, 12), value=270000.)
+    mortgage = Asset(name='Joe Home Mortgage', description="Lien on 2350 Sweet Home Road, Amherst, NY, United States",
+        portfolio=joe_p, asset_model=AssetModel.get_by_name('Mortgage'))
+    mortgage.put()
+    mortgage.buy(date=date(2001, 12, 21), price=-100000.)
+    job = Asset(name='Joe Job', description="Plumber",
+        portfolio=joe_p, asset_model=AssetModel.get_by_name('Job'))
+    job.put()
+    job.buy(date=date(2001, 6, 1), price=0.)
+    cc = Asset(name='Joe Credit Card', description="Average Bank",
+        portfolio=joe_p, asset_model=AssetModel.get_by_name('Credit Card'))
+    cc.put()
+    cc.buy(amount=-5000., date=date(2001, 12, 21))
     return Response(body='Done')
