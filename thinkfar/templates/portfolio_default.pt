@@ -12,8 +12,8 @@
           <thead>
             <tr>
               <th>Asset name</th>
-              <th>Amount</th>
-              <th>E. Bid</th>
+              <th>Inventory</th>
+              <th>Parent Account Balance</th>
               <th>E. Ask</th>
               <th>Cum. buy</th>
               <th>Cum. sell</th>
@@ -29,7 +29,7 @@
                 <a href="${request.application_url}/asset/${asset.id}" title="${asset.identity}">${asset.name}</a>
               </td>
               <td>${asset.inventory.balance(date)}</td>
-              <td></td>
+              <td>${asset.parent_account.balance(date)}</td>
               <td></td>
               <td></td>
               <td></td>
@@ -39,19 +39,6 @@
             </tr>
             </tal:asset>
           </tbody>
-          <tfoot align="right">
-            <tr>
-              <td>Total</td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-            </tr>
-          </tfoot>
         </table>
       </div>
     </div>

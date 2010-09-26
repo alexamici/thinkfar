@@ -41,9 +41,7 @@ class Portfolio(Model):
             account.put()
         usd_balance = Account(definition=self.account_by_code('1001').definition, denomination=usd, asset=usd)
         usd_balance.put()
-        eur = Asset(portfolio=self, asset_model=currency, name=u'Cash EUR', identity=u'EUR')
-        eur.put()
-        gold = Asset(portfolio=self, asset_model=currency, name=u'Cash GOLD', identity=u'GOLD')
+        gold = Asset(portfolio=self, asset_model=currency, name=u'Cash 1oz GOLD', identity=u'GOLD')
         gold.put()
         opening_transaction = Transaction(date=date(2000, 1, 1), description=u'Opening Balance')
         opening_transaction.put()
@@ -54,7 +52,8 @@ class Portfolio(Model):
         return [a for a in self.accounts() if a.definition.parent_account is None]
 
     def total_balance_sheet_accounts(self):
-        return [a for a in self.accounts() if a.definition.parent_account is None and a.definition.in_balance_sheet]
+        return sorted([a for a in self.accounts() if a.definition.parent_account is None and a.definition.in_balance_sheet], 
+            cmp=lambda x, y: int(x.definition.code) - int(y.definition.code))
 
     def accounts(self, asset=None):
         return Account.all().filter('denomination =', self.default_cash_asset).filter('asset =', asset).filter('definition !=', None)

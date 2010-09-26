@@ -40,11 +40,11 @@
             </tr>
             </tal:account>
             <tr tal:condition="subtotal_account.definition and subtotal_account.balance(date)">
-              <th align="left">&nbsp;&nbsp;${subtotal_account.definition.name}</th>
-              <th>${subtotal_account.denomination.identity}</th>
-              <th></th>
-              <th></th>
-              <th>${subtotal_account.balance(date)}</th>
+              <td align="left">&nbsp;&nbsp;${subtotal_account.definition.name}</td>
+              <td>${subtotal_account.denomination.identity}</td>
+              <td></td>
+              <td></td>
+              <td>${subtotal_account.balance(date)}</td>
             </tr>
             </tal:subtotalaccount>
             <tr>
@@ -55,6 +55,13 @@
               <th>${total_account.balance(date)}</th>
             </tr>
             </tal:totalaccount>
+            <tr tal:define="(asset, liabilities, equity) portfolio.total_balance_sheet_accounts()">
+              <th align="left">${liabilities.definition.name} + ${equity.definition.name}</th>
+              <th>${asset.denomination.identity}</th>
+              <th></th>
+              <th></th>
+              <th>${liabilities.balance(date) + equity.balance(date)}</th>
+            </tr>
           </tbody>
         </table>
       </div>
