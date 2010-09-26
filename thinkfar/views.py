@@ -111,14 +111,17 @@ def setup_test_portfolios(request):
         portfolio=joe_p, asset_model=AssetModel.get_by_name('Building'))
     home.put()
     home.buy(date=date(2001, 12, 21), price=150000.)
+    home.add_revenue_account(code='8141', yearly_revenue=12000.)
     mortgage = Asset(name='Joe Home Mortgage', description="Lien on 2350 Sweet Home Road, Amherst, NY, United States",
         portfolio=joe_p, asset_model=AssetModel.get_by_name('Mortgage'))
     mortgage.put()
     mortgage.buy(date=date(2001, 12, 21), price=-100000.)
+    mortgage.add_revenue_account(code='8710', yearly_revenue=-100000.*.07)
     job = Asset(name='Joe Job', description="Plumber",
         portfolio=joe_p, asset_model=AssetModel.get_by_name('Job'))
     job.put()
     job.buy(date=date(2001, 6, 1), price=0.)
+    job.add_revenue_account(code='8000', yearly_revenue=25000.)
     cc = Asset(name='Joe Credit Card', description="Average Bank",
         portfolio=joe_p, asset_model=AssetModel.get_by_name('Credit Card'))
     cc.put()

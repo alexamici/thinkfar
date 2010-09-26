@@ -11,27 +11,58 @@
         <table>
           <thead>
             <tr>
-              <th>Asset name</th>
-              <th>Amount</th>
-              <th>Income/expenses</th>
+              <th>Account</th>
+              <th>Denomination</th>
+              <th>Asset accounts</th>
+              <th>Accounts</th>
+              <th>Total accounts</th>
             </tr>
           </thead>
           <tbody align="right">
-            <tr tal:repeat="asset portfolio.assets">
-              <td>
-                <a href="${request.application_url}/asset/${asset.id}" title="${asset.identity}">${asset.name}</a>
-              </td>
-              <td>${asset.balance(date)}</td>
-              <td>${asset.estimated_yearly_income_expenses(date)}</td>
+            <tal:totalaccount tal:repeat="total_account portfolio.total_income_statment_accounts()">
+            <tal:subtotalaccount tal:repeat="subtotal_account total_account.children_accounts">
+            <tal:account tal:repeat="account subtotal_account.children_accounts">
+            <tal:assetaccount tal:repeat="asset_account account.children_accounts">
+            <tr tal:condition="asset_account.definition and asset_account.balance(date)">
+              <td align="left">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${asset_account.asset.name} account</td>
+              <td>${asset_account.denomination.identity}</td>
+              <td>${- asset_account.balance(date)}</td>
+              <td></td>
+              <td></td>
+            </tr>
+            </tal:assetaccount>
+            <tr tal:condition="account.definition and account.balance(date)">
+              <td align="left">&nbsp;&nbsp;&nbsp;&nbsp;${account.definition.name}</td>
+              <td>${account.denomination.identity}</td>
+              <td></td>
+              <td>${- account.balance(date)}</td>
+              <td></td>
+            </tr>
+            </tal:account>
+            <tr tal:condition="subtotal_account.definition and subtotal_account.balance(date)">
+              <td align="left">&nbsp;&nbsp;${subtotal_account.definition.name}</td>
+              <td>${subtotal_account.denomination.identity}</td>
+              <td></td>
+              <td></td>
+              <td>${- subtotal_account.balance(date)}</td>
+            </tr>
+            </tal:subtotalaccount>
+            <tr>
+              <th align="left">${total_account.definition.name}</th>
+              <th>${total_account.denomination.identity}</th>
+              <th></th>
+              <th></th>
+              <th>${- total_account.balance(date)}</th>
+            </tr>
+            </tal:totalaccount>
+            <tr tal:define="(revenue, expenses) portfolio.total_income_statment_accounts()">
+              <th align="left">${revenue.definition.name} + ${expenses.definition.name}</th>
+              <th>${revenue.denomination.identity}</th>
+              <th></th>
+              <th></th>
+              <th>${- revenue.balance(date) - expenses.balance(date)}</th>
             </tr>
           </tbody>
-          <tfoot align="right">
-            <tr>
-              <td>Total</td>
-              <td></td>
-              <td>${portfolio.estimated_yearly_income_expenses(date)}</td>
-            </tr>
-          </tfoot>
         </table>
       </div>
     </div>

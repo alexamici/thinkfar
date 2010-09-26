@@ -55,6 +55,10 @@ class Portfolio(Model):
         return sorted([a for a in self.accounts() if a.definition.parent_account is None and a.definition.in_balance_sheet], 
             cmp=lambda x, y: int(x.definition.code) - int(y.definition.code))
 
+    def total_income_statment_accounts(self):
+        return sorted([a for a in self.accounts() if a.definition.parent_account is None and not a.definition.in_balance_sheet], 
+            cmp=lambda x, y: int(x.definition.code) - int(y.definition.code))
+
     def accounts(self, asset=None):
         return Account.all().filter('denomination =', self.default_cash_asset).filter('asset =', asset).filter('definition !=', None)
 
@@ -162,6 +166,14 @@ class Asset(Model):
             value = amount
         self.portfolio.trade_asset(self, amount=-amount, price=value, **keys)
 
+    def add_revenue_account(self, code, yearly_revenue):
+        ra = Account(definition=AccountDefinition.all().filter('code =', code).fetch(1)[0],
+                denomination=self.portfolio.default_cash_asset, asset=self)
+        ra.put()
+        revenue = Transaction(date=date(2010, 1, 1))
+        revenue.put()
+        revenue.add_entries(((ra, - yearly_revenue), (self.portfolio.default_cash_asset.parent_account, yearly_revenue)))
+
     @property
     def inventory(self):
         for a in self.denomination_accounts:
@@ -211,8 +223,19 @@ class AccountDefinition(Model):
             )},
         )},
         {'code': '3620', 'name': 'Total equity'},
-        {'code': '8299', 'name': 'Total revenue', 'in_balance_sheet': False},
-        {'code': '9368', 'name': 'Total expenses', 'in_balance_sheet': False},
+        {'code': '8299', 'name': 'Total revenue', 'in_balance_sheet': False, 'children': (
+            {'code': '8089', 'name': 'Total sales of goods and services', 'children': (
+                {'code': '8000', 'name': 'Trade sales of goods and services'},
+            )},
+            {'code': '8140', 'name': 'Total rental revenue', 'children': (
+                {'code': '8141', 'name': 'Real estate rental revenue'},
+            )},
+        )},
+        {'code': '9368', 'name': 'Total expenses', 'in_balance_sheet': False, 'children': (
+            {'code': '9367', 'name': 'Total operating expenses', 'children': (
+                {'code': '8710', 'name': 'Interest and bank charges'},
+            )},
+        )},
     )
 
     @property
