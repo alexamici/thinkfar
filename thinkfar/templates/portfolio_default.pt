@@ -23,7 +23,7 @@
             </tr>
           </thead>
           <tbody align="right">
-            <tal:asset tal:repeat="asset portfolio.assets">
+            <tal:asset tal:repeat="asset list(portfolio.assets)">
             <tr tal:condition="asset.inventory.balance(date)">
               <td>
                 <a href="${request.application_url}/asset/${asset.id}" title="${asset.identity}">${asset.name}</a>

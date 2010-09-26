@@ -39,7 +39,11 @@ def portfolio_default(request):
         'title': '%s -> %s' % (portfolio.owner.nickname(), portfolio.name)})
     return namespace
 
-portfolio_balance = portfolio_income = portfolio_default
+def portfolio_balance(request):
+    namespace = portfolio_default(request)
+    return namespace
+
+portfolio_income = portfolio_default
 
 def asset_view(request):
     namespace = common_namespace(request)
@@ -48,8 +52,14 @@ def asset_view(request):
     if asset is None or asset.portfolio.owner != get_current_user():
         return HTTPUnauthorized()
     today = date.today()
+    def date_cmp(x, y):
+        return (x.transaction.date - y.transaction.date).days
+    inventory_transaction_entries = sorted(asset.inventory.transaction_entries, date_cmp)
+    parent_account_transaction_entries = sorted(asset.parent_account.transaction_entries, date_cmp)
     namespace.update({'project': 'thinkfar', 'asset': asset, 'date': today, 
-        'title': '%s -> %s -> %s' % (asset.portfolio.owner.nickname(), asset.portfolio.name, asset.name)})
+        'title': '%s -> %s -> %s' % (asset.portfolio.owner.nickname(), asset.portfolio.name, asset.name),
+        'inventory_transaction_entries': inventory_transaction_entries,
+        'parent_account_transaction_entries': parent_account_transaction_entries})
     return namespace
 
 def drop_kind(kindname):
@@ -63,15 +73,15 @@ def drop_kind(kindname):
         db.delete(q.fetch(200))
         sleep(0.5)
 
-def load_kind(kind, instance_keys=None, parent=None):
-    if instance_keys is None:
-        instance_keys = kind.base_instances
-    for keys in instance_keys:
+def load_kind(kind, instances_keys=None, parent_instance=None):
+    if instances_keys is None:
+        instances_keys = kind.base_instances_keys
+    for keys in instances_keys:
         children = keys.pop('children', ())
-        keys['parent_account'] = parent
+        keys['parent_account'] = parent_instance
         instance = kind(**keys)
         instance.put()
-        load_kind(kind, instance_keys=children, parent=instance)
+        load_kind(kind, instances_keys=children, parent_instance=instance)
 
 def initdb():
     # drop instances of all kinds
@@ -112,5 +122,5 @@ def setup_test_portfolios(request):
     cc = Asset(name='Joe Credit Card', description="Average Bank",
         portfolio=joe_p, asset_model=AssetModel.get_by_name('Credit Card'))
     cc.put()
-    cc.buy(amount=1., price=-5000., date=date(2001, 12, 21))
+    cc.buy(amount=1., price=-5000., date=date(2002, 8, 1))
     return Response(body='Done')

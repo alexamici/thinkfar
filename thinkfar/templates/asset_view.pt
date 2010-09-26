@@ -21,7 +21,7 @@
             </tr>
           </thead>
           <tbody align="right">
-            <tal:entry tal:repeat="entry asset.inventory.transaction_entries">
+            <tal:entry tal:repeat="entry inventory_transaction_entries">
             <tr tal:condition="entry.transaction.date &lt;= date">
               <td>
                 <a href="${request.application_url}/transaction/${entry.transaction.id}">${entry.transaction.date}</a>
@@ -61,12 +61,12 @@
             </tr>
           </thead>
           <tbody align="right">
-            <tal:entry tal:repeat="entry asset.parent_account.transaction_entries">
+            <tal:entry tal:repeat="entry parent_account_transaction_entries">
             <tr tal:condition="entry.transaction.date &lt;= date">
               <td>
                 <a href="${request.application_url}/transaction/${entry.transaction.id}">${entry.transaction.date}</a>
               </td>
-              <td>${entry.transaction.description or '-'}</td>
+              <td>${entry.transaction.description or ''}</td>
               <td>${entry.amount}</td>
               <td></td>
               <td></td>

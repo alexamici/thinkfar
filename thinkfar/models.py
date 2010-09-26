@@ -2,6 +2,7 @@
 
 from datetime import date
 
+from google.appengine.api.memcache import set, get
 from google.appengine.ext.db import Model, FloatProperty, StringProperty, BooleanProperty
 from google.appengine.ext.db import TextProperty, DateProperty
 from google.appengine.ext.db import UserProperty, ReferenceProperty, SelfReferenceProperty
@@ -50,14 +51,13 @@ class Portfolio(Model):
         return super(Portfolio, self).put()
 
     def total_accounts(self):
-        return [a for a in Account.all().filter('denomination =', self.default_cash_asset)
-            if a.definition and a.definition.parent_account is None]
+        return [a for a in self.accounts() if a.definition.parent_account is None]
 
     def total_balance_sheet_accounts(self):
-        return [a for a in self.total_accounts() if a.definition.in_balance_sheet]
+        return [a for a in self.accounts() if a.definition.parent_account is None and a.definition.in_balance_sheet]
 
     def accounts(self, asset=None):
-        return Account.all().filter('denomination =', self.default_cash_asset).filter('asset =', asset)
+        return Account.all().filter('denomination =', self.default_cash_asset).filter('asset =', asset).filter('definition !=', None)
 
     def leaf_accounts(self, code=None):
         all_leaf_accounts = Account.all().filter('denomination =', self.default_cash_asset).filter('asset !=', None)
@@ -70,9 +70,13 @@ class Portfolio(Model):
         return Account.all().filter('denomination IN', list(self.assets))
 
     def account_by_code(self, code, asset=None):
-        accounts = [a for a in self.accounts(asset=asset) if a.definition and a.definition.code == code]
+        accounts = [a for a in self.accounts(asset=asset) if a.definition.code == code]
         assert len(accounts) == 1, 'code: %r asset: %r accounts: %r' % (code, asset, accounts)
         return accounts[0]
+
+    def account_by_codes(self, codes, asset=None):
+        definitions = AccountDefinition.all().filter('code IN', codes)
+        return Account.all().filter('denomination =', self.default_cash_asset).filter('asset =', asset).filter('definition IN', list(definitions))
 
     def trade_asset(self, asset, date=None, amount=1., price=None, price_account=None, description=None,
          taxes=0., fees=0.):
@@ -98,7 +102,7 @@ class AssetModel(Model):
     description = TextProperty()
     parent_account_code = StringProperty()
 
-    base_instances = (
+    base_instances_keys = (
         {'name': 'Currency', 'parent_account_code': '1001'},
         {'name': 'Commodity', 'parent_account_code': '1122'},
         {'name': 'Land', 'parent_account_code': '1600'},
@@ -182,7 +186,7 @@ class AccountDefinition(Model):
     description = TextProperty()
     parent_account = SelfReferenceProperty(collection_name='children_accounts')
 
-    base_instances = (
+    base_instances_keys = (
         {'code': '2599', 'name': 'Total assets', 'children': (
             {'code': '1599', 'name': 'Total current assets', 'children': (
                 {'code': '1001', 'name': 'Cash'},
@@ -228,12 +232,20 @@ class Account(Model):
     asset = ReferenceProperty(Asset, default=None, collection_name='accounts')
 
     @property
+    def id(self):
+        return self.key().id()
+
+    @property
     def children_accounts(self):
         if self.is_inventory or self.is_asset_account:
             return []
+        cached_children_accounts = get('account-%d-children_accounts' % self.id)
+        if cached_children_accounts is not None:
+            return cached_children_accounts
         codes = [am.code for am in self.definition.children_accounts]
-        children_accounts = [self.denomination.portfolio.account_by_code(c) for c in codes]
+        children_accounts = list(self.denomination.portfolio.account_by_codes(codes))
         children_accounts += self.denomination.portfolio.leaf_accounts(self.definition.code)
+        set('account-%d-children_accounts' % self.id, children_accounts, time=3600)
         return children_accounts
 
     @property
