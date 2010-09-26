@@ -48,6 +48,6 @@
 
   <view
      name="setup_test_portfolios"
-     view=".views.setup_test_portfolios"
+     view=".views.setup_test_portfolios_view"
      />
 </configure>

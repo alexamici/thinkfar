@@ -20,15 +20,15 @@ Users have one or more portfolios of assets:
     <Portfolio object name=u'Piper Belongings' owner=u'syd@pf.com'>
     >>> piper_belongings_key = piper_belongings.put()
     >>> piper_belongings.default_cash_asset.name
-    u'Cash USD'
+    u'Bank USD'
     >>> piper_belongings.default_cash_asset
-    <Asset object name=u'Cash USD' identity=u'USD' portfolio=u'Piper Belongings' owner=u'syd@pf.com'>
+    <Asset object name=u'Bank USD' identity=u'USD' portfolio=u'Piper Belongings' owner=u'syd@pf.com'>
     >>> piper_belongings.account_by_code('1001')
     <Account object denomination=u'USD' name=u'Cash' code=u'1001' asset=None in_balance_sheet=True>
     >>> piper_belongings.accounts(asset=piper_belongings.default_cash_asset).count()
     1
     >>> piper_belongings.account_by_code('1001', asset=piper_belongings.default_cash_asset)
-    <Account object denomination=u'USD' name=u'Cash' code=u'1001' asset=<Asset object name=u'Cash USD' identity=u'USD' portfolio=u'Piper Belongings' owner=u'syd@pf.com'> in_balance_sheet=True>
+    <Account object denomination=u'USD' name=u'Cash' code=u'1001' asset=<Asset object name=u'Bank USD' identity=u'USD' portfolio=u'Piper Belongings' owner=u'syd@pf.com'> in_balance_sheet=True>
     >>> piper_belongings.default_cash_asset.buy(amount=10000.)
 
 and we can associate each asset to a porfolio.
@@ -54,18 +54,18 @@ I've got a clan of gingerbread men. Here a man, there a man, lots of gingerbread
     >>> clan = Asset(asset_model=commodity_stock, name='Clan of gingerbread men',
     ...     portfolio=piper_belongings)
     >>> clan_key = clan.put()
-    >>> clan.buy(20., date=date(1967, 3, 22), price=5.)
-    >>> clan.buy(20., date=date(1967, 3, 23), price=5.)
+    >>> clan.buy(amount=20., date=date(1967, 3, 22), price=5.)
+    >>> clan.buy(amount=20., date=date(1967, 3, 23), price=5.)
 
 Take a couple if you wish. They're on the dish.
 
-    >>> clan.sell(2., date=date(1967, 3, 24), value=2.)
+    >>> clan.sell(amount=2., date=date(1967, 3, 24), value=2.)
     >>> clan.inventory.balance(date(1967, 3, 23))
     40.0
 
 I'll give you anything, everything if you want things.
 
     >>> len(piper_belongings.assets.fetch(1000))
-    5
+    4
     >>> len(piper_belongings.total_accounts())
-    5
+    4

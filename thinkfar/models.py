@@ -31,7 +31,7 @@ class Portfolio(Model):
     def put(self):
         if self.is_saved():
             return super(Portfolio, self).put()
-        key = super(Portfolio, self).put()
+        super(Portfolio, self).put()
         currency = AssetModel.all().filter('name =', 'Currency').fetch(1)[0]
         usd = Asset(portfolio=self, asset_model=currency, name=u'Bank USD', identity=u'USD')
         usd.put(init_cash=True)
@@ -161,10 +161,19 @@ class Asset(Model):
             price = amount
         self.portfolio.trade_asset(self, amount=amount, price=-price, **keys)
 
-    def sell(self, amount=1., value=None, **keys):
+    def sell(self, date, amount=1., value=None, **keys):
         if value == None:
             value = amount
-        self.portfolio.trade_asset(self, amount=-amount, price=value, **keys)
+        self.portfolio.trade_asset(self, date=date, amount=-amount, price=value, **keys)
+
+    def reconcile(self, date, descpription=None, code='8212'):
+        parent_account_balance = self.parent_account.balance(date)
+        if parent_account_balance == 0 or self.inventory.balance(date) != 0.:
+            return
+        profit_loss = Transaction(date=date, descpription=descpription)
+        profit_loss.put()
+        profit_loss_account = self.portfolio.account_by_code(code)
+        profit_loss.add_entries(((self.parent_account, - parent_account_balance), (profit_loss_account, parent_account_balance)))
 
     def add_revenue_account(self, code, yearly_revenue):
         ra = Account(definition=AccountDefinition.all().filter('code =', code).fetch(1)[0],
@@ -229,6 +238,10 @@ class AccountDefinition(Model):
             )},
             {'code': '8140', 'name': 'Total rental revenue', 'children': (
                 {'code': '8141', 'name': 'Real estate rental revenue'},
+            )},
+            {'code': '8210', 'name': 'Total Realized gains/losses on disposal of assets', 'children': (
+                {'code': '8211', 'name': 'Realized gains/losses on sale of investments'},
+                {'code': '8212', 'name': 'Realized gains/losses on sale of resource properties'},
             )},
         )},
         {'code': '9368', 'name': 'Total expenses', 'in_balance_sheet': False, 'children': (

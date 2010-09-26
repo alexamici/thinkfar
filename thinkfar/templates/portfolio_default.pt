@@ -19,7 +19,7 @@
           </thead>
           <tbody align="right">
             <tal:asset tal:repeat="asset list(portfolio.assets)">
-            <tr tal:condition="asset.inventory.balance(date)">
+            <tr tal:condition="asset.inventory.balance(date) or asset.parent_account.balance(date)">
               <td>
                 <a href="${request.application_url}/asset/${asset.id}" title="${asset.identity}">${asset.name}</a>
               </td>
