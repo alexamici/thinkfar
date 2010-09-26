@@ -126,6 +126,7 @@ def setup_test_portfolios(request):
         portfolio=joe_p, asset_model=AssetModel.get_by_name('Credit Card'))
     cc.put()
     cc.buy(amount=1., price=-5000., date=date(2002, 8, 1))
+    cc.add_revenue_account(code='8710', yearly_revenue=-5000.*.13)
     gold = Asset.all().filter('portfolio =', joe_p).filter('identity =', 'GOLD').fetch(1)[0]
     gold.buy(amount=2., price=600.)
     return Response(body='Done')

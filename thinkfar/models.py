@@ -33,7 +33,7 @@ class Portfolio(Model):
             return super(Portfolio, self).put()
         key = super(Portfolio, self).put()
         currency = AssetModel.all().filter('name =', 'Currency').fetch(1)[0]
-        usd = Asset(portfolio=self, asset_model=currency, name=u'Cash USD', identity=u'USD')
+        usd = Asset(portfolio=self, asset_model=currency, name=u'Bank USD', identity=u'USD')
         usd.put(init_cash=True)
         self.default_cash_asset = usd
         for definition in AccountDefinition.all():
@@ -41,7 +41,7 @@ class Portfolio(Model):
             account.put()
         usd_balance = Account(definition=self.account_by_code('1001').definition, denomination=usd, asset=usd)
         usd_balance.put()
-        gold = Asset(portfolio=self, asset_model=currency, name=u'Cash 1oz GOLD', identity=u'GOLD')
+        gold = Asset(portfolio=self, asset_model=currency, name=u'Gold coins 1oz', identity=u'GOLD')
         gold.put()
         opening_transaction = Transaction(date=date(2000, 1, 1), description=u'Opening Balance')
         opening_transaction.put()
@@ -88,7 +88,7 @@ class Portfolio(Model):
         if date is None the trade is added to the opening balance for the accounts'''
         if date is None:
             transaction = self.opening_transaction
-            price_account = self.account_by_code('3620') # equity
+            price_account = self.account_by_code('3500') # equity
         else:
             transaction = Transaction(date=date, description=description)
             transaction.put()
@@ -213,16 +213,16 @@ class AccountDefinition(Model):
             )},
             {'code': '2589', 'name': 'Total long-term assets'},
         )},
-        {'code': '3499', 'name': 'Total liabilities', 'children': (
-            {'code': '3139', 'name': 'Total current liabilities', 'children': (
+        {'code': '3640', 'name': 'Total liabilities and shareholder equity', 'children': (
+            {'code': '3499', 'name': 'Total liabilities', 'children': (
                 {'code': '2600', 'name': 'Bank overdraft'},
                 {'code': '2707', 'name': 'Credit card loans'},
-            )},
-            {'code': '3450', 'name': 'Total long-term liabilities', 'children': (
                 {'code': '3141', 'name': 'Mortgages'},
             )},
+            {'code': '3620', 'name': 'Total equity', 'children': (
+                {'code': '3500', 'name': 'Common shares'},
+            )},
         )},
-        {'code': '3620', 'name': 'Total equity'},
         {'code': '8299', 'name': 'Total revenue', 'in_balance_sheet': False, 'children': (
             {'code': '8089', 'name': 'Total sales of goods and services', 'children': (
                 {'code': '8000', 'name': 'Trade sales of goods and services'},

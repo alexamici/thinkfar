@@ -12,7 +12,7 @@
           <thead>
             <tr>
               <th>Account</th>
-              <th>Denomination</th>
+              <th>Den.</th>
               <th>Asset accounts</th>
               <th>Accounts</th>
               <th>Total accounts</th>
@@ -55,12 +55,20 @@
               <th>${total_account.balance(date)}</th>
             </tr>
             </tal:totalaccount>
-            <tr tal:define="(asset, liabilities, equity) portfolio.total_balance_sheet_accounts()">
-              <th align="left">${liabilities.definition.name} + ${equity.definition.name}</th>
+            <tr tal:define="(revenue, expenses) portfolio.total_income_statment_accounts()">
+              <th align="left">Current Profit/Loss</th>
+              <th>${revenue.denomination.identity}</th>
+              <th></th>
+              <th></th>
+              <th>${revenue.balance(date) + expenses.balance(date)}</th>
+            </tr>
+            <tr tal:define="(asset, liabilities) portfolio.total_balance_sheet_accounts();
+                (revenue, expenses) portfolio.total_income_statment_accounts()">
+              <th align="left">${asset.definition.name} + ${liabilities.definition.name}</th>
               <th>${asset.denomination.identity}</th>
               <th></th>
               <th></th>
-              <th>${liabilities.balance(date) + equity.balance(date)}</th>
+              <th>${asset.balance(date) + liabilities.balance(date)}</th>
             </tr>
           </tbody>
         </table>

@@ -14,12 +14,7 @@
               <th>Asset name</th>
               <th>Inventory</th>
               <th>Parent Account Balance</th>
-              <th>E. Ask</th>
-              <th>Cum. buy</th>
-              <th>Cum. sell</th>
-              <th>Cum. spread</th>
-              <th>Cum. balance</th>
-              <th>Income/expenses</th>
+              <th>Revenue/expenses</th>
             </tr>
           </thead>
           <tbody align="right">
@@ -30,11 +25,6 @@
               </td>
               <td>${asset.inventory.balance(date)}</td>
               <td>${asset.parent_account.balance(date)}</td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
               <td></td>
             </tr>
             </tal:asset>
