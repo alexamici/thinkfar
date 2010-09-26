@@ -20,6 +20,8 @@ class Portfolio(Model):
     owner = UserProperty(required=True)
     name = StringProperty(required=True, default=u'Default Portfolio')
     description = TextProperty()
+    opening_transaction = ReferenceProperty(collection_name='opening_transaction_of') # one-way relation to Transaction
+    default_cash_asset = ReferenceProperty(collection_name='default_cash_asset_of') # one-way relation to Asset
 
     @property
     def id(self):
@@ -30,31 +32,22 @@ class Portfolio(Model):
             return super(Portfolio, self).put()
         key = super(Portfolio, self).put()
         currency = AssetModel.all().filter('name =', 'Currency').fetch(1)[0]
-        usd = Asset(portfolio=self, asset_model=currency, name='Cash USD', identity='USD')
+        usd = Asset(portfolio=self, asset_model=currency, name=u'Cash USD', identity=u'USD')
         usd.put(init_cash=True)
+        self.default_cash_asset = usd
         for definition in AccountDefinition.all():
-            account = Account(definition=definition, denomination=usd)
+            account = Account(definition=definition, denomination=usd, asset=None)
             account.put()
-        usd_balance = Account(definition=usd.parent_account.definition, denomination=usd, asset=usd)
+        usd_balance = Account(definition=self.account_by_code('1001').definition, denomination=usd, asset=usd)
         usd_balance.put()
-        eur = Asset(portfolio=self, asset_model=currency, name='Cash EUR', identity='EUR')
+        eur = Asset(portfolio=self, asset_model=currency, name=u'Cash EUR', identity=u'EUR')
         eur.put()
-        gold = Asset(portfolio=self, asset_model=currency, name='Cash GOLD', identity='GOLD')
+        gold = Asset(portfolio=self, asset_model=currency, name=u'Cash GOLD', identity=u'GOLD')
         gold.put()
-        return key
-
-    @property
-    def default_cash_asset(self):
-        return Asset.all().filter('name =', 'Cash USD').filter('portfolio =', self).fetch(1)[0]
-
-    def default_cash_opening_balance(self, amount):
-        opening_balance = Transaction(date=date(2000, 1, 1), description='Opening Balance')
-        opening_balance.put()
-        opening_balance.add_entries((
-            (self.default_cash_asset.parent_account, amount),
-            # equity
-            (self.account_by_code('3620'), - amount),
-        ))
+        opening_transaction = Transaction(date=date(2000, 1, 1), description=u'Opening Balance')
+        opening_transaction.put()
+        self.opening_transaction = opening_transaction
+        return super(Portfolio, self).put()
 
     def total_accounts(self):
         return [a for a in Account.all().filter('denomination =', self.default_cash_asset)
@@ -63,19 +56,38 @@ class Portfolio(Model):
     def total_balance_sheet_accounts(self):
         return [a for a in self.total_accounts() if a.definition.in_balance_sheet]
 
-    def accounts(self):
-        return Account.all().filter('denomination =', self.default_cash_asset)
+    def accounts(self, asset=None):
+        return Account.all().filter('denomination =', self.default_cash_asset).filter('asset =', asset)
+
+    def leaf_accounts(self, code=None):
+        all_leaf_accounts = Account.all().filter('denomination =', self.default_cash_asset).filter('asset !=', None)
+        if code == None:
+            return all_leaf_accounts
+        else:
+            return [a for a in all_leaf_accounts if a.definition.code == code]
 
     def all_accounts(self):
         return Account.all().filter('denomination IN', list(self.assets))
 
     def account_by_code(self, code, asset=None):
-        accounts = [a for a in self.accounts() if a.definition and a.definition.code == code and a.asset == asset]
-        if len(accounts) == 0:
-            raise ValueError('No account with code %r' % code)
-        elif len(accounts) > 1:
-            raise ValueError('Multiple accounts with code %r' % code)
+        accounts = [a for a in self.accounts(asset=asset) if a.definition and a.definition.code == code]
+        assert len(accounts) == 1, 'code: %r asset: %r accounts: %r' % (code, asset, accounts)
         return accounts[0]
+
+    def trade_asset(self, asset, date=None, amount=1., price=None, price_account=None, description=None,
+         taxes=0., fees=0.):
+        '''trade an asset using default accounts
+        
+        if date is None the trade is added to the opening balance for the accounts'''
+        if date is None:
+            transaction = self.opening_transaction
+            price_account = self.account_by_code('3620') # equity
+        else:
+            transaction = Transaction(date=date, description=description)
+            transaction.put()
+            price_account = price_account or self.default_cash_asset.parent_account
+        transaction.add_entries(((asset.inventory, amount), (asset.parent_account, - price), (price_account, price)))
+        transaction.put()
 
     def __repr__(self):
         return u'<%s object name=%r owner=%r>' % \
@@ -119,7 +131,7 @@ class Asset(Model):
 
     @property
     def parent_account(self):
-        return self.portfolio.account_by_code(self.asset_model.parent_account_code)
+        return self.portfolio.account_by_code(self.asset_model.parent_account_code, asset=self)
 
     @property
     def has_identity(self):
@@ -129,34 +141,26 @@ class Asset(Model):
         if self.is_saved():
             return super(Asset, self).put()
         key = super(Asset, self).put()
-        balance = Account(definition=None, denomination=self)
-        balance.put()
+        inventory = Account(definition=None, denomination=self)
+        inventory.put()
         if not init_cash:
-            price_balance = Account(definition=self.parent_account.definition,
+            parent_account = Account(definition=self.portfolio.account_by_code(self.asset_model.parent_account_code).definition,
                 denomination=self.portfolio.default_cash_asset, asset=self)
-            price_balance.put()
+            parent_account.put()
         return key
 
     def buy(self, amount=1., price=None, **keys):
         if price == None:
             price = amount
-        self.trade(amount=amount, value=-price, **keys)
+        self.portfolio.trade_asset(self, amount=amount, price=-price, **keys)
 
     def sell(self, amount=1., value=None, **keys):
         if value == None:
             value = amount
-        self.trade(amount=-amount, value=value, **keys)
-
-    def trade(self, value=None, taxes=0., fees=0.,
-            date=None, amount=None, description=None, account=None):
-        if account is None:
-            account = self.portfolio.default_cash_asset.parent_account
-        trade = Transaction(date=date, description=description)
-        trade.put()
-        trade.add_entries(((self.account, amount), (account, value), (self.parent_account, -value)))
+        self.portfolio.trade_asset(self, amount=-amount, price=value, **keys)
 
     @property
-    def account(self):
+    def inventory(self):
         for a in self.denomination_accounts:
             if a.definition is None:
                 return a
@@ -213,17 +217,32 @@ class AccountDefinition(Model):
         return self.key().id()
 
 class Account(Model):
-    # if definition is None the account is the balance of the denomination asset
+    '''A double-entry or inventory account belonging to a portfolio
+    
+    Double-entry accounts have a definition
+    Asset accounts have an asset
+    Inventory accounts have no definition and no asset'''
+
     definition = ReferenceProperty(AccountDefinition, collection_name='accounts')
     denomination = ReferenceProperty(Asset, required=True, collection_name='denomination_accounts')
     asset = ReferenceProperty(Asset, default=None, collection_name='accounts')
 
     @property
     def children_accounts(self):
-        if self.definition is None:
+        if self.is_inventory or self.is_asset_account:
             return []
         codes = [am.code for am in self.definition.children_accounts]
-        return [self.denomination.portfolio.account_by_code(c) for c in codes]
+        children_accounts = [self.denomination.portfolio.account_by_code(c) for c in codes]
+        children_accounts += self.denomination.portfolio.leaf_accounts(self.definition.code)
+        return children_accounts
+
+    @property
+    def is_inventory(self):
+        return self.definition is None and self.asset is None
+
+    @property
+    def is_asset_account(self):
+        return self.asset is not None
 
     def transactions(self):
         return [te.transaction for te in self.transaction_entries]

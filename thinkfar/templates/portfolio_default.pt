@@ -24,11 +24,11 @@
           </thead>
           <tbody align="right">
             <tal:asset tal:repeat="asset portfolio.assets">
-            <tr tal:condition="asset.account.balance(date)">
+            <tr tal:condition="asset.inventory.balance(date)">
               <td>
                 <a href="${request.application_url}/asset/${asset.id}" title="${asset.identity}">${asset.name}</a>
               </td>
-              <td>${asset.account.balance(date)}</td>
+              <td>${asset.inventory.balance(date)}</td>
               <td></td>
               <td></td>
               <td></td>

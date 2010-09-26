@@ -13,16 +13,28 @@
             <tr>
               <th>Account</th>
               <th>Denomination</th>
-              <th>Balance</th>
+              <th>Asset accounts</th>
+              <th>Accounts</th>
+              <th>Total accounts</th>
             </tr>
           </thead>
           <tbody align="right">
             <tal:totalaccount tal:repeat="total_account portfolio.total_balance_sheet_accounts()">
             <tal:subtotalaccount tal:repeat="subtotal_account total_account.children_accounts">
             <tal:account tal:repeat="account subtotal_account.children_accounts">
+            <tal:assetaccount tal:repeat="asset_account account.children_accounts">
+            <tr tal:condition="asset_account.definition and asset_account.balance(date)">
+              <td align="left">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${asset_account.asset.name} account</td>
+              <td>${asset_account.denomination.identity}</td>
+              <td>${asset_account.balance(date)}</td>
+              <td></td>
+              <td></td>
+            </tr>
+            </tal:assetaccount>
             <tr tal:condition="account.definition and account.balance(date)">
               <td align="left">&nbsp;&nbsp;&nbsp;&nbsp;${account.definition.name}</td>
               <td>${account.denomination.identity}</td>
+              <td></td>
               <td>${account.balance(date)}</td>
               <td></td>
             </tr>
@@ -31,12 +43,14 @@
               <th align="left">&nbsp;&nbsp;${subtotal_account.definition.name}</th>
               <th>${subtotal_account.denomination.identity}</th>
               <th></th>
+              <th></th>
               <th>${subtotal_account.balance(date)}</th>
             </tr>
             </tal:subtotalaccount>
             <tr>
               <th align="left">${total_account.definition.name}</th>
               <th>${total_account.denomination.identity}</th>
+              <th></th>
               <th></th>
               <th>${total_account.balance(date)}</th>
             </tr>

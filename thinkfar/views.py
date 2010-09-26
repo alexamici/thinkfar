@@ -90,10 +90,13 @@ def initdb_view(request):
 def setup_test_portfolios(request):
     joe_p = Portfolio(name="Average Joe Portfolio", owner=get_current_user())
     joe_p.put()
-    joe_p.default_cash_opening_balance(100000.)
-    land = Asset(name='Joe Field', portfolio=joe_p, asset_model=AssetModel.get_by_name('Land'))
-    land.put()
-    land.buy(date=date(1998, 1, 3), price=10000.)
+    joe_p.default_cash_asset.buy(amount=1., price=100000.)
+    land1 = Asset(name='Joe Field 1', portfolio=joe_p, asset_model=AssetModel.get_by_name('Land'))
+    land1.put()
+    land1.buy(price=10000.)
+    land2 = Asset(name='Joe Field 2', portfolio=joe_p, asset_model=AssetModel.get_by_name('Land'))
+    land2.put()
+    land2.buy(price=8000.)
     home = Asset(name='Joe Home', description="2350 Sweet Home Road, Amherst, NY, United States",
         portfolio=joe_p, asset_model=AssetModel.get_by_name('Building'))
     home.put()
@@ -109,5 +112,5 @@ def setup_test_portfolios(request):
     cc = Asset(name='Joe Credit Card', description="Average Bank",
         portfolio=joe_p, asset_model=AssetModel.get_by_name('Credit Card'))
     cc.put()
-    cc.buy(amount=-5000., date=date(2001, 12, 21))
+    cc.buy(amount=1., price=-5000., date=date(2001, 12, 21))
     return Response(body='Done')

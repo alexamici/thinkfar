@@ -14,14 +14,14 @@
               <th>Trade date</th>
               <th>Description</th>
               <th>Amount</th>
-              <th>Buyer Price</th>
               <th>Seller Value</th>
               <th>Spread</th>
-              <th>Balance</th>
+              <th>Parent Account Balance</th>
+              <th>Inventory</th>
             </tr>
           </thead>
           <tbody align="right">
-            <tal:entry tal:repeat="entry asset.account.transaction_entries">
+            <tal:entry tal:repeat="entry asset.inventory.transaction_entries">
             <tr tal:condition="entry.transaction.date &lt;= date">
               <td>
                 <a href="${request.application_url}/transaction/${entry.transaction.id}">${entry.transaction.date}</a>
@@ -31,7 +31,7 @@
               <td></td>
               <td></td>
               <td></td>
-              <td>${asset.account.balance(entry.transaction.date)}</td>
+              <td>${asset.inventory.balance(entry.transaction.date)}</td>
             </tr>
             </tal:entry>
           </tbody>
@@ -43,47 +43,50 @@
               <td></td>
               <td></td>
               <td></td>
-              <td>${asset.account.balance(date)}</td>
+              <td>${asset.inventory.balance(date)}</td>
             </tr>
           </tfoot>
         </table>
-<tal:comment tal:condition="False">
-        <h3>asset income/expenses history as of ${date.isoformat()}</h3>
+        <h3>asset parent account history as of ${date.isoformat()}</h3>
         <table>
           <thead>
             <tr>
-              <th>Name</th>
-              <th>Start date</th>
-              <th>End date</th>
-              <th>Income/Expenses</th>
-              <th>Is estimated?</th>
+              <th>Trade date</th>
               <th>Description</th>
+              <th>Amount</th>
+              <th>Seller Value</th>
+              <th>Spread</th>
+              <th>Parent Account Balance</th>
+              <th>Inventory</th>
             </tr>
           </thead>
           <tbody align="right">
-            <tr tal:repeat="income_expenses asset.yearly_income_expenses">
+            <tal:entry tal:repeat="entry asset.parent_account.transaction_entries">
+            <tr tal:condition="entry.transaction.date &lt;= date">
               <td>
-                <a href="${request.application_url}/income_expenses/${income_expenses.id}">${income_expenses.name}</a>
+                <a href="${request.application_url}/transaction/${entry.transaction.id}">${entry.transaction.date}</a>
               </td>
-              <td>${income_expenses.start_date()}</td>
-              <td>${income_expenses.end_date}</td>
-              <td>${income_expenses.yearly_income_expenses}</td>
-              <td>${income_expenses.is_estimated}</td>
-              <td>${income_expenses.description}</td>
+              <td>${entry.transaction.description or '-'}</td>
+              <td>${entry.amount}</td>
+              <td></td>
+              <td></td>
+              <td>${asset.parent_account.balance(entry.transaction.date)}</td>
+              <td>${asset.inventory.balance(entry.transaction.date)}</td>
             </tr>
+            </tal:entry>
           </tbody>
           <tfoot align="right">
             <tr>
               <td>Total</td>
               <td></td>
               <td></td>
-              <td>${asset.estimated_yearly_income_expenses(date)}</td>
               <td></td>
               <td></td>
+              <td>${asset.parent_account.balance(date)}</td>
+              <td>${asset.inventory.balance(date)}</td>
             </tr>
           </tfoot>
         </table>
-</tal:comment>
       </div>
     </div>
   </div>
