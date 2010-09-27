@@ -8,6 +8,12 @@
       <div class="post">
         <h1 class="title">${title}</h1>
         <h3>portfolio at ${date.isoformat()}</h3>
+        <input type="text" name="date" id="date" />
+        <script type="text/javascript">
+          $(document).ready(function(){
+            $('#date').datepicker();
+          });
+        </script>
         <table>
           <thead>
             <tr>
