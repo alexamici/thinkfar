@@ -1,4 +1,6 @@
-# 'Price is what you pay. Value is what you get.' Warren Buffett, 2008.
+"""
+'Price is what you pay. Value is what you get.' Warren Buffett, 2008.
+"""
 
 from datetime import date
 
@@ -18,6 +20,8 @@ def get_root(request):
 
 
 class Portfolio(Model):
+    """A collection of assets with an associated double-entry book"""
+    
     owner = UserProperty(required=True)
     name = StringProperty(required=True, default=u'Default Portfolio')
     description = TextProperty()
@@ -175,14 +179,6 @@ class Asset(Model):
         profit_loss_account = self.portfolio.account_by_code(code)
         profit_loss.add_entries(((self.parent_account, - parent_account_balance), (profit_loss_account, parent_account_balance)))
 
-    def add_revenue_account(self, code, yearly_revenue):
-        ra = Account(definition=AccountDefinition.all().filter('code =', code).fetch(1)[0],
-                denomination=self.portfolio.default_cash_asset, asset=self)
-        ra.put()
-        revenue = Transaction(date=date(2010, 1, 1))
-        revenue.put()
-        revenue.add_entries(((ra, - yearly_revenue), (self.portfolio.default_cash_asset.parent_account, yearly_revenue)))
-
     @property
     def inventory(self):
         for a in self.denomination_accounts:
@@ -256,11 +252,11 @@ class AccountDefinition(Model):
         return self.key().id()
 
 class Account(Model):
-    '''A double-entry or inventory account belonging to a portfolio
+    """A double-entry or inventory account belonging to a portfolio
     
     Double-entry accounts have a definition
     Asset accounts have an asset
-    Inventory accounts have no definition and no asset'''
+    Inventory accounts have no definition and no asset"""
 
     definition = ReferenceProperty(AccountDefinition, collection_name='accounts')
     denomination = ReferenceProperty(Asset, required=True, collection_name='denomination_accounts')
@@ -317,7 +313,11 @@ class Account(Model):
             (self.__class__.__name__, self.denomination.identity, name, code, self.asset, in_balance_sheet)
 
 class Transaction(Model):
-    date = DateProperty(required=True)
+    """An event in the double-entry book
+    
+    if date is None it is a transaction template, not an actual transaction"""
+
+    date = DateProperty()
     description = TextProperty()
 
     @property
@@ -357,7 +357,4 @@ class Trade(Model):
 
     The basic idea is to separate total price paid by the seller in the
     transaction from what the seller actually receives."""
-
-    @property
-    def id(self):
-        return self.key().id()
+    pass
