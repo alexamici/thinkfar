@@ -35,6 +35,13 @@
      />
 
   <route
+     name="portfolio_estimated_income"
+     path="/portfolio/:id/estimated/income"
+     view=".views.portfolio_estimated_income"
+     view_renderer="templates/portfolio_estimated_income.pt"
+     />
+
+  <route
      name="asset"
      path="/asset/:id"
      view=".views.asset_view"

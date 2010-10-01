@@ -43,7 +43,7 @@ def portfolio_balance(request):
     namespace = portfolio_default(request)
     return namespace
 
-portfolio_income = portfolio_default
+portfolio_income = portfolio_estimated_income = portfolio_default 
 
 def asset_view(request):
     namespace = common_namespace(request)

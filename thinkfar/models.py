@@ -21,36 +21,51 @@ def get_root(request):
 
 class Portfolio(Model):
     """A collection of assets with an associated double-entry book"""
-    
+
     owner = UserProperty(required=True)
     name = StringProperty(required=True, default=u'Default Portfolio')
     description = TextProperty()
     opening_transaction = ReferenceProperty(collection_name='opening_transaction_of') # one-way relation to Transaction
     default_cash_asset = ReferenceProperty(collection_name='default_cash_asset_of') # one-way relation to Asset
+    default_denomination = ReferenceProperty(collection_name='default_denomination_of') # one-way relation to Asset
 
     @property
     def id(self):
         return self.key().id()
 
-    def put(self):
-        if self.is_saved():
-            return super(Portfolio, self).put()
-        super(Portfolio, self).put()
-        currency = AssetModel.all().filter('name =', 'Currency').fetch(1)[0]
-        usd = Asset(portfolio=self, asset_model=currency, name=u'Bank USD', identity=u'USD')
+    def _bootstrap(self):
+        assert self.assets.count() == 0
+        usd = Asset(portfolio=self, asset_model=AssetModel.get_by_name('Legal Currency'),
+            name=u'USD Cash', identity=u'USD')
         usd.put(init_cash=True)
-        self.default_cash_asset = usd
+        self.default_denomination = usd
+
         for definition in AccountDefinition.all():
             account = Account(definition=definition, denomination=usd, asset=None)
             account.put()
+
         usd_balance = Account(definition=self.account_by_code('1001').definition, denomination=usd, asset=usd)
         usd_balance.put()
-        gold = Asset(portfolio=self, asset_model=currency, name=u'Gold coins 1oz', identity=u'GOLD')
+
+        usd_bank = Asset(portfolio=self, asset_model=AssetModel.get_by_name('Bank Account'),
+            name=u'USD Bank Account', identity=u'Default USD Bank Account')
+        usd_bank.put()
+        self.default_cash_asset = usd_bank
+        gold = Asset(portfolio=self, asset_model=AssetModel.get_by_name('Commodity Money'),
+            name=u'Gold coins 1oz', identity=u'GOLD')
         gold.put()
+        
         opening_transaction = Transaction(date=date(2000, 1, 1), description=u'Opening Balance')
         opening_transaction.put()
         self.opening_transaction = opening_transaction
-        return super(Portfolio, self).put()
+
+    def put(self):
+        if self.is_saved():
+            return super(Portfolio, self).put()
+        else:
+            super(Portfolio, self).put()
+            self._bootstrap()
+            return super(Portfolio, self).put()
 
     def total_accounts(self):
         return [a for a in self.accounts() if a.definition.parent_account is None]
@@ -64,10 +79,10 @@ class Portfolio(Model):
             cmp=lambda x, y: int(x.definition.code) - int(y.definition.code))
 
     def accounts(self, asset=None):
-        return Account.all().filter('denomination =', self.default_cash_asset).filter('asset =', asset).filter('definition !=', None)
+        return Account.all().filter('denomination =', self.default_denomination).filter('asset =', asset).filter('definition !=', None)
 
     def leaf_accounts(self, code=None):
-        all_leaf_accounts = Account.all().filter('denomination =', self.default_cash_asset).filter('asset !=', None)
+        all_leaf_accounts = Account.all().filter('denomination =', self.default_denomination).filter('asset !=', None)
         if code == None:
             return all_leaf_accounts
         else:
@@ -81,9 +96,12 @@ class Portfolio(Model):
         assert len(accounts) == 1, 'code: %r asset: %r accounts: %r' % (code, asset, accounts)
         return accounts[0]
 
-    def account_by_codes(self, codes, asset=None):
+    def accounts_by_codes(self, codes, asset=None):
         definitions = AccountDefinition.all().filter('code IN', codes)
-        return Account.all().filter('denomination =', self.default_cash_asset).filter('asset =', asset).filter('definition IN', list(definitions))
+        accounts = Account.all().filter('denomination =', self.default_denomination).filter('asset =', asset).filter('definition IN', list(definitions))
+        if accounts.count() != len(codes):
+            raise ValueError('%r %r' % (codes, list(accounts)))
+        return accounts
 
     def trade_asset(self, asset, date=None, amount=1., price=None, price_account=None, description=None,
          taxes=0., fees=0.):
@@ -110,7 +128,10 @@ class AssetModel(Model):
     parent_account_code = StringProperty()
 
     base_instances_keys = (
-        {'name': 'Currency', 'parent_account_code': '1001'},
+        {'name': 'Legal Currency', 'parent_account_code': '1001'},
+        {'name': 'Bank Account', 'parent_account_code': '1002', 
+            'description': 'Denominated in the main legal currency'},
+        {'name': 'Commodity Money', 'parent_account_code': '1007'},
         {'name': 'Commodity', 'parent_account_code': '1122'},
         {'name': 'Land', 'parent_account_code': '1600'},
         {'name': 'Building', 'parent_account_code': '1680'},
@@ -156,7 +177,7 @@ class Asset(Model):
         inventory.put()
         if not init_cash:
             parent_account = Account(definition=self.portfolio.account_by_code(self.asset_model.parent_account_code).definition,
-                denomination=self.portfolio.default_cash_asset, asset=self)
+                denomination=self.portfolio.default_denomination, asset=self)
             parent_account.put()
         return key
 
@@ -185,6 +206,9 @@ class Asset(Model):
             if a.definition is None:
                 return a
 
+    def accounts_by_codes(self, codes):
+        return self.portfolio.accounts_by_codes(codes, asset=self)
+
     def __repr__(self):
         if self.has_identity:
             identification = u'identity=%r' % self.identity
@@ -206,6 +230,8 @@ class AccountDefinition(Model):
         {'code': '2599', 'name': 'Total assets', 'children': (
             {'code': '1599', 'name': 'Total current assets', 'children': (
                 {'code': '1001', 'name': 'Cash'},
+                {'code': '1002', 'name': 'Deposits in local banks and institutions - local currency'},
+                {'code': '1007', 'name': 'Other cash like instruments - gold bullion and silver bullion'},
                 {'code': '1122', 'name': 'Inventory parts and supplies'},
             )},
             {'code': '2008', 'name': 'Total tangible capital assets', 'children': (
@@ -274,7 +300,7 @@ class Account(Model):
         if cached_children_accounts is not None:
             return cached_children_accounts
         codes = [am.code for am in self.definition.children_accounts]
-        children_accounts = list(self.denomination.portfolio.account_by_codes(codes))
+        children_accounts = list(self.denomination.portfolio.accounts_by_codes(codes))
         children_accounts += self.denomination.portfolio.leaf_accounts(self.definition.code)
         set('account-%d-children_accounts' % self.id, children_accounts, time=3600)
         return children_accounts
