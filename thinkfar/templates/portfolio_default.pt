@@ -30,8 +30,8 @@
                 <a href="${request.application_url}/asset/${asset.id}" title="${asset.identity}">${asset.name}</a>
               </td>
               <td>${asset.inventory.balance(date)}</td>
-              <td>${asset.parent_account.balance(date)}</td>
-              <td></td>
+              <td>${asset.parent_account.sign_balance(date)}</td>
+              <td tal:condition="asset.asset_model.revenue_account_code">${asset.revenue_account.estimated_yearly_balance()}</td>
             </tr>
             </tal:asset>
           </tbody>

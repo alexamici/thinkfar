@@ -22,6 +22,11 @@ def load_kind(kind, instances_keys=None, parent_instance=None):
     for keys in instances_keys:
         children = keys.pop('children', ())
         keys['parent_account'] = parent_instance
+        for attr in ('is_asset', 'is_liability', 'is_revenue', 'is_expense'):
+            try:
+                keys[attr] = getattr(parent_instance, attr)
+            except:
+                pass
         instance = kind(**keys)
         instance.put()
         load_kind(kind, instances_keys=children, parent_instance=instance)

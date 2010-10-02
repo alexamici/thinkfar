@@ -126,6 +126,7 @@ class AssetModel(Model):
     name = StringProperty(required=True)
     description = TextProperty()
     parent_account_code = StringProperty()
+    revenue_account_code = StringProperty()
 
     base_instances_keys = (
         {'name': 'Legal Currency', 'parent_account_code': '1001'},
@@ -134,10 +135,10 @@ class AssetModel(Model):
         {'name': 'Commodity Money', 'parent_account_code': '1007'},
         {'name': 'Commodity', 'parent_account_code': '1122'},
         {'name': 'Land', 'parent_account_code': '1600'},
-        {'name': 'Building', 'parent_account_code': '1680'},
+        {'name': 'Building', 'parent_account_code': '1680', 'revenue_account_code': '8141'},
         {'name': 'Vehicle', 'parent_account_code': '1740'},
         {'name': 'Credit Card', 'parent_account_code': '2707'},
-        {'name': 'Job', 'parent_account_code': '2010'},
+        {'name': 'Job', 'parent_account_code': '2010', 'revenue_account_code': '8000'},
         {'name': 'Mortgage', 'parent_account_code': '3141'},
     )
 
@@ -166,6 +167,11 @@ class Asset(Model):
         return self.portfolio.account_by_code(self.asset_model.parent_account_code, asset=self)
 
     @property
+    def revenue_account(self):
+        return self.portfolio.account_by_code(self.asset_model.revenue_account_code, asset=self)
+            
+
+    @property
     def has_identity(self):
         return self.identity is not None
 
@@ -179,6 +185,10 @@ class Asset(Model):
             parent_account = Account(definition=self.portfolio.account_by_code(self.asset_model.parent_account_code).definition,
                 denomination=self.portfolio.default_denomination, asset=self)
             parent_account.put()
+        if self.asset_model.revenue_account_code:
+            revenue_account = Account(definition=self.portfolio.account_by_code(self.asset_model.revenue_account_code).definition,
+                denomination=self.portfolio.default_denomination, asset=self)
+            revenue_account.put()
         return key
 
     def buy(self, amount=1., price=None, **keys):
@@ -206,6 +216,9 @@ class Asset(Model):
             if a.definition is None:
                 return a
 
+    def account_by_code(self, code):
+        return self.portfolio.account_by_code(code, asset=self)
+
     def accounts_by_codes(self, codes):
         return self.portfolio.accounts_by_codes(codes, asset=self)
 
@@ -218,16 +231,36 @@ class Asset(Model):
             (self.__class__.__name__, self.name, identification,
                 self.portfolio.name, self.portfolio.owner.nickname())
 
+    def add_account(self, code):
+        account = Account(definition=self.portfolio.account_by_code(code).definition,
+            denomination=self.portfolio.default_denomination, asset=self)
+        account.put()
+        return account
+
+    def add_yearly_revenue(self, revenue, code=None, description=None):
+        if code is None:
+            code = self.asset_model.revenue_account_code
+        try:
+            account = list(self.accounts_by_codes([code]))[0]
+        except:
+            account = self.add_account(code)
+        revenue_template = Transaction(date=None, description=description)
+        revenue_template.put()
+        revenue_template.add_entries(((account, -revenue), (self.portfolio.default_cash_asset.parent_account, revenue)))
+
 # GIFI reference http://www.newlearner.com/courses/hts/bat4m/pdf/gifiguide.pdf
 class AccountDefinition(Model):
     code = StringProperty(required=True)
     name = StringProperty(required=True)
-    in_balance_sheet = BooleanProperty(default=True)
+    is_asset = BooleanProperty(default=False)
+    is_liability = BooleanProperty(default=False)
+    is_revenue = BooleanProperty(default=False)
+    is_expense = BooleanProperty(default=False)
     description = TextProperty()
     parent_account = SelfReferenceProperty(collection_name='children_accounts')
 
     base_instances_keys = (
-        {'code': '2599', 'name': 'Total assets', 'children': (
+        {'code': '2599', 'name': 'Total assets', 'is_asset': True, 'children': (
             {'code': '1599', 'name': 'Total current assets', 'children': (
                 {'code': '1001', 'name': 'Cash'},
                 {'code': '1002', 'name': 'Deposits in local banks and institutions - local currency'},
@@ -244,7 +277,7 @@ class AccountDefinition(Model):
             )},
             {'code': '2589', 'name': 'Total long-term assets'},
         )},
-        {'code': '3640', 'name': 'Total liabilities and shareholder equity', 'children': (
+        {'code': '3640', 'name': 'Total liabilities and shareholder equity', 'is_liability': True, 'children': (
             {'code': '3499', 'name': 'Total liabilities', 'children': (
                 {'code': '2600', 'name': 'Bank overdraft'},
                 {'code': '2707', 'name': 'Credit card loans'},
@@ -254,7 +287,7 @@ class AccountDefinition(Model):
                 {'code': '3500', 'name': 'Common shares'},
             )},
         )},
-        {'code': '8299', 'name': 'Total revenue', 'in_balance_sheet': False, 'children': (
+        {'code': '8299', 'name': 'Total revenue', 'is_revenue': True, 'children': (
             {'code': '8089', 'name': 'Total sales of goods and services', 'children': (
                 {'code': '8000', 'name': 'Trade sales of goods and services'},
             )},
@@ -266,9 +299,10 @@ class AccountDefinition(Model):
                 {'code': '8212', 'name': 'Realized gains/losses on sale of resource properties'},
             )},
         )},
-        {'code': '9368', 'name': 'Total expenses', 'in_balance_sheet': False, 'children': (
+        {'code': '9368', 'name': 'Total expenses', 'is_expense': True, 'children': (
             {'code': '9367', 'name': 'Total operating expenses', 'children': (
                 {'code': '8710', 'name': 'Interest and bank charges'},
+                {'code': '9180', 'name': 'Property taxes'},
             )},
         )},
     )
@@ -276,6 +310,10 @@ class AccountDefinition(Model):
     @property
     def id(self):
         return self.key().id()
+
+    @property
+    def in_balance_sheet(self):
+        return self.is_asset or self.is_liability
 
 class Account(Model):
     """A double-entry or inventory account belonging to a portfolio
@@ -318,7 +356,21 @@ class Account(Model):
 
     def balance(self, date):
         children_balance = sum(a.balance(date) for a in self.children_accounts)
-        return 0. + children_balance + sum(te.amount for te in self.transaction_entries if te.transaction.date <= date)
+        return 0. + children_balance + sum(te.amount for te in self.transaction_entries if te.transaction.date is not None and te.transaction.date <= date)
+
+    def sign_balance(self, date):
+        if (self.definition.is_liability or self.definition.is_revenue):
+            return - self.balance(date)
+        else:
+            return self.balance(date)
+
+    def estimated_yearly_balance(self, sign=True):
+        children_balance = sum(a.estimated_yearly_balance(sign=False) for a in self.children_accounts)
+        balance = 0. + children_balance + sum(te.amount for te in self.transaction_entries if te.transaction.date == None)
+        if sign and (self.definition.is_liability or self.definition.is_revenue):
+            return - balance
+        else:
+            return balance
 
     def total_credit(self, date):
         return sum(te.amount for te in self.transaction_entries if te.transaction.date <= date and te.amount > 0.)

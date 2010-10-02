@@ -26,7 +26,7 @@
             <tr tal:condition="asset_account.definition and asset_account.balance(date)">
               <td align="left">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${asset_account.asset.name} account</td>
               <td>${asset_account.denomination.identity}</td>
-              <td>${asset_account.balance(date)}</td>
+              <td>${asset_account.sign_balance(date)}</td>
               <td></td>
               <td></td>
             </tr>
@@ -35,7 +35,7 @@
               <td align="left">&nbsp;&nbsp;&nbsp;&nbsp;${account.definition.name}</td>
               <td>${account.denomination.identity}</td>
               <td></td>
-              <td>${account.balance(date)}</td>
+              <td>${account.sign_balance(date)}</td>
               <td></td>
             </tr>
             </tal:account>
@@ -44,7 +44,7 @@
               <td>${subtotal_account.denomination.identity}</td>
               <td></td>
               <td></td>
-              <td>${subtotal_account.balance(date)}</td>
+              <td>${subtotal_account.sign_balance(date)}</td>
             </tr>
             </tal:subtotalaccount>
             <tr>
@@ -52,23 +52,23 @@
               <th>${total_account.denomination.identity}</th>
               <th></th>
               <th></th>
-              <th>${total_account.balance(date)}</th>
+              <th>${total_account.sign_balance(date)}</th>
             </tr>
             </tal:totalaccount>
+            <tr tal:define="(asset, liabilities) portfolio.total_balance_sheet_accounts();
+                (revenue, expenses) portfolio.total_income_statment_accounts()">
+              <th align="left">${asset.definition.name} - ${liabilities.definition.name}</th>
+              <th>${asset.denomination.identity}</th>
+              <th></th>
+              <th></th>
+              <th>${asset.sign_balance(date) - liabilities.sign_balance(date)}</th>
+            </tr>
             <tr tal:define="(revenue, expenses) portfolio.total_income_statment_accounts()">
               <th align="left">Current Profit/Loss</th>
               <th>${revenue.denomination.identity}</th>
               <th></th>
               <th></th>
-              <th>${revenue.balance(date) + expenses.balance(date)}</th>
-            </tr>
-            <tr tal:define="(asset, liabilities) portfolio.total_balance_sheet_accounts();
-                (revenue, expenses) portfolio.total_income_statment_accounts()">
-              <th align="left">${asset.definition.name} + ${liabilities.definition.name}</th>
-              <th>${asset.denomination.identity}</th>
-              <th></th>
-              <th></th>
-              <th>${asset.balance(date) + liabilities.balance(date)}</th>
+              <th>${revenue.sign_balance(date) - expenses.sign_balance(date)}</th>
             </tr>
           </tbody>
         </table>
