@@ -41,7 +41,7 @@ class Portfolio(Model):
         assert self.assets.count() == 0
         usd = Asset(portfolio=self, asset_model=AssetModel.get_by_name('Legal Currency'),
             name=u'USD Cash', identity=u'USD')
-        usd.put(init_cash=True)
+        usd.put()
         self.default_denomination = usd
 
         for definition in AccountDefinition.all():
@@ -54,7 +54,7 @@ class Portfolio(Model):
         usd_bank = Asset(portfolio=self, asset_model=AssetModel.get_by_name('Bank Account'),
             name=u'USD Bank Account', identity=u'Default USD Bank Account')
         usd_bank.put()
-        self.default_cash_account = usd_bank.parent_account
+        self.default_cash_account = usd_bank.default_value_account
 
         gold = Asset(portfolio=self, asset_model=AssetModel.get_by_name('Commodity Money'),
             name=u'Gold coins 1oz', identity=u'GOLD')
@@ -108,39 +108,47 @@ class Portfolio(Model):
             raise ValueError('%r %r' % (codes, list(accounts)))
         return accounts
 
-    def trade_asset(self, asset, date=None, amount=1., price=None, price_account=None, description=None,
-         taxes=0., fees=0.):
+    def simple_trade(self, asset, value, amount=1., taxes=0., fees=0., **keys):
         '''trade an asset using default accounts
         
         if date is None the trade is added to the opening balance for the accounts'''
+        transaction = self.simple_transaction(asset.default_value_account, value, **keys)
+        transaction.add_entries(((asset.inventory, amount),))
+        transaction.put()
+
+    def simple_transaction(self, credit_account, value, debit_account=None, date=None, asset=None, description=None):
+        '''two-account transaction using default accounts
+        
+        if date is None the transaction is added to the opening balance for the accounts'''
         if date is None:
             transaction = self.opening_transaction
-            price_account = self.account_by_code('3500') # equity
+            debit_account = self.account_by_code('3500') # equity
         else:
             transaction = Transaction(date=date, description=description)
             transaction.put()
-            price_account = price_account or self.default_cash_account
-        transaction.add_entries(((asset.inventory, amount), (asset.parent_account, - price), (price_account, price)))
+            debit_account = debit_account or self.default_cash_account
+        transaction.add_entries(((credit_account, value), (debit_account, - value)))
         transaction.put()
+        return transaction
 
 class AssetModel(Model):
     name = StringProperty(required=True)
     description = TextProperty()
-    parent_account_code = StringProperty()
-    revenue_account_code = StringProperty()
+    default_value_account_code = StringProperty()
+    default_revenue_account_code = StringProperty()
 
     base_instances_keys = (
-        {'name': 'Legal Currency', 'parent_account_code': '1001'},
-        {'name': 'Bank Account', 'parent_account_code': '1002', 
+        {'name': 'Legal Currency', 'default_value_account_code': '1001'},
+        {'name': 'Bank Account', 'default_value_account_code': '1002', 
             'description': 'Denominated in the main legal currency'},
-        {'name': 'Commodity Money', 'parent_account_code': '1007'},
-        {'name': 'Commodity', 'parent_account_code': '1122'},
-        {'name': 'Land', 'parent_account_code': '1600'},
-        {'name': 'Building', 'parent_account_code': '1680', 'revenue_account_code': '8141'},
-        {'name': 'Vehicle', 'parent_account_code': '1740'},
-        {'name': 'Credit Card', 'parent_account_code': '2707'},
-        {'name': 'Job', 'parent_account_code': '2010', 'revenue_account_code': '8000'},
-        {'name': 'Mortgage', 'parent_account_code': '3141'},
+        {'name': 'Commodity Money', 'default_value_account_code': '1007'},
+        {'name': 'Commodity', 'default_value_account_code': '1122'},
+        {'name': 'Land', 'default_value_account_code': '1600'},
+        {'name': 'Building', 'default_value_account_code': '1680', 'default_revenue_account_code': '8141'},
+        {'name': 'Vehicle', 'default_value_account_code': '1740'},
+        {'name': 'Credit Card', 'default_value_account_code': '2707'},
+        {'name': 'Job', 'default_value_account_code': '2010', 'default_revenue_account_code': '8000'},
+        {'name': 'Mortgage', 'default_value_account_code': '3141'},
     )
 
     @classmethod
@@ -164,12 +172,12 @@ class Asset(Model):
         return self.key().id()
 
     @property
-    def parent_account(self):
-        return self.portfolio.account_by_code(self.asset_model.parent_account_code, asset=self)
+    def default_value_account(self):
+        return self.portfolio.account_by_code(self.asset_model.default_value_account_code, asset=self)
 
     @property
-    def revenue_account(self):
-        return self.portfolio.account_by_code(self.asset_model.revenue_account_code, asset=self)
+    def default_revenue_account(self):
+        return self.portfolio.account_by_code(self.asset_model.default_revenue_account_code, asset=self)
 
     @property
     def inventory(self):
@@ -190,40 +198,54 @@ class Asset(Model):
             (self.__class__.__name__, self.name, identification,
                 self.portfolio.name, self.portfolio.owner.nickname())
 
-    def put(self, init_cash=False):
-        if self.is_saved():
-            return super(Asset, self).put()
-        key = super(Asset, self).put()
+    def _bootstrap(self):
+        assert self.denomination_accounts.count() == 0
         inventory = Account(definition=None, denomination=self)
         inventory.put()
-        if not init_cash:
-            parent_account = Account(definition=self.portfolio.account_by_code(self.asset_model.parent_account_code).definition,
-                denomination=self.portfolio.default_denomination, asset=self)
-            parent_account.put()
-        if self.asset_model.revenue_account_code:
-            revenue_account = Account(definition=self.portfolio.account_by_code(self.asset_model.revenue_account_code).definition,
-                denomination=self.portfolio.default_denomination, asset=self)
-            revenue_account.put()
-        return key
+        # during portfolio bootstrap we have no account
+        try:
+            default_value_account = Account(
+                definition=self.portfolio.account_by_code(self.asset_model.default_value_account_code).definition,
+                denomination=self.portfolio.default_denomination,
+                asset=self
+            )
+            default_value_account.put()
+        except AssertionError:
+            pass
+        if self.asset_model.default_revenue_account_code:
+            default_revenue_account = Account(
+                definition=self.portfolio.account_by_code(self.asset_model.default_revenue_account_code).definition,
+                denomination=self.portfolio.default_denomination,
+                asset=self
+            )
+            default_revenue_account.put()
+
+    def put(self):
+        if self.is_saved():
+            return super(Asset, self).put()
+        else:
+            super(Asset, self).put()
+            self._bootstrap()
+            return super(Asset, self).put()
 
     def buy(self, amount=1., price=None, **keys):
         if price == None:
             price = amount
-        self.portfolio.trade_asset(self, amount=amount, price=-price, **keys)
+        self.portfolio.simple_trade(self, price, amount=amount, **keys)
 
     def sell(self, date, amount=1., value=None, **keys):
         if value == None:
             value = amount
-        self.portfolio.trade_asset(self, date=date, amount=-amount, price=value, **keys)
+        self.portfolio.simple_trade(self, - value, date=date, amount=-amount, **keys)
 
     def reconcile(self, date, descpription=None, code='8212'):
-        parent_account_balance = self.parent_account.balance(date)
-        if parent_account_balance == 0 or self.inventory.balance(date) != 0.:
+        default_value_account_balance = self.default_value_account.balance(date)
+        if default_value_account_balance == 0 or self.inventory.balance(date) != 0.:
             return
         profit_loss = Transaction(date=date, descpription=descpription)
         profit_loss.put()
         profit_loss_account = self.portfolio.account_by_code(code)
-        profit_loss.add_entries(((self.parent_account, - parent_account_balance), (profit_loss_account, parent_account_balance)))
+        profit_loss.add_entries(((self.default_value_account, - default_value_account_balance), (profit_loss_account, default_value_account_balance)))
 
     def account_by_code(self, code):
         return self.portfolio.account_by_code(code, asset=self)
@@ -239,7 +261,7 @@ class Asset(Model):
 
     def add_yearly_revenue(self, revenue, code=None, description=None):
         if code is None:
-            code = self.asset_model.revenue_account_code
+            code = self.asset_model.default_revenue_account_code
         try:
             account = list(self.accounts_by_codes([code]))[0]
         except:
@@ -247,6 +269,12 @@ class Asset(Model):
         revenue_template = Transaction(date=None, description=description)
         revenue_template.put()
         revenue_template.add_entries(((account, -revenue), (self.portfolio.default_cash_account, revenue)))
+
+    def total_value(self, date):
+        return sum(a.balance(date) for a in self.accounts if a.definition.in_balance_sheet)
+
+    def estimated_yearly_revenue(self):
+        return - sum(a.estimated_yearly_balance(sign=False) for a in self.accounts if not a.definition.in_balance_sheet)
 
 # GIFI reference http://www.newlearner.com/courses/hts/bat4m/pdf/gifiguide.pdf
 class AccountDefinition(Model):

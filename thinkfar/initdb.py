@@ -34,7 +34,7 @@ def load_kind(kind, instances_keys=None, parent_instance=None):
 def initdb():
     # drop instances of all kinds
     for kindname in ('Portfolio', 'AssetModel', 'Asset',
-            'AccountDefinition', 'Account', 'Transaction', 'TransactionEntry', 'Trade'):
+            'AccountDefinition', 'Account', 'Transaction', 'TransactionEntry'):
         drop_kind(kindname)
     # create objects assumed to be present
     for kind in (AssetModel, AccountDefinition):

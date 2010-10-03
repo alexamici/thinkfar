@@ -25,13 +25,13 @@
           </thead>
           <tbody align="right">
             <tal:asset tal:repeat="asset list(portfolio.assets)">
-            <tr tal:condition="asset.inventory.balance(date) or asset.parent_account.balance(date)">
+            <tr tal:condition="asset.inventory.balance(date)">
               <td>
                 <a href="${request.application_url}/asset/${asset.id}" title="${asset.identity}">${asset.name}</a>
               </td>
               <td>${asset.inventory.balance(date)}</td>
-              <td>${asset.parent_account.sign_balance(date)}</td>
-              <td tal:condition="asset.asset_model.revenue_account_code">${asset.revenue_account.estimated_yearly_balance()}</td>
+              <td>${asset.total_value(date)}</td>
+              <td>${asset.estimated_yearly_revenue()}</td>
             </tr>
             </tal:asset>
           </tbody>

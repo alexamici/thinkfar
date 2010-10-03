@@ -55,11 +55,11 @@ def asset_view(request):
     def date_cmp(x, y):
         return (x.transaction.date - y.transaction.date).days
     inventory_transaction_entries = sorted(asset.inventory.transaction_entries, date_cmp)
-    parent_account_transaction_entries = sorted(asset.parent_account.transaction_entries, date_cmp)
+    default_value_account_transaction_entries = sorted(asset.default_value_account.transaction_entries, date_cmp)
     namespace.update({'project': 'thinkfar', 'asset': asset, 'date': today, 
         'title': '%s -> %s -> %s' % (asset.portfolio.owner.nickname(), asset.portfolio.name, asset.name),
         'inventory_transaction_entries': inventory_transaction_entries,
-        'parent_account_transaction_entries': parent_account_transaction_entries})
+        'default_value_account_transaction_entries': default_value_account_transaction_entries})
     return namespace
 
 def initdb_view(request):

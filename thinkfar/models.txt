@@ -21,17 +21,15 @@ Users have one or more portfolios of assets:
     >>> piper_belongings_key = piper_belongings.put()
     >>> piper_belongings.default_denomination.identity
     u'USD'
-    >>> piper_belongings.default_cash_asset.name
-    u'USD Bank Account'
-    >>> piper_belongings.default_cash_asset
-    <Asset object name=u'USD Bank Account' identity=u'Default USD Bank Account' portfolio=u'Piper Belongings' owner=u'syd@pf.com'>
-    >>> piper_belongings.account_by_code('1001')
-    <Account object denomination=u'USD' name=u'Cash' code=u'1001' asset=None in_balance_sheet=True>
+    >>> piper_belongings.default_denomination.name
+    u'USD Cash'
+    >>> piper_belongings.default_cash_account
+    <Account object denomination=u'USD' name=u'Deposits in local banks and institutions - local currency' code=u'1002' asset=<Asset object name=u'USD Bank Account' identity=u'Default USD Bank Account' portfolio=u'Piper Belongings' owner=u'syd@pf.com'> in_balance_sheet=True>
     >>> piper_belongings.accounts(asset=piper_belongings.default_denomination).count()
     1
     >>> piper_belongings.account_by_code('1001', asset=piper_belongings.default_denomination)
     <Account object denomination=u'USD' name=u'Cash' code=u'1001' asset=<Asset object name=u'USD Cash' identity=u'USD' portfolio=u'Piper Belongings' owner=u'syd@pf.com'> in_balance_sheet=True>
-    >>> piper_belongings.default_cash_asset.buy(amount=10000.)
+    >>> transaction = piper_belongings.simple_transaction(piper_belongings.default_cash_account, 10000.)
 
 and we can associate each asset to a porfolio.
 
