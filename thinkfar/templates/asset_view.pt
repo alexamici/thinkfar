@@ -56,12 +56,13 @@
               <th>Amount</th>
               <th>Seller Value</th>
               <th>Spread</th>
-              <th>Parent Account Balance</th>
+              <th>Value Account Balance</th>
+              <th>Revenue Account Balance</th>
               <th>Inventory</th>
             </tr>
           </thead>
           <tbody align="right">
-            <tal:entry tal:repeat="entry parent_account_transaction_entries">
+            <tal:entry tal:repeat="entry default_value_account_transaction_entries">
             <tr tal:condition="entry.transaction.date &lt;= date">
               <td>
                 <a href="${request.application_url}/transaction/${entry.transaction.id}">${entry.transaction.date}</a>
@@ -70,7 +71,8 @@
               <td>${entry.amount}</td>
               <td></td>
               <td></td>
-              <td>${asset.parent_account.balance(entry.transaction.date)}</td>
+              <td>${asset.total_value(entry.transaction.date)}</td>
+              <td>${asset.estimated_yearly_revenue()}</td>
               <td>${asset.inventory.balance(entry.transaction.date)}</td>
             </tr>
             </tal:entry>
@@ -82,7 +84,8 @@
               <td></td>
               <td></td>
               <td></td>
-              <td>${asset.parent_account.balance(date)}</td>
+              <td>${asset.default_value_account.balance(date)}</td>
+              <td>${asset.estimated_yearly_revenue()}</td>
               <td>${asset.inventory.balance(date)}</td>
             </tr>
           </tfoot>
