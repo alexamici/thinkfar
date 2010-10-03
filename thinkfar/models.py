@@ -26,7 +26,7 @@ class Portfolio(Model):
     name = StringProperty(required=True, default=u'Default Portfolio')
     description = TextProperty()
     opening_transaction = ReferenceProperty(collection_name='opening_transaction_of') # one-way relation to Transaction
-    default_cash_asset = ReferenceProperty(collection_name='default_cash_asset_of') # one-way relation to Asset
+    default_cash_account = ReferenceProperty(collection_name='default_cash_account_of') # one-way relation to Account
     default_denomination = ReferenceProperty(collection_name='default_denomination_of') # one-way relation to Asset
 
     @property
@@ -50,7 +50,8 @@ class Portfolio(Model):
         usd_bank = Asset(portfolio=self, asset_model=AssetModel.get_by_name('Bank Account'),
             name=u'USD Bank Account', identity=u'Default USD Bank Account')
         usd_bank.put()
-        self.default_cash_asset = usd_bank
+        self.default_cash_account = usd_bank.parent_account
+
         gold = Asset(portfolio=self, asset_model=AssetModel.get_by_name('Commodity Money'),
             name=u'Gold coins 1oz', identity=u'GOLD')
         gold.put()
@@ -114,7 +115,7 @@ class Portfolio(Model):
         else:
             transaction = Transaction(date=date, description=description)
             transaction.put()
-            price_account = price_account or self.default_cash_asset.parent_account
+            price_account = price_account or self.default_cash_account
         transaction.add_entries(((asset.inventory, amount), (asset.parent_account, - price), (price_account, price)))
         transaction.put()
 
@@ -246,7 +247,7 @@ class Asset(Model):
             account = self.add_account(code)
         revenue_template = Transaction(date=None, description=description)
         revenue_template.put()
-        revenue_template.add_entries(((account, -revenue), (self.portfolio.default_cash_asset.parent_account, revenue)))
+        revenue_template.add_entries(((account, -revenue), (self.portfolio.default_cash_account, revenue)))
 
 # GIFI reference http://www.newlearner.com/courses/hts/bat4m/pdf/gifiguide.pdf
 class AccountDefinition(Model):
