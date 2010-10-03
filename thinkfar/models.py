@@ -33,6 +33,10 @@ class Portfolio(Model):
     def id(self):
         return self.key().id()
 
+    def __repr__(self):
+        return u'<%s object name=%r owner=%r>' % \
+            (self.__class__.__name__, self.name, self.owner.nickname())
+
     def _bootstrap(self):
         assert self.assets.count() == 0
         usd = Asset(portfolio=self, asset_model=AssetModel.get_by_name('Legal Currency'),
@@ -119,10 +123,6 @@ class Portfolio(Model):
         transaction.add_entries(((asset.inventory, amount), (asset.parent_account, - price), (price_account, price)))
         transaction.put()
 
-    def __repr__(self):
-        return u'<%s object name=%r owner=%r>' % \
-            (self.__class__.__name__, self.name, self.owner.nickname())
-
 class AssetModel(Model):
     name = StringProperty(required=True)
     description = TextProperty()
@@ -170,11 +170,25 @@ class Asset(Model):
     @property
     def revenue_account(self):
         return self.portfolio.account_by_code(self.asset_model.revenue_account_code, asset=self)
-            
+
+    @property
+    def inventory(self):
+        for a in self.denomination_accounts:
+            if a.definition is None:
+                return a
 
     @property
     def has_identity(self):
         return self.identity is not None
+
+    def __repr__(self):
+        if self.has_identity:
+            identification = u'identity=%r' % self.identity
+        else:
+            identification = u''
+        return u'<%s object name=%r %s portfolio=%r owner=%r>' % \
+            (self.__class__.__name__, self.name, identification,
+                self.portfolio.name, self.portfolio.owner.nickname())
 
     def put(self, init_cash=False):
         if self.is_saved():
@@ -211,26 +225,11 @@ class Asset(Model):
         profit_loss_account = self.portfolio.account_by_code(code)
         profit_loss.add_entries(((self.parent_account, - parent_account_balance), (profit_loss_account, parent_account_balance)))
 
-    @property
-    def inventory(self):
-        for a in self.denomination_accounts:
-            if a.definition is None:
-                return a
-
     def account_by_code(self, code):
         return self.portfolio.account_by_code(code, asset=self)
 
     def accounts_by_codes(self, codes):
         return self.portfolio.accounts_by_codes(codes, asset=self)
-
-    def __repr__(self):
-        if self.has_identity:
-            identification = u'identity=%r' % self.identity
-        else:
-            identification = u''
-        return u'<%s object name=%r %s portfolio=%r owner=%r>' % \
-            (self.__class__.__name__, self.name, identification,
-                self.portfolio.name, self.portfolio.owner.nickname())
 
     def add_account(self, code):
         account = Account(definition=self.portfolio.account_by_code(code).definition,
@@ -352,6 +351,18 @@ class Account(Model):
     def is_asset_account(self):
         return self.asset is not None
 
+    def __repr__(self):
+        if self.definition is None:
+            name = self.denomination.name
+            in_balance_sheet = True
+            code = None
+        else:
+            name = self.definition.name
+            in_balance_sheet = self.definition.in_balance_sheet
+            code = self.definition.code
+        return u'<%s object denomination=%r name=%r code=%r asset=%r in_balance_sheet=%r>' % \
+            (self.__class__.__name__, self.denomination.identity, name, code, self.asset, in_balance_sheet)
+
     def transactions(self):
         return [te.transaction for te in self.transaction_entries]
 
@@ -378,18 +389,6 @@ class Account(Model):
     
     def total_debit(self, date):
         return sum(te.amount for te in self.transaction_entries if te.transaction.date <= date and te.amount < 0.)
-
-    def __repr__(self):
-        if self.definition is None:
-            name = self.denomination.name
-            in_balance_sheet = True
-            code = None
-        else:
-            name = self.definition.name
-            in_balance_sheet = self.definition.in_balance_sheet
-            code = self.definition.code
-        return u'<%s object denomination=%r name=%r code=%r asset=%r in_balance_sheet=%r>' % \
-            (self.__class__.__name__, self.denomination.identity, name, code, self.asset, in_balance_sheet)
 
 class Transaction(Model):
     """An event in the double-entry book
@@ -426,14 +425,3 @@ class TransactionEntry(Model):
     transaction = ReferenceProperty(Transaction, required=True, collection_name='transaction_entries')
     account = ReferenceProperty(Account, required=True, collection_name='transaction_entries')
     amount = FloatProperty(required=True)
-
-
-# OBSOLETE
-
-class Trade(Model):
-    """A representation of a financial/commercial trade that includes the spread
-    between buyer_price and seller_value due to taxes, fees, etc.
-
-    The basic idea is to separate total price paid by the seller in the
-    transaction from what the seller actually receives."""
-    pass
