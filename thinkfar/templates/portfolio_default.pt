@@ -7,31 +7,34 @@
     <div id="content">
       <div class="post">
         <h1 class="title">${title}</h1>
+        <form method="GET">
+            <label for="date">date: </label><input type="text" name="date" id="date" value="${date.isoformat()}" />
+            <script type="text/javascript">
+            $(document).ready(function(){
+                $('#date').datepicker({dateFormat: 'yy-mm-dd'});
+            });
+            </script>
+            <input type="submit" value="Update" />
+        </form>
         <h3>portfolio at ${date.isoformat()}</h3>
-        <input type="text" name="date" id="date" />
-        <script type="text/javascript">
-          $(document).ready(function(){
-            $('#date').datepicker();
-          });
-        </script>
         <table>
           <thead>
             <tr>
-              <th>Asset name</th>
+              <th>Asset</th>
               <th>Inventory</th>
-              <th>Parent Account Balance</th>
-              <th>Revenue/expenses</th>
+              <th>Total Value</th>
+              <th>Yearly Revenue</th>
             </tr>
           </thead>
           <tbody align="right">
             <tal:asset tal:repeat="asset list(portfolio.assets)">
             <tr tal:condition="asset.inventory.balance(date)">
-              <td>
-                <a href="${request.application_url}/asset/${asset.id}" title="${asset.identity}">${asset.name}</a>
+              <td align="left">
+                <a href="${route_url('asset_default', request, asset_id=asset.id)}" title="${asset.identity}">${asset.name}</a>
               </td>
               <td>${asset.inventory.balance(date)}</td>
               <td>${asset.total_value(date)}</td>
-              <td>${asset.estimated_yearly_revenue()}</td>
+              <td>${asset.estimated_yearly_revenue(date)}</td>
             </tr>
             </tal:asset>
           </tbody>

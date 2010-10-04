@@ -72,7 +72,7 @@
               <td></td>
               <td></td>
               <td>${asset.total_value(entry.transaction.date)}</td>
-              <td>${asset.estimated_yearly_revenue()}</td>
+              <td>${asset.estimated_yearly_revenue(entry.transaction.date)}</td>
               <td>${asset.inventory.balance(entry.transaction.date)}</td>
             </tr>
             </tal:entry>
@@ -85,7 +85,7 @@
               <td></td>
               <td></td>
               <td>${asset.default_value_account.balance(date)}</td>
-              <td>${asset.estimated_yearly_revenue()}</td>
+              <td>${asset.estimated_yearly_revenue(date)}</td>
               <td>${asset.inventory.balance(date)}</td>
             </tr>
           </tfoot>

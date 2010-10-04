@@ -15,37 +15,44 @@
 
   <route
      name="portfolio_default"
-     path="/portfolio/:id"
+     path="/p/:portfolio_id"
      view=".views.portfolio_default"
      view_renderer="templates/portfolio_default.pt"
      />
 
   <route
      name="portfolio_balance"
-     path="/portfolio/:id/balance"
+     path="/p/:portfolio_id/balance"
      view=".views.portfolio_balance"
      view_renderer="templates/portfolio_balance.pt"
      />
 
   <route
      name="portfolio_income"
-     path="/portfolio/:id/income"
+     path="/p/:portfolio_id/income"
      view=".views.portfolio_income"
      view_renderer="templates/portfolio_income.pt"
      />
 
   <route
      name="portfolio_estimated_income"
-     path="/portfolio/:id/estimated/income"
+     path="/p/:portfolio_id/estimated/income"
      view=".views.portfolio_estimated_income"
      view_renderer="templates/portfolio_estimated_income.pt"
      />
 
   <route
-     name="asset"
-     path="/asset/:id"
-     view=".views.asset_view"
-     view_renderer="templates/asset_view.pt"
+     name="asset_default"
+     path="/a/:asset_id"
+     view=".views.asset_default"
+     view_renderer="templates/asset_default.pt"
+     />
+
+  <route
+     name="transacrion_default"
+     path="/t/:transaction_id"
+     view=".views.transaction_default"
+     view_renderer="templates/transaction_default.pt"
      />
 
   <view

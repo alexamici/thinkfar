@@ -7,6 +7,15 @@
     <div id="content">
       <div class="post">
         <h1 class="title">${title}</h1>
+        <form method="GET">
+            <label for="date">date: </label><input type="text" name="date" id="date" value="${date.isoformat()}" />
+            <script type="text/javascript">
+            $(document).ready(function(){
+                $('#date').datepicker({dateFormat: 'yy-mm-dd'});
+            });
+            </script>
+            <input type="submit" value="Update" />
+        </form>
         <h3>portfolio at ${date.isoformat()}</h3>
         <table>
           <thead>

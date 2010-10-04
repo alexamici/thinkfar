@@ -273,8 +273,8 @@ class Asset(Model):
     def total_value(self, date):
         return sum(a.balance(date) for a in self.accounts if a.definition.in_balance_sheet)
 
-    def estimated_yearly_revenue(self):
-        return - sum(a.estimated_yearly_balance(sign=False) for a in self.accounts if not a.definition.in_balance_sheet)
+    def estimated_yearly_revenue(self, date):
+        return - sum(a.estimated_yearly_balance(date, sign=False) for a in self.accounts if not a.definition.in_balance_sheet)
 
 # GIFI reference http://www.newlearner.com/courses/hts/bat4m/pdf/gifiguide.pdf
 class AccountDefinition(Model):
@@ -404,7 +404,7 @@ class Account(Model):
         else:
             return self.balance(date)
 
-    def estimated_yearly_balance(self, sign=True):
+    def estimated_yearly_balance(self, date, sign=True):
         children_balance = sum(a.estimated_yearly_balance(sign=False) for a in self.children_accounts)
         balance = 0. + children_balance + sum(te.amount for te in self.transaction_entries if te.transaction.date == None)
         if sign and (self.definition.is_liability or self.definition.is_revenue):

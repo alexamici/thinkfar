@@ -3,6 +3,7 @@ from datetime import date
 
 from google.appengine.api.users import get_current_user, create_login_url, create_logout_url
 from repoze.bfg.chameleon_zpt import get_template
+from repoze.bfg.url import route_url
 from webob.exc import HTTPUnauthorized
 from webob import Response
 
@@ -17,9 +18,13 @@ def common_namespace(request):
     user = get_current_user()
     loggedin_url = user and create_logout_url('/') or create_login_url('/')
     loggedin_label = user and 'Log out' or 'Log in'
+    try:
+        ref_date = date(*(int(t) for t in request.params.get('date').split('-')))
+    except:
+        ref_date = date.today()
     main = get_template('templates/main.pt')
     namespace = {'loggedin_url': loggedin_url, 'loggedin_label': loggedin_label,
-        'user': user, 'main': main}
+        'user': user, 'main': main, 'route_url': route_url, 'date': ref_date}
     return namespace
 
 def root_view(context, request):
@@ -30,12 +35,11 @@ def root_view(context, request):
 
 def portfolio_default(request):
     namespace = common_namespace(request)
-    id = int(request.matchdict['id'])
+    id = int(request.matchdict['portfolio_id'])
     portfolio = Portfolio.get_by_id(id)
     if portfolio is None or portfolio.owner != get_current_user():
         return HTTPUnauthorized()
-    today = date.today()
-    namespace.update({'context': portfolio, 'portfolio': portfolio, 'date': today, 
+    namespace.update({'context': portfolio, 'portfolio': portfolio,
         'title': '%s -> %s' % (portfolio.owner.nickname(), portfolio.name)})
     return namespace
 
@@ -45,9 +49,9 @@ def portfolio_balance(request):
 
 portfolio_income = portfolio_estimated_income = portfolio_default 
 
-def asset_view(request):
+def asset_default(request):
     namespace = common_namespace(request)
-    id = int(request.matchdict['id'])
+    id = int(request.matchdict['asset_id'])
     asset = Asset.get_by_id(id)
     if asset is None or asset.portfolio.owner != get_current_user():
         return HTTPUnauthorized()
@@ -61,6 +65,9 @@ def asset_view(request):
         'inventory_transaction_entries': inventory_transaction_entries,
         'default_value_account_transaction_entries': default_value_account_transaction_entries})
     return namespace
+
+def transaction_default(request):
+    return {}
 
 def initdb_view(request):
     initdb()
