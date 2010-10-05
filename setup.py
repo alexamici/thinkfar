@@ -9,6 +9,7 @@ CHANGES = open(os.path.join(here, 'CHANGES.txt')).read()
 requires = [
     'setuptools',
     'repoze.bfg',
+    'repoze.bfg.extdirect',
 ]
 
 setup(
