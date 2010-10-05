@@ -11,7 +11,7 @@ body {
 	font-size: 13px;
 	font-family: "Trebuchet MS", Georgia, "Times New Roman", Times, serif;
 	text-align: justify;
-	color: #FFFFFF;
+	color: black;
 }
 
 h1, h2, h3 {
@@ -89,7 +89,6 @@ input, textarea, select {
 #wrapper {
 	margin: 0;
 	padding: 0;
-	background: #000000;
 }
 
 /* Header */
@@ -190,7 +189,7 @@ input, textarea, select {
 #page {
 	width: 663px;
 	margin: 0 auto;
-	background: #4C4C4C url(images/img03.gif) no-repeat left bottom;
+	background: white url(images/img03.gif) no-repeat left bottom;
 	padding: 0 25px;
 }
 

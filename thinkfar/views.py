@@ -43,6 +43,28 @@ def portfolio_default(request):
         'title': '%s -> %s' % (portfolio.owner.nickname(), portfolio.name)})
     return namespace
 
+def portfolio_rest(request):
+    id = int(request.matchdict['portfolio_id'])
+    portfolio = Portfolio.get_by_id(id)
+    if portfolio is None or portfolio.owner != get_current_user():
+        return HTTPUnauthorized()
+    try:
+        ref_date = date(*(int(t) for t in request.params.get('date').split('-')))
+    except:
+        ref_date = date.today()
+    data = []
+    for asset in portfolio.assets:
+        if asset.inventory.balance(ref_date) == 0:
+            continue
+        data.append({
+            'url': route_url('asset_default', request, asset_id=asset.id),
+            'name': asset.name,
+            'inventory': asset.inventory.balance(ref_date),
+            'value': asset.total_value(ref_date), 
+            'revenue': asset.estimated_yearly_revenue(ref_date),
+        })
+    return {'total': len(data), 'success': True, 'message': 'all is well', 'data': data}
+
 def portfolio_balance(request):
     namespace = portfolio_default(request)
     return namespace

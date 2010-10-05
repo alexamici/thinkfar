@@ -21,6 +21,13 @@
      />
 
   <route
+     name="portfolio_rest"
+     path="/p/:portfolio_id/REST/:action"
+     view=".views.portfolio_rest"
+     renderer="json"
+     />
+
+  <route
      name="portfolio_balance"
      path="/p/:portfolio_id/balance"
      view=".views.portfolio_balance"
