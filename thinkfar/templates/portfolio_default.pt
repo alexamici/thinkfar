@@ -38,6 +38,14 @@
             </tr>
             </tal:asset>
           </tbody>
+          <tfoot align="right">
+            <tr>
+              <td>Total</td>
+              <td></td>
+              <td>${portfolio.total_value(date)}</td>
+              <td>${portfolio.estimated_yearly_revenue(date)}</td>
+            </tr>
+          </tfoot>
         </table>
       </div>
     </div>

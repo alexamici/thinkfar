@@ -64,6 +64,8 @@ class Portfolio(Model):
         opening_transaction.put()
         self.opening_transaction = opening_transaction
 
+        usd_bank.buy(1., price=0.)
+
     def put(self):
         if self.is_saved():
             return super(Portfolio, self).put()
@@ -130,6 +132,12 @@ class Portfolio(Model):
         transaction.add_entries(((credit_account, value), (debit_account, - value)))
         transaction.put()
         return transaction
+
+    def total_value(self, date):
+        return sum(a.total_value(date) for a in self.assets)
+
+    def estimated_yearly_revenue(self, date):
+        return sum(a.estimated_yearly_revenue(date) for a in self.assets)
 
 class AssetModel(Model):
     name = StringProperty(required=True)
