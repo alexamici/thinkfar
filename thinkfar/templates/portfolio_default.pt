@@ -18,7 +18,7 @@ Ext.onReady(function(){
         root: 'data',
         messageProperty: 'message',
         start: 0,
-        limit: 5
+        limit: 25
     }, [
         {name: 'id'},
         {name: 'name', allowBlank: false},
@@ -34,7 +34,7 @@ Ext.onReady(function(){
         reader: reader
     });
 
-    store.load();
+    store.load({params: {start: 0, limit: reader.meta['limit']}})
 
     var userColumns =  [
         {id: 'name', header: "Asset", width: 100, sortable: true, dataIndex: 'name'},
