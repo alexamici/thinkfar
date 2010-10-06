@@ -338,6 +338,7 @@ class AccountDefinition(Model):
         {'code': '9368', 'name': 'Total expenses', 'is_expense': True, 'children': (
             {'code': '9367', 'name': 'Total operating expenses', 'children': (
                 {'code': '8710', 'name': 'Interest and bank charges'},
+                {'code': '8764', 'name': 'Government fees'},
                 {'code': '9180', 'name': 'Property taxes'},
             )},
         )},
