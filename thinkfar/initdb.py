@@ -50,6 +50,7 @@ def setup_test_portfolios():
 def setup_average_joe_portfolio():
     joe_p = Portfolio(name="Average Joe Portfolio", owner=get_current_user())
     joe_p.put()
+    joe_p.simple_transaction(joe_p.default_cash_account, 50000.)
     land1 = Asset(name='Joe Field 1', portfolio=joe_p, asset_model=AssetModel.get_by_name('Land'))
     land1.put()
     land1.buy(price=10000.)

@@ -52,18 +52,27 @@ def portfolio_rest(request):
         ref_date = date(*(int(t) for t in request.params.get('date').split('-')))
     except:
         ref_date = date.today()
+    start = int(request.params.get('start', 0))
+    end = start + int(request.params.get('limit', 25))
     data = []
-    for asset in portfolio.assets:
+    count = 0
+    for asset in portfolio.assets.order('name'):
         if asset.inventory.balance(ref_date) == 0:
             continue
-        data.append({
-            'url': route_url('asset_default', request, asset_id=asset.id),
-            'name': asset.name,
-            'inventory': asset.inventory.balance(ref_date),
-            'value': asset.total_value(ref_date), 
-            'revenue': asset.estimated_yearly_revenue(ref_date),
-        })
-    return {'total': len(data), 'success': True, 'message': 'all is well', 'data': data}
+        if count < start:
+            count += 1
+            continue
+        if count < end:
+            data.append({
+                'url': route_url('asset_default', request, asset_id=asset.id),
+                'name': asset.name,
+                'inventory': asset.inventory.balance(ref_date),
+                'value': asset.total_value(ref_date), 
+                'revenue': asset.estimated_yearly_revenue(ref_date),
+            })
+        count += 1
+    return {'total': count, 'success': True, 'message': 'all is well', 'data': data,
+        'start': start, 'limit': end - start}
 
 def portfolio_balance(request):
     namespace = portfolio_default(request)
