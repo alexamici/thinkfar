@@ -15,7 +15,7 @@
 
   <route
      name="portfolio_default"
-     path="/p/:portfolio_id.html"
+     path="/p/:portfolio_id/index.html"
      view=".views.portfolio_default"
      view_renderer="templates/portfolio_default.pt"
      />
@@ -29,14 +29,14 @@
 
   <route
      name="portfolio_balance"
-     path="/p/:portfolio_id/balance"
+     path="/p/:portfolio_id/balance.html"
      view=".views.portfolio_balance"
      view_renderer="templates/portfolio_balance.pt"
      />
 
   <route
      name="portfolio_income"
-     path="/p/:portfolio_id/income"
+     path="/p/:portfolio_id/income.html"
      view=".views.portfolio_income"
      view_renderer="templates/portfolio_income.pt"
      />

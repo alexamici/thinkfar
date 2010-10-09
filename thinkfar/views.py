@@ -51,7 +51,7 @@ def portfolio_rest(request):
     if portfolio is None or portfolio.owner != get_current_user():
         return HTTPUnauthorized()
     try:
-        ref_date = date(*(int(t) for t in request.params.get('date').split('-')))
+        ref_date = date(*(int(t) for t in request.params.get('date')[:10].split('-')))
     except:
         ref_date = date.today()
     start = int(request.params.get('start', 0) or 0)

@@ -4,18 +4,6 @@ function main(){
         url: grid_rest_url
     });
 
-    var query = new Ext.form.FormPanel({
-        title: 'Query',
-        renderTo: 'query',
-        items:[{
-            xtype: 'datefield',
-            fieldLabel: 'Date',
-            format: 'Y-m-d',
-            value: grid_date,
-            showToday: false
-        }]
-    });
-
     var reader = new Ext.data.JsonReader({
         root: 'rows',
     }, [
@@ -33,10 +21,10 @@ function main(){
         reader: reader
     });
 
-    store.load({params: {start: 0, limit: reader.meta['limit']}})
+    store.load({params: {start: 0, limit: grid_limit}})
 
     var paging_toolbar_conf = {
-        pageSize: 25,
+        pageSize: grid_limit,
         store: store,
         displayInfo: true,
         displayMsg: 'Displaying rows {0} - {1} of {2}',
@@ -52,11 +40,29 @@ function main(){
         store: store,
         columns : grid_columns,
         autoExpandColumn: 'name',
+        stripeRows: true,
         viewConfig: {
             forceFit: true
         },
         tbar: new Ext.PagingToolbar(paging_toolbar_conf),
         bbar: new Ext.PagingToolbar(paging_toolbar_conf)
+    });
+
+    var query = new Ext.form.FormPanel({
+        title: 'Query',
+        renderTo: 'query',
+        items:[{
+            xtype: 'datefield',
+            fieldLabel: 'Date',
+            format: 'Y-m-d',
+            value: grid_date,
+            listeners: {
+                valid: function(field){
+                    grid.store.setBaseParam('date', field.getValue());
+                    grid.getBottomToolbar().doLoad();
+                }
+            }
+        }]
     });
 
     Ext.QuickTips.init();
