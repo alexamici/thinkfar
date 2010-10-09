@@ -9,20 +9,20 @@
      />
 
   <static
-     name="static"
+     name="s"
      path="templates/static"
      />
 
   <route
      name="portfolio_default"
-     path="/p/:portfolio_id"
+     path="/p/:portfolio_id.html"
      view=".views.portfolio_default"
      view_renderer="templates/portfolio_default.pt"
      />
 
   <route
      name="portfolio_rest"
-     path="/p/:portfolio_id/REST/:action"
+     path="/p/:portfolio_id"
      view=".views.portfolio_rest"
      renderer="json"
      />

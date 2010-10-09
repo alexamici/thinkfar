@@ -44,6 +44,8 @@ def portfolio_default(request):
     return namespace
 
 def portfolio_rest(request):
+    if request.method not in ('GET',):
+        raise NotImplementdError
     id = int(request.matchdict['portfolio_id'])
     portfolio = Portfolio.get_by_id(id)
     if portfolio is None or portfolio.owner != get_current_user():
@@ -52,8 +54,8 @@ def portfolio_rest(request):
         ref_date = date(*(int(t) for t in request.params.get('date').split('-')))
     except:
         ref_date = date.today()
-    start = int(request.params.get('start', 0))
-    end = start + int(request.params.get('limit', 25))
+    start = int(request.params.get('start', 0) or 0)
+    end = start + int(request.params.get('limit', 25) or 25)
     data = []
     count = 0
     for asset in portfolio.assets.order('name'):
@@ -71,7 +73,7 @@ def portfolio_rest(request):
                 'revenue': asset.estimated_yearly_revenue(ref_date),
             })
         count += 1
-    return {'total': count, 'success': True, 'message': 'all is well', 'data': data,
+    return {'total': count, 'success': True, 'message': 'all is well', 'rows': data,
         'start': start, 'limit': end - start}
 
 def portfolio_balance(request):

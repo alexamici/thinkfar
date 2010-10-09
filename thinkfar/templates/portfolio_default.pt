@@ -3,78 +3,35 @@
     xmlns:tal="http://xml.zope.org/namespaces/tal"
     xmlns:metal="http://xml.zope.org/namespaces/metal"
     metal:use-macro="main.macros['main']">
-  <div metal:fill-slot="content">
-    <script type="text/javascript">
-Ext.onReady(function(){
-    Ext.QuickTips.init();
-    var proxy = new Ext.data.HttpProxy({
-        url: '/p/${portfolio.id}/REST/view'
-    });
 
-    var reader = new Ext.data.JsonReader({
-        totalProperty: 'total',
-        successProperty: 'success',
-        idProperty: 'id',
-        root: 'data',
-        messageProperty: 'message',
-        start: 0,
-        limit: 25
-    }, [
-        {name: 'id'},
-        {name: 'name', allowBlank: false},
-        {name: 'inventory', allowBlank: false},
-        {name: 'value', allowBlank: false},
-        {name: 'revenue', allowBlank: false}
-    ]);
-
-    var store = new Ext.data.Store({
-        id: 'user',
-        restful: true,
-        proxy: proxy,
-        reader: reader
-    });
-
-    store.load({params: {start: 0, limit: reader.meta['limit']}})
-
-    var userColumns =  [
+  <tal:head metal:fill-slot="head">
+  <link rel="stylesheet" type="text/css" href="${request.application_url}/s/resources/css/ext-all-notheme.css" />
+  <link rel="stylesheet" type="text/css" href="${request.application_url}/s/resources/css/xtheme-gray.css" />
+  <script type="text/javascript" src="${request.application_url}/s/adapter/ext/ext-base.js"></script>
+  <script type="text/javascript" src="${request.application_url}/s/ext-all.js"></script>
+  <script type="text/javascript">
+    grid_rest_url = '${route_url('portfolio_rest', request, portfolio_id=portfolio.id)}'
+    grid_title = 'Portfolio at ${date.isoformat()}'
+    grid_date = '${date.isoformat()}',
+    grid_columns = [
         {id: 'name', header: "Asset", width: 100, sortable: true, dataIndex: 'name'},
         {header: "Inventory", width: 50, sortable: true, dataIndex: 'inventory', align: 'right'},
         {header: "Total Value", width: 50, sortable: true, dataIndex: 'value', align: 'right'},
         {header: "Yearly Revenue", width: 50, sortable: true, dataIndex: 'revenue', align: 'right'}
     ];
-    
-    var userGrid = new Ext.grid.GridPanel({
-        renderTo: 'user-grid',
-        iconCls: 'icon-grid',
-        frame: true,
-        title: 'Portfolio at ${date.isoformat()}',
-        autoScroll: true,
-        height: 300,
-        store: store,
-        columns : userColumns,
-        autoExpandColumn: 'name',
-        viewConfig: {
-            forceFit: true
-        },
-        bbar: new Ext.PagingToolbar({
-            pageSize: reader.meta['limit'],
-            store: store,
-            displayInfo: true,
-            displayMsg: 'Displaying assets {0} - {1} of {2}',
-            emptyMsg: "No asset to display"
-        })
-    });
-});
-    </script>
+  </script>
+  <script type="text/javascript" src="${request.application_url}/s/thinkfar.grid.js"></script>
+  </tal:head>
+
+  <tal:content metal:fill-slot="content">
     <div id="content">
       <div class="post">
         <h1 class="title">${title}</h1>
-        <form method="GET">
-            <label for="date">date: </label><input type="text" name="date" id="date" value="${date.isoformat()}" />
-            <input type="submit" value="Update" />
-        </form>
-        <div id="user-grid"></div>
+        <div id="query"></div>
+        <br />
+        <div id="grid"></div>
       </div>
     </div>
-  </div>
+  </tal:content>
+
 </html>
