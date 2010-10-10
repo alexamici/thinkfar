@@ -3,19 +3,34 @@
     xmlns:tal="http://xml.zope.org/namespaces/tal"
     xmlns:metal="http://xml.zope.org/namespaces/metal"
     metal:use-macro="main.macros['main']">
-  <div metal:fill-slot="content">
+
+  <tal:head metal:fill-slot="head">
+  <link rel="stylesheet" type="text/css" href="${request.application_url}/s/resources/css/ext-all-notheme.css" />
+  <link rel="stylesheet" type="text/css" href="${request.application_url}/s/resources/css/xtheme-gray.css" />
+  <script type="text/javascript" src="${request.application_url}/s/adapter/ext/ext-base.js"></script>
+  <script type="text/javascript" src="${request.application_url}/s/ext-all.js"></script>
+  <script type="text/javascript">
+    grid_rest_url = '${route_url('portfolios_rest', request)}'
+    grid_title = '${user.nickname()} portfolios on ${date.isoformat()}'
+    grid_date = '${date.isoformat()}',
+    grid_limit = 50;
+    grid_columns = [
+        new Ext.grid.RowNumberer({header: '#'}),
+        {id: 'name', header: "Portfolio", width: 100, sortable: true, dataIndex: 'name'},
+        {header: "Total Value", width: 50, sortable: true, dataIndex: 'total_value', align: 'right'},
+    ];
+  </script>
+  <script type="text/javascript" src="${request.application_url}/s/thinkfar.grid.js"></script>
+  </tal:head>
+
+  <tal:content metal:fill-slot="content">
     <div id="content">
-      <div class="post">
-        <h1 class="title">${title}</h1>
-        <h3 tal:condition="portfolios">${user.nickname()} portfolios:</h3>
-        <ul>
-          <li tal:repeat="portfolio portfolios">
-            <a href="${route_url('portfolio_default', request, portfolio_id=portfolio.id)}"
-              title="${portfolio.description}">${portfolio.name}</a>
-          </li>
-        </ul>
-      </div>
+      <h2 class="title">${title}</h2>
+      <div id="query"></div>
+      <br />
+      <div id="grid"></div>
     </div>
-  </div>
+  </tal:content>
+
 </html>
 

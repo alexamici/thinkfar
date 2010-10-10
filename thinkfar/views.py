@@ -43,7 +43,30 @@ def portfolio_default(request):
         'title': '%s -> %s' % (portfolio.owner.nickname(), portfolio.name)})
     return namespace
 
+def portfolios_rest(request):
+    if request.method not in ('GET',):
+        raise NotImplementdError
+    try:
+        ref_date = date(*(int(t) for t in request.params.get('date')[:10].split('-')))
+    except:
+        ref_date = date.today()
+    start = int(request.params.get('start', 0) or 0)
+    limit = int(request.params.get('limit', 25) or 25)
+    query = Portfolio.all().filter('owner =', get_current_user()).order('name')
+    rows = []
+    for portfolio in query.fetch(limit, offset=start):
+        rows.append({
+            'url': route_url('portfolio_default', request, portfolio_id=portfolio.id),
+            'name': portfolio.name,
+            'total_value': portfolio.total_value(ref_date), 
+        })
+    return {'total': query.count(), 'success': True, 'rows': rows,
+        'start': start, 'limit': limit}
+
 def portfolio_rest(request):
+    return {}
+
+def assets_rest(request):
     if request.method not in ('GET',):
         raise NotImplementdError
     id = int(request.matchdict['portfolio_id'])
@@ -66,11 +89,12 @@ def portfolio_rest(request):
             continue
         if count < end:
             data.append({
-                'url': route_url('asset_default', request, asset_id=asset.id),
+                'url': route_url('asset_default', request,
+                    portfolio_id=portfolio.id, asset_id=asset.id),
                 'name': asset.name,
                 'inventory': asset.inventory.balance(ref_date),
-                'value': asset.total_value(ref_date), 
-                'revenue': asset.estimated_yearly_revenue(ref_date),
+                'total_value': asset.total_value(ref_date), 
+                'yearly_revenue': asset.estimated_yearly_revenue(ref_date),
             })
         count += 1
     return {'total': count, 'success': True, 'message': 'all is well', 'rows': data,
@@ -98,6 +122,40 @@ def asset_default(request):
         'inventory_transaction_entries': inventory_transaction_entries,
         'default_value_account_transaction_entries': default_value_account_transaction_entries})
     return namespace
+
+def accounts_rest(request):
+    if request.method not in ('GET',):
+        raise NotImplementdError
+    id = int(request.matchdict['portfolio_id'])
+    portfolio = Portfolio.get_by_id(id)
+    if portfolio is None or portfolio.owner != get_current_user():
+        return HTTPUnauthorized()
+    try:
+        ref_date = date(*(int(t) for t in request.params.get('date')[:10].split('-')))
+    except:
+        ref_date = date.today()
+    start = int(request.params.get('start', 0) or 0)
+    end = start + int(request.params.get('limit', 25) or 25)
+    data = []
+    count = 0
+    for asset in portfolio.assets.order('name'):
+        if asset.inventory.balance(ref_date) == 0:
+            continue
+        if count < start:
+            count += 1
+            continue
+        if count < end:
+            data.append({
+                'url': route_url('asset_default', request,
+                    portfolio_id=portfolio.id, asset_id=asset.id),
+                'name': asset.name,
+                'inventory': asset.inventory.balance(ref_date),
+                'total_value': asset.total_value(ref_date), 
+                'yearly_revenue': asset.estimated_yearly_revenue(ref_date),
+            })
+        count += 1
+    return {'total': count, 'success': True, 'message': 'all is well', 'rows': data,
+        'start': start, 'limit': end - start}
 
 def transaction_default(request):
     return {}

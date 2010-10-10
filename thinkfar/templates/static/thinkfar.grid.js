@@ -9,9 +9,10 @@ function main(){
     }, [
         {name: 'id'},
         {name: 'name', allowBlank: false},
+        {name: 'url', allowBlank: false},
         {name: 'inventory', allowBlank: false},
-        {name: 'value', allowBlank: false},
-        {name: 'revenue', allowBlank: false}
+        {name: 'total_value', allowBlank: false},
+        {name: 'yearly_revenue', allowBlank: false}
     ]);
 
     var store = new Ext.data.Store({
@@ -21,14 +22,16 @@ function main(){
         reader: reader
     });
 
-    store.load({params: {start: 0, limit: grid_limit}})
-
     var paging_toolbar_conf = {
         pageSize: grid_limit,
         store: store,
         displayInfo: true,
         displayMsg: 'Displaying rows {0} - {1} of {2}',
         emptyMsg: "No row to display"
+    };
+
+    grid_columns[1].renderer = function(value, metaData, record, rowIndex, colIndex, store){
+        return '<a href="' + record.get('url') + '">' + value + '</a>';
     };
 
     var grid = new Ext.grid.GridPanel({

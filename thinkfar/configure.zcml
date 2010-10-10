@@ -14,10 +14,10 @@
      />
 
   <route
-     name="portfolio_default"
-     path="/p/:portfolio_id/index.html"
-     view=".views.portfolio_default"
-     view_renderer="templates/portfolio_default.pt"
+     name="portfolios_rest"
+     path="/p"
+     view=".views.portfolios_rest"
+     renderer="json"
      />
 
   <route
@@ -28,10 +28,38 @@
      />
 
   <route
+     name="portfolio_default"
+     path="/p/:portfolio_id/index.html"
+     view=".views.portfolio_default"
+     view_renderer="templates/portfolio_default.pt"
+     />
+
+  <route
+     name="assets_rest"
+     path="/p/:portfolio_id/a"
+     view=".views.assets_rest"
+     renderer="json"
+     />
+
+  <route
+     name="asset_default"
+     path="/p/:portfolio_id/a/:asset_id/index.html"
+     view=".views.asset_default"
+     view_renderer="templates/asset_default.pt"
+     />
+
+  <route
      name="portfolio_balance"
      path="/p/:portfolio_id/balance.html"
      view=".views.portfolio_balance"
      view_renderer="templates/portfolio_balance.pt"
+     />
+
+  <route
+     name="accounts_rest"
+     path="/p/:portfolio_id/c"
+     view=".views.accounts_rest"
+     renderer="json"
      />
 
   <route
@@ -49,15 +77,8 @@
      />
 
   <route
-     name="asset_default"
-     path="/a/:asset_id"
-     view=".views.asset_default"
-     view_renderer="templates/asset_default.pt"
-     />
-
-  <route
      name="transacrion_default"
-     path="/t/:transaction_id"
+     path="/t/:transaction_id/index.html"
      view=".views.transaction_default"
      view_renderer="templates/transaction_default.pt"
      />
@@ -71,4 +92,5 @@
      name="setup_test_portfolios"
      view=".views.setup_test_portfolios_view"
      />
+
 </configure>

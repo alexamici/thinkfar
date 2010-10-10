@@ -10,7 +10,7 @@
   <script type="text/javascript" src="${request.application_url}/s/adapter/ext/ext-base.js"></script>
   <script type="text/javascript" src="${request.application_url}/s/ext-all.js"></script>
   <script type="text/javascript">
-    grid_rest_url = '${route_url('portfolio_rest', request, portfolio_id=portfolio.id)}'
+    grid_rest_url = '${route_url('assets_rest', request, portfolio_id=portfolio.id)}'
     grid_title = 'Portfolio at ${date.isoformat()}'
     grid_date = '${date.isoformat()}',
     grid_limit = 50;
