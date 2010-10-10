@@ -83,6 +83,14 @@
      view_renderer="templates/transaction_default.pt"
      />
 
+  <route
+     name="account_default"
+     path="/p/:portfolio_id/c/:account_id/index.html"
+     view=".views.account_default"
+     view_renderer="templates/account_default.pt"
+     />
+
+
   <view
      name="initdb"
      view=".views.initdb_view"

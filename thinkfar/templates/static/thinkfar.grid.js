@@ -11,6 +11,10 @@ function main(){
         {name: 'name', allowBlank: false},
         {name: 'url', allowBlank: false},
         {name: 'inventory', allowBlank: false},
+        {name: 'denomination_identity', allowBlank: false},
+        {name: 'asset_balance', allowBlank: false},
+        {name: 'aggregate_balance', allowBlank: false},
+        {name: 'total_balance', allowBlank: false},
         {name: 'total_value', allowBlank: false},
         {name: 'yearly_revenue', allowBlank: false}
     ]);

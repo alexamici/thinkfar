@@ -60,8 +60,7 @@ def portfolios_rest(request):
             'name': portfolio.name,
             'total_value': portfolio.total_value(ref_date), 
         })
-    return {'total': query.count(), 'success': True, 'rows': rows,
-        'start': start, 'limit': limit}
+    return {'total': query.count(), 'success': True, 'rows': rows, 'start': start, 'limit': limit}
 
 def portfolio_rest(request):
     return {}
@@ -97,8 +96,7 @@ def assets_rest(request):
                 'yearly_revenue': asset.estimated_yearly_revenue(ref_date),
             })
         count += 1
-    return {'total': count, 'success': True, 'message': 'all is well', 'rows': data,
-        'start': start, 'limit': end - start}
+    return {'total': count, 'success': True, 'rows': data, 'start': start, 'limit': end - start}
 
 def portfolio_balance(request):
     namespace = portfolio_default(request)
@@ -136,27 +134,61 @@ def accounts_rest(request):
         ref_date = date.today()
     start = int(request.params.get('start', 0) or 0)
     end = start + int(request.params.get('limit', 25) or 25)
-    data = []
+    rows = []
     count = 0
-    for asset in portfolio.assets.order('name'):
-        if asset.inventory.balance(ref_date) == 0:
-            continue
+    for total_account in portfolio.total_balance_sheet_accounts():
+        for aggregate_account in total_account.children_accounts:
+            for asset_account in aggregate_account.children_accounts:
+                if asset_account.balance(ref_date) == 0:
+                    continue
+                if count < start:
+                    count += 1
+                    continue
+                if count < end:
+                    rows.append({
+                        'url': route_url('account_default', request,
+                            portfolio_id=portfolio.id, account_id=asset_account.id),
+                        'name': asset_account.definition.name,
+                        'denomination_identity': asset_account.denomination.identity,
+                        'asset_balance': asset_account.sign_balance(ref_date),
+                    })
+                count += 1
+            if count < start:
+                count += 1
+                continue
+            if count < end:
+                rows.append({
+                    'url': route_url('account_default', request,
+                        portfolio_id=portfolio.id, account_id=aggregate_account.id),
+                    'name': aggregate_account.definition.name,
+                    'denomination_identity': aggregate_account.denomination.identity,
+                    'aggregate_balance': aggregate_account.sign_balance(ref_date),
+                })
+            count += 1
         if count < start:
             count += 1
             continue
         if count < end:
-            data.append({
-                'url': route_url('asset_default', request,
-                    portfolio_id=portfolio.id, asset_id=asset.id),
-                'name': asset.name,
-                'inventory': asset.inventory.balance(ref_date),
-                'total_value': asset.total_value(ref_date), 
-                'yearly_revenue': asset.estimated_yearly_revenue(ref_date),
+            rows.append({
+                'url': route_url('account_default', request,
+                    portfolio_id=portfolio.id, account_id=total_account.id),
+                'name': total_account.definition.name,
+                'denomination_identity': total_account.denomination.identity,
+                'total_balance': total_account.sign_balance(ref_date),
             })
         count += 1
-    return {'total': count, 'success': True, 'message': 'all is well', 'rows': data,
-        'start': start, 'limit': end - start}
+    revenue, expenses = portfolio.total_income_statment_accounts()
+    rows.append({
+        'url': '#',
+        'name': 'Current Profit/Loss',
+        'denomination_identity': revenue.denomination.identity,
+        'total_balance': revenue.sign_balance(ref_date) - expenses.sign_balance(ref_date),
+    })
+    return {'total': count, 'success': True, 'rows': rows, 'start': start, 'limit': end - start}
 
+def account_default(request):
+    return {}
+    
 def transaction_default(request):
     return {}
 
