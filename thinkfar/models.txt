@@ -15,7 +15,8 @@ Most stuff refers to the currently logged user:
 Users have one or more portfolios of assets:
 
     >>> from thinkfar.models import Portfolio
-    >>> piper_belongings = Portfolio(owner=current_user, name=u'Piper Belongings')
+    >>> from datetime import date
+    >>> piper_belongings = Portfolio(date(1946, 1, 6), owner=current_user, name=u'Piper Belongings')
     >>> piper_belongings
     <Portfolio object name=u'Piper Belongings' owner=u'syd@pf.com'>
     >>> piper_belongings_key = piper_belongings.put()
@@ -34,7 +35,6 @@ Users have one or more portfolios of assets:
 and we can associate each asset to a porfolio.
 
     >>> from thinkfar.models import Asset
-    >>> from datetime import date
 
 I've got a bike.
 

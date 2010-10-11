@@ -48,9 +48,12 @@ def setup_test_portfolios():
     setup_average_joe_portfolio()
 
 def setup_average_joe_portfolio():
-    joe_p = Portfolio(name="Average Joe Portfolio", owner=get_current_user())
+    joe_p = Portfolio(date=date(1970, 1, 1), name="Average Joe Portfolio", owner=get_current_user())
     joe_p.put()
-    joe_p.simple_transaction(joe_p.default_cash_account, 50000.)
+    working_time = Asset(name='Joe Working Time',
+        portfolio=joe_p, asset_model=AssetModel.get_by_name('Time'))
+    working_time.put()
+    working_time.buy(amount=45*11*21*8., price=5.*45*11*21*8.)
     land1 = Asset(name='Joe Field 1', portfolio=joe_p, asset_model=AssetModel.get_by_name('Land'))
     land1.put()
     land1.buy(price=10000.)
@@ -71,9 +74,9 @@ def setup_average_joe_portfolio():
     job = Asset(name='Joe Job', description="Plumber",
         portfolio=joe_p, asset_model=AssetModel.get_by_name('Job'))
     job.put()
-    job.buy(date=date(2001, 6, 1), price=0.)
-    job.add_yearly_revenue(28000.)
-    job.add_yearly_revenue(-9000., code='8764')
+    job.buy(date=date(1995, 6, 1), price=10.*45*11*21*8, debit_account=working_time.default_value_account)
+    job.add_yearly_revenue(10.*11*21*8)
+    job.add_yearly_revenue(-3.*11*21*8, code='8764')
     cc = Asset(name='Joe Credit Card', description="Average Bank",
         portfolio=joe_p, asset_model=AssetModel.get_by_name('Credit Card'))
     cc.put()

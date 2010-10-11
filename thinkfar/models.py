@@ -23,6 +23,7 @@ class Portfolio(Model):
     """A collection of assets with an associated double-entry book"""
 
     owner = UserProperty(required=True)
+    date = DateProperty(required=True)
     name = StringProperty(required=True, default=u'Default Portfolio')
     description = TextProperty()
     opening_transaction = ReferenceProperty(collection_name='opening_transaction_of') # one-way relation to Transaction
@@ -59,8 +60,8 @@ class Portfolio(Model):
         gold = Asset(portfolio=self, asset_model=AssetModel.get_by_name('Commodity Money'),
             name=u'Gold coins 1oz', identity=u'GOLD')
         gold.put()
-        
-        opening_transaction = Transaction(date=date(2000, 1, 1), description=u'Opening Balance')
+
+        opening_transaction = Transaction(date=self.date, description=u'Opening Balance')
         opening_transaction.put()
         self.opening_transaction = opening_transaction
 
@@ -156,6 +157,7 @@ class AssetModel(Model):
         {'name': 'Vehicle', 'default_value_account_code': '1740'},
         {'name': 'Credit Card', 'default_value_account_code': '2707'},
         {'name': 'Job', 'default_value_account_code': '2010', 'default_revenue_account_code': '8000'},
+        {'name': 'Time', 'default_value_account_code': '2070'},
         {'name': 'Mortgage', 'default_value_account_code': '3141'},
     )
 
@@ -310,6 +312,7 @@ class AccountDefinition(Model):
             )},
             {'code': '2178', 'name': 'Total intangible capital assets', 'children': (
                 {'code': '2010', 'name': 'Intangible assets'},
+                {'code': '2070', 'name': 'Resource rights'},
             )},
             {'code': '2589', 'name': 'Total long-term assets'},
         )},
