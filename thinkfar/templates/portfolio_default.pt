@@ -18,8 +18,8 @@
         new Ext.grid.RowNumberer({header: '#'}),
         {id: 'name', header: "Asset", width: 100, sortable: true, dataIndex: 'name'},
         {header: "Inventory", width: 50, sortable: true, dataIndex: 'inventory', align: 'right'},
-        {header: "Total Value", width: 50, sortable: true, dataIndex: 'value', align: 'right'},
-        {header: "Yearly Revenue", width: 50, sortable: true, dataIndex: 'revenue', align: 'right'}
+        {header: "Total Value", width: 50, sortable: true, dataIndex: 'total_value', align: 'right'},
+        {header: "Yearly Revenue", width: 50, sortable: true, dataIndex: 'yearly_revenue', align: 'right'}
     ];
   </script>
   <script type="text/javascript" src="${request.application_url}/s/thinkfar.grid.js"></script>

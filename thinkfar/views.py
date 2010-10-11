@@ -59,6 +59,7 @@ def portfolios_rest(request):
             'url': route_url('portfolio_default', request, portfolio_id=portfolio.id),
             'name': portfolio.name,
             'total_value': portfolio.total_value(ref_date), 
+            'yearly_revenue': portfolio.estimated_yearly_revenue(ref_date), 
         })
     return {'total': query.count(), 'success': True, 'rows': rows, 'start': start, 'limit': limit}
 
