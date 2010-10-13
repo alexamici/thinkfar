@@ -59,7 +59,7 @@ def portfolios_rest(request):
             'url': route_url('portfolio_default', request, portfolio_id=portfolio.id),
             'name': portfolio.name,
             'total_value': portfolio.total_value(ref_date), 
-            'yearly_revenue': portfolio.estimated_yearly_revenue(ref_date), 
+            'yearly_revenue': portfolio.estimated_yearly_revenue(ref_date.year), 
         })
     return {'total': query.count(), 'success': True, 'rows': rows, 'start': start, 'limit': limit}
 
@@ -94,7 +94,7 @@ def assets_rest(request):
                 'name': asset.name,
                 'inventory': asset.inventory.balance(ref_date),
                 'total_value': asset.total_value(ref_date), 
-                'yearly_revenue': asset.estimated_yearly_revenue(ref_date),
+                'yearly_revenue': asset.estimated_yearly_revenue(ref_date.year),
             })
         count += 1
     return {'total': count, 'success': True, 'rows': data, 'start': start, 'limit': end - start}
@@ -134,10 +134,13 @@ def accounts_rest(request):
     except:
         ref_date = date.today()
     start = int(request.params.get('start', 0) or 0)
-    end = start + int(request.params.get('limit', 25) or 25)
+    end = start + int(request.params.get('limit', 50) or 50)
+    in_balance_sheet = 'true' is (request.params.get('in_balance_sheet', 'true') or 'true')
     rows = []
     count = 0
-    for total_account in portfolio.total_balance_sheet_accounts():
+    for total_account in portfolio.total_accounts():
+        if total_account.definition.in_balance_sheet != in_balance_sheet:
+            continue
         for aggregate_account in total_account.children_accounts:
             for asset_account in aggregate_account.children_accounts:
                 if asset_account.balance(ref_date) == 0:
@@ -178,13 +181,14 @@ def accounts_rest(request):
                 'total_balance': total_account.sign_balance(ref_date),
             })
         count += 1
-    revenue, expenses = portfolio.total_income_statment_accounts()
-    rows.append({
-        'url': '#',
-        'name': 'Current Profit/Loss',
-        'denomination_identity': revenue.denomination.identity,
-        'total_balance': revenue.sign_balance(ref_date) - expenses.sign_balance(ref_date),
-    })
+    if in_balance_sheet is True:
+        revenue, expenses = portfolio.total_income_statment_accounts()
+        rows.append({
+            'url': '#',
+            'name': 'Current Profit/Loss',
+            'denomination_identity': revenue.denomination.identity,
+            'total_balance': revenue.sign_balance(ref_date) - expenses.sign_balance(ref_date),
+        })
     return {'total': count, 'success': True, 'rows': rows, 'start': start, 'limit': end - start}
 
 def account_default(request):

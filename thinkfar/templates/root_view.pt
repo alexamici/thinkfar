@@ -5,31 +5,40 @@
     metal:use-macro="main.macros['main']">
 
   <tal:head tal:condition="user" metal:fill-slot="head">
-  <link rel="stylesheet" type="text/css" href="${request.application_url}/s/resources/css/ext-all-notheme.css" />
-  <link rel="stylesheet" type="text/css" href="${request.application_url}/s/resources/css/xtheme-gray.css" />
+  <link rel="stylesheet" type="text/css" href="${request.application_url}/s/ext/resources/css/ext-all-notheme.css" />
+  <link rel="stylesheet" type="text/css" href="${request.application_url}/s/ext/resources/css/xtheme-gray.css" />
   <script type="text/javascript" src="${request.application_url}/s/ext/adapter/ext/ext-base.js"></script>
   <script type="text/javascript" src="${request.application_url}/s/ext/ext-all.js"></script>
-  <script type="text/javascript">
-    grid_rest_url = '${route_url('portfolios_rest', request)}'
-    grid_title = '${user.nickname()} portfolios on ${date.isoformat()}'
-    grid_date = '${date.isoformat()}',
-    grid_limit = 50;
-    grid_columns = [
-        new Ext.grid.RowNumberer({header: '#'}),
-        {id: 'name', header: "Portfolio", width: 100, sortable: true, dataIndex: 'name'},
-        {header: "Total Value", width: 50, sortable: true, dataIndex: 'total_value', align: 'right'},
-        {header: "Yearly Revenue", width: 50, sortable: true, dataIndex: 'yearly_revenue', align: 'right'}
-    ];
-  </script>
   <script type="text/javascript" src="${request.application_url}/s/thinkfar.grid.js"></script>
+  <script type="text/javascript">
+    function main() {
+        thinkfar_table(
+            '${route_url('portfolios_rest', request)}',
+            '${user.nickname()} portfolios on ${date.isoformat()}',
+            '${date.isoformat()}',
+            [
+                new Ext.grid.RowNumberer({header: '#'}),
+                {id: 'name', header: "Portfolio", width: 100, sortable: true, dataIndex: 'name'},
+                {header: "Total Value", width: 50, sortable: true, dataIndex: 'total_value', align: 'right',
+                    renderer: Ext.util.Format.usMoney},
+                {header: "Yearly Revenue", width: 50, sortable: true, dataIndex: 'yearly_revenue', align: 'right',
+                    renderer: Ext.util.Format.usMoney}
+            ],
+            50
+        );
+
+        Ext.QuickTips.init();
+    }
+    Ext.onReady(main)
+  </script>
   </tal:head>
 
   <tal:content metal:fill-slot="content">
     <div id="content">
       <h2 class="title">${title}</h2>
-      <div id="query"></div>
+      <div id="thinkfar-table-query"></div>
       <br />
-      <div id="grid"></div>
+      <div id="thinkfar-table-grid"></div>
     </div>
   </tal:content>
 

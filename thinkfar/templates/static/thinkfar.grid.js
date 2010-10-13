@@ -1,7 +1,7 @@
 
-function main(){
+function thinkfar_table(rest_url, title, date, columns, limit){
     var proxy = new Ext.data.HttpProxy({
-        url: grid_rest_url
+        url: rest_url
     });
 
     var reader = new Ext.data.JsonReader({
@@ -27,25 +27,25 @@ function main(){
     });
 
     var paging_toolbar_conf = {
-        pageSize: grid_limit,
+        pageSize: limit,
         store: store,
         displayInfo: true,
         displayMsg: 'Displaying rows {0} - {1} of {2}',
         emptyMsg: "No row to display"
     };
 
-    grid_columns[1].renderer = function(value, metaData, record, rowIndex, colIndex, store){
+    columns[1].renderer = function(value, metaData, record, rowIndex, colIndex, store){
         return '<a href="' + record.get('url') + '">' + value + '</a>';
     };
 
     var grid = new Ext.grid.GridPanel({
-        renderTo: 'grid',
+        renderTo: 'thinkfar-table-grid',
         iconCls: 'icon-grid',
-        title: grid_title,
+        title: title,
         autoScroll: true,
         autoHeight: true,
         store: store,
-        columns : grid_columns,
+        columns : columns,
         autoExpandColumn: 'name',
         stripeRows: true,
         viewConfig: {
@@ -57,12 +57,12 @@ function main(){
 
     var query = new Ext.form.FormPanel({
         title: 'Query',
-        renderTo: 'query',
+        renderTo: 'thinkfar-table-query',
         items:[{
             xtype: 'datefield',
             fieldLabel: 'Date',
             format: 'Y-m-d',
-            value: grid_date,
+            value: date,
             listeners: {
                 valid: function(field){
                     grid.store.setBaseParam('date', field.getValue());
@@ -71,8 +71,6 @@ function main(){
             }
         }]
     });
-
-    Ext.QuickTips.init();
 };
 
-Ext.onReady(main)
+

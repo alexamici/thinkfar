@@ -16,7 +16,7 @@ Users have one or more portfolios of assets:
 
     >>> from thinkfar.models import Portfolio
     >>> from datetime import date
-    >>> piper_belongings = Portfolio(date(1946, 1, 6), owner=current_user, name=u'Piper Belongings')
+    >>> piper_belongings = Portfolio(start_date=date(1946, 1, 6), owner=current_user, name=u'Piper Belongings')
     >>> piper_belongings
     <Portfolio object name=u'Piper Belongings' owner=u'syd@pf.com'>
     >>> piper_belongings_key = piper_belongings.put()

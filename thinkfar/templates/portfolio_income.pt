@@ -3,77 +3,51 @@
     xmlns:tal="http://xml.zope.org/namespaces/tal"
     xmlns:metal="http://xml.zope.org/namespaces/metal"
     metal:use-macro="main.macros['main']">
-  <div metal:fill-slot="content">
+
+  <tal:head tal:condition="user" metal:fill-slot="head">
+  <link rel="stylesheet" type="text/css" href="${request.application_url}/s/ext/resources/css/ext-all-notheme.css" />
+  <link rel="stylesheet" type="text/css" href="${request.application_url}/s/ext/resources/css/xtheme-gray.css" />
+  <script type="text/javascript" src="${request.application_url}/s/ext/adapter/ext/ext-base.js"></script>
+  <script type="text/javascript" src="${request.application_url}/s/ext/ext-all.js"></script>
+  <script type="text/javascript" src="${request.application_url}/s/thinkfar.grid.js"></script>
+  <script type="text/javascript">
+    function main() {
+        thinkfar_table(
+            '${route_url('accounts_rest', request, portfolio_id=portfolio.id)}?in_balance_sheet=false',
+            '${user.nickname()} portfolio on ${date.isoformat()}',
+            '${date.isoformat()}',
+            [
+                new Ext.grid.RowNumberer({header: '#'}),
+                {id: 'name', header: "Account", width: 100, sortable: true, dataIndex: 'name'},
+                {header: "Denimination", width: 50, sortable: true, dataIndex: 'denomination_identity'},
+                {header: "Asset acc.", width: 50, sortable: true, dataIndex: 'asset_balance', align: 'right',
+                    renderer: Ext.util.Format.usMoney},
+                {header: "Aggregate acc.", width: 50, sortable: true, dataIndex: 'aggregate_balance', align: 'right',
+                    renderer: Ext.util.Format.usMoney},
+                {header: "Total acc.", width: 50, sortable: true, dataIndex: 'total_balance', align: 'right',
+                    renderer: Ext.util.Format.usMoney},
+            ],
+            50
+        );
+
+        Ext.QuickTips.init();
+    }
+    Ext.onReady(main)
+  </script>
+  </tal:head>
+
+  <tal:content metal:fill-slot="content">
     <div id="content">
-      <div class="post">
-        <h1 class="title">${title}</h1>
-        <form method="GET">
-            <label for="date">date: </label><input type="text" name="date" id="date" value="${date.isoformat()}" />
-            <script type="text/javascript">
-            $(document).ready(function(){
-                $('#date').datepicker({dateFormat: 'yy-mm-dd'});
-            });
-            </script>
-            <input type="submit" value="Update" />
-        </form>
-        <h3>portfolio at ${date.isoformat()}</h3>
-        <table>
-          <thead>
-            <tr>
-              <th>Account</th>
-              <th>Denomination</th>
-              <th>Asset accounts</th>
-              <th>Accounts</th>
-              <th>Total accounts</th>
-            </tr>
-          </thead>
-          <tbody align="right">
-            <tal:totalaccount tal:repeat="total_account portfolio.total_income_statment_accounts()">
-            <tal:subtotalaccount tal:repeat="subtotal_account total_account.children_accounts">
-            <tal:account tal:repeat="account subtotal_account.children_accounts">
-            <tal:assetaccount tal:repeat="asset_account account.children_accounts">
-            <tr tal:condition="asset_account.definition and asset_account.balance(date)">
-              <td align="left">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${asset_account.asset.name} account</td>
-              <td>${asset_account.denomination.identity}</td>
-              <td>${asset_account.sign_balance(date)}</td>
-              <td></td>
-              <td></td>
-            </tr>
-            </tal:assetaccount>
-            <tr tal:condition="account.definition and account.balance(date)">
-              <td align="left">&nbsp;&nbsp;&nbsp;&nbsp;${account.definition.name}</td>
-              <td>${account.denomination.identity}</td>
-              <td></td>
-              <td>${account.sign_balance(date)}</td>
-              <td></td>
-            </tr>
-            </tal:account>
-            <tr tal:condition="subtotal_account.definition and subtotal_account.balance(date)">
-              <td align="left">&nbsp;&nbsp;${subtotal_account.definition.name}</td>
-              <td>${subtotal_account.denomination.identity}</td>
-              <td></td>
-              <td></td>
-              <td>${subtotal_account.sign_balance(date)}</td>
-            </tr>
-            </tal:subtotalaccount>
-            <tr>
-              <th align="left">${total_account.definition.name}</th>
-              <th>${total_account.denomination.identity}</th>
-              <th></th>
-              <th></th>
-              <th>${total_account.sign_balance(date)}</th>
-            </tr>
-            </tal:totalaccount>
-            <tr tal:define="(revenue, expenses) portfolio.total_income_statment_accounts()">
-              <th align="left">${revenue.definition.name} - ${expenses.definition.name}</th>
-              <th>${revenue.denomination.identity}</th>
-              <th></th>
-              <th></th>
-              <th>${revenue.sign_balance(date) - expenses.sign_balance(date)}</th>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+      <h2 class="title">${title}</h2>
+      <ol>
+        <li><a href="${route_url('portfolio_default',request,portfolio_id=portfolio.id)}">summary</a></li>
+        <li><a href="${route_url('portfolio_balance',request,portfolio_id=portfolio.id)}">balance</a></li>
+        <li><a href="${route_url('portfolio_income',request,portfolio_id=portfolio.id)}">income</a></li>
+      </ol>
+      <div id="thinkfar-table-query"></div>
+      <br />
+      <div id="thinkfar-table-grid"></div>
     </div>
-  </div>
+  </tal:content>
+
 </html>
