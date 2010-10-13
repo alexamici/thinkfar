@@ -7,8 +7,8 @@
   <tal:head tal:condition="user" metal:fill-slot="head">
   <link rel="stylesheet" type="text/css" href="${request.application_url}/s/resources/css/ext-all-notheme.css" />
   <link rel="stylesheet" type="text/css" href="${request.application_url}/s/resources/css/xtheme-gray.css" />
-  <script type="text/javascript" src="${request.application_url}/s/adapter/ext/ext-base.js"></script>
-  <script type="text/javascript" src="${request.application_url}/s/ext-all.js"></script>
+  <script type="text/javascript" src="${request.application_url}/s/ext/adapter/ext/ext-base.js"></script>
+  <script type="text/javascript" src="${request.application_url}/s/ext/ext-all.js"></script>
   <script type="text/javascript">
     grid_rest_url = '${route_url('portfolios_rest', request)}'
     grid_title = '${user.nickname()} portfolios on ${date.isoformat()}'
