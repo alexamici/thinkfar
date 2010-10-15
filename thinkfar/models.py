@@ -145,6 +145,22 @@ class Portfolio(Model):
     def estimated_yearly_revenue(self, year):
         return sum(a.estimated_yearly_revenue(year) for a in self.assets)
 
+    def make_or_sync_yearend(self, year):
+        yearends = Transaction.all().filter('descrioption =', 'yearend').filter('start_date=', date(year, 12, 31)).fetch(1)
+        if len(yearends) == 0:
+            yearend = Transaction(descrioption='yearend', start_date=date(year, 12, 31),
+                end_date=date(year, 12, 31))
+            yearend.put()
+        else:
+            yearend = yearends[0]
+        for account in self.leaf_accounts():
+            if not account.is_asset_account or account.definition.in_balance_sheet:
+                continue
+            balance = account.balance(date(year, 12, 31))
+            if balance == 0:
+                continue
+            yearend.add_entries(((account, - balance), (self.account_by_code('3500'), balance)))
+
 class AssetModel(Model):
     name = StringProperty(required=True)
     description = TextProperty()
