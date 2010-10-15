@@ -1,4 +1,8 @@
 
+function accountNameRenderer(value, metaData, record, rowIndex, colIndex, store){
+    return '<a class="' + record.get('class') + '" href="' + record.get('url') + '">' + value + '</a>';
+};
+
 function thinkfar_table(rest_url, title, date, columns, limit){
     var proxy = new Ext.data.HttpProxy({
         url: rest_url
@@ -9,12 +13,11 @@ function thinkfar_table(rest_url, title, date, columns, limit){
     }, [
         {name: 'id'},
         {name: 'name', allowBlank: false},
+        {name: 'class', allowBlank: true},
         {name: 'url', allowBlank: false},
         {name: 'inventory', allowBlank: false},
         {name: 'denomination_identity', allowBlank: false},
-        {name: 'asset_balance', allowBlank: false},
-        {name: 'aggregate_balance', allowBlank: false},
-        {name: 'total_balance', allowBlank: false},
+        {name: 'balance', allowBlank: false},
         {name: 'total_value', allowBlank: false},
         {name: 'yearly_revenue', allowBlank: false}
     ]);
@@ -32,10 +35,6 @@ function thinkfar_table(rest_url, title, date, columns, limit){
         displayInfo: true,
         displayMsg: 'Displaying rows {0} - {1} of {2}',
         emptyMsg: "No row to display"
-    };
-
-    columns[1].renderer = function(value, metaData, record, rowIndex, colIndex, store){
-        return '<a href="' + record.get('url') + '">' + value + '</a>';
     };
 
     var grid = new Ext.grid.GridPanel({

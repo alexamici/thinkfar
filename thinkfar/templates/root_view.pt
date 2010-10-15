@@ -18,7 +18,8 @@
             '${date.isoformat()}',
             [
                 new Ext.grid.RowNumberer({header: '#'}),
-                {id: 'name', header: "Portfolio", width: 100, sortable: true, dataIndex: 'name'},
+                {id: 'name', header: "Portfolio", width: 100, sortable: true, dataIndex: 'name',
+                    renderer: accountNameRenderer},
                 {header: "Total Value", width: 50, sortable: true, dataIndex: 'total_value', align: 'right',
                     renderer: Ext.util.Format.usMoney},
                 {header: "Yearly Revenue", width: 50, sortable: true, dataIndex: 'yearly_revenue', align: 'right',

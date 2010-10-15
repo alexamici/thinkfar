@@ -18,13 +18,10 @@
             '${date.isoformat()}',
             [
                 new Ext.grid.RowNumberer({header: '#'}),
-                {id: 'name', header: "Account", width: 100, sortable: true, dataIndex: 'name'},
-                {header: "Denimination", width: 50, sortable: true, dataIndex: 'denomination_identity'},
-                {header: "Asset acc.", width: 50, sortable: true, dataIndex: 'asset_balance', align: 'right',
-                    renderer: Ext.util.Format.usMoney},
-                {header: "Aggregate acc.", width: 50, sortable: true, dataIndex: 'aggregate_balance', align: 'right',
-                    renderer: Ext.util.Format.usMoney},
-                {header: "Total acc.", width: 50, sortable: true, dataIndex: 'total_balance', align: 'right',
+                {id: 'name', header: "Account", width: 100, dataIndex: 'name',
+                    renderer: accountNameRenderer},
+                {header: "Denimination", width: 50, dataIndex: 'denomination_identity'},
+                {header: "Balance", width: 50, dataIndex: 'balance', align: 'right',
                     renderer: Ext.util.Format.usMoney},
             ],
             50
@@ -39,7 +36,7 @@
   <tal:content metal:fill-slot="content">
     <div id="content">
       <h2 class="title">${title}</h2>
-      <ol>
+      <ol id="view-selector">
         <li><a href="${route_url('portfolio_default',request,portfolio_id=portfolio.id)}">summary</a></li>
         <li><a href="${route_url('portfolio_balance',request,portfolio_id=portfolio.id)}">balance</a></li>
         <li><a href="${route_url('portfolio_income',request,portfolio_id=portfolio.id)}">income</a></li>

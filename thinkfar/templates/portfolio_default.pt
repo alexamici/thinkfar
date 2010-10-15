@@ -13,12 +13,13 @@
   <script type="text/javascript">
     function main() {
         thinkfar_table(
-            '${route_url('assets_rest', request, portfolio_id=portfolio.id)}',
+            '${route_url('assets_rest', request, portfolio_id=portfolio.id)}?in_balance_sheet=true',
             '${user.nickname()} portfolio on ${date.isoformat()}',
             '${date.isoformat()}',
             [
                 new Ext.grid.RowNumberer({header: '#'}),
-                {id: 'name', header: "Asset", width: 100, sortable: true, dataIndex: 'name'},
+                {id: 'name', header: "Asset", width: 100, sortable: true, dataIndex: 'name',
+                    renderer: accountNameRenderer},
                 {header: "Inventory", width: 50, sortable: true, dataIndex: 'inventory', align: 'right'},
                 {header: "Total Value", width: 50, sortable: true, dataIndex: 'total_value', align: 'right',
                     renderer: Ext.util.Format.usMoney},
@@ -37,7 +38,7 @@
   <tal:content metal:fill-slot="content">
     <div id="content">
       <h2 class="title">${title}</h2>
-      <ol>
+      <ol id="view-selector">
         <li><a href="${route_url('portfolio_default',request,portfolio_id=portfolio.id)}">summary</a></li>
         <li><a href="${route_url('portfolio_balance',request,portfolio_id=portfolio.id)}">balance</a></li>
         <li><a href="${route_url('portfolio_income',request,portfolio_id=portfolio.id)}">income</a></li>

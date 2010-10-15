@@ -183,6 +183,17 @@ input, textarea, select {
 #logo p a:hover { text-decoration: underline; }
 
 
+#view-selector li {
+    display: inline;
+    margin: 0 1em;
+}
+
+.aggregate-account {
+    margin-left: 1em;
+}
+.total-account {
+    margin-left: 2em;
+}
 
 /* Page */
 
