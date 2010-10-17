@@ -12,18 +12,11 @@
   <script type="text/javascript" src="${request.application_url}/s/thinkfar.grid.js"></script>
   <script type="text/javascript">
     function main() {
-        thinkfar_table(
-            '${route_url('accounts_rest', request, portfolio_id=portfolio.id)}?in_balance_sheet=true',
-            '${user.nickname()} portfolio on ${date.isoformat()}',
-            '${date.isoformat()}',
+        thinkfar_historical_chart(
+            '${route_url('series_rest', request, portfolio_id=portfolio.id)}?base_accounts=true',
+            '${user.nickname()} portfolio',
             [
-                new Ext.grid.RowNumberer({header: '#'}),
-                {header: "Code", width: 12, dataIndex: 'code'},
-                {id: 'name', header: "Account", width: 100, dataIndex: 'name',
-                    renderer: accountNameRenderer},
-                {header: "Denomination", width: 12, dataIndex: 'denomination_identity'},
-                {header: "Balance", width: 50, dataIndex: 'balance', align: 'right',
-                    renderer: Ext.util.Format.usMoney},
+                
             ],
             50
         );
@@ -45,11 +38,7 @@
       <ol id="view-subselector">
         <li><a href="${route_url('portfolio_historical_balance',request,portfolio_id=portfolio.id)}">historical balance</a></li>
       </ol>
-      <div id="thinkfar-table-query"></div>
-      <br />
-      <div id="thinkfar-table-grid"></div>
-      <br />
-      <div id="thinkfar-chart"></div>
+      <div id="thinkfar-historical-chart"></div>
     </div>
   </tal:content>
 

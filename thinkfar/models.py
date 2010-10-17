@@ -326,8 +326,8 @@ class AccountDefinition(Model):
         {'code': '2599', 'name': 'Total assets', 'is_asset': True, 'children': (
             {'code': '1599', 'name': 'Total current assets', 'children': (
                 {'code': '1001', 'name': 'Cash'},
-                {'code': '1002', 'name': 'Deposits in local banks and institutions - local currency'},
-                {'code': '1007', 'name': 'Other cash like instruments - gold bullion and silver bullion'},
+                {'code': '1002', 'name': 'Deposits in local banks and institutions'},
+                {'code': '1007', 'name': 'Other cash like instruments'},
                 {'code': '1122', 'name': 'Inventory parts and supplies'},
             )},
             {'code': '2008', 'name': 'Total tangible capital assets', 'children': (

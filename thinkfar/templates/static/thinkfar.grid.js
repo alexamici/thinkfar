@@ -9,6 +9,7 @@ function thinkfar_table(rest_url, title, date, columns, limit){
     }, [
         {name: 'id'},
         {name: 'name', allowBlank: false},
+        {name: 'code', allowBlank: false},
         {name: 'class', allowBlank: true},
         {name: 'url', allowBlank: false},
         {name: 'inventory', allowBlank: false},
@@ -74,7 +75,7 @@ function thinkfar_table(rest_url, title, date, columns, limit){
     var chart_store = new Ext.data.Store({
         id: 'user',
         restful: true,
-        url: rest_url + '&only_base_accounts=true',
+        url: rest_url + '&base_accounts=true',
         reader: reader
     });
 
@@ -95,7 +96,7 @@ function thinkfar_table(rest_url, title, date, columns, limit){
             {
                 legend:
                 {
-                    display: 'bottom',
+                    display: 'right',
                     padding: 5,
                     font:
                     {
@@ -111,3 +112,81 @@ function thinkfar_table(rest_url, title, date, columns, limit){
 };
 
 
+function thinkfar_historical_chart(rest_url, title, series, limit){
+    var reader = new Ext.data.JsonReader({
+        root: 'rows',
+    }, [
+        {name: 'date'},
+        {name: '2599'},
+        {name: '3640'},
+        {name: '3620'},
+        {name: '3499'},
+        {name: '1599'},
+        {name: '2178'}
+    ]);
+
+    var store = new Ext.data.Store({
+        restful: true,
+        url: rest_url,
+        reader: reader
+    });
+
+    store.load();
+
+    new Ext.Panel({
+        title: title,
+        renderTo: 'thinkfar-historical-chart',
+        width: 700,
+        height: 400,
+        layout:'fit',
+        tbar: [{
+            text: 'Refresh',
+            handler: function(){
+                store.load();
+            }
+        }],
+        items: {
+            xtype: 'linechart',
+            store: store,
+            xField: 'date',
+            series: [{
+                type: 'line',
+                yField: '3620',
+                style: {
+                    color: 0x99BBE8
+                }
+            }, {
+                type: 'line',
+                yField: '3499',
+                style: {
+                    color: 0x34568B
+                }
+            }, {
+                type: 'line',
+                yField: '1599',
+                style: {
+                    color: 0x0034aa
+                }
+            }, {
+                type: 'line',
+                yField: '2178',
+                style: {
+                    color: 0xbb228B
+                }
+            }],
+            extraStyle:
+            {
+                legend:
+                {
+                    display: 'bottom',
+                    padding: 5,
+                    font:
+                    {
+                        family: 'Tahoma',
+                        size: 10
+                    }
+                }
+            }
+        }
+    });
+}

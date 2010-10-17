@@ -103,6 +103,8 @@ def portfolio_balance(request):
     namespace = portfolio_default(request)
     return namespace
 
+portfolio_historical_balance = portfolio_balance
+
 portfolio_income = portfolio_estimated_income = portfolio_default 
 
 def asset_default(request):
@@ -136,7 +138,7 @@ def accounts_rest(request):
     start = int(request.params.get('start', 0) or 0)
     end = start + int(request.params.get('limit', 50) or 50)
     in_balance_sheet = 'true' == (request.params.get('in_balance_sheet', 'true') or 'true')
-    only_base_accounts = 'true' == (request.params.get('only_base_accounts', 'false') or 'false')
+    base_accounts = 'true' == (request.params.get('base_accounts', 'false') or 'false')
     rows = []
     count = 0
     portfolio.make_or_sync_yearend(ref_date.year - 1)
@@ -156,11 +158,12 @@ def accounts_rest(request):
                         'url': route_url('account_default', request,
                             portfolio_id=portfolio.id, account_id=account.id),
                         'name': account.definition.name,
+                        'code': account.definition.code,
                         'denomination_identity': account.denomination.identity,
                         'balance': asset_sign_balance,
                     })
                 count += 1
-            if only_base_accounts is True:
+            if base_accounts is True:
                 continue
             if count < start:
                 count += 1
@@ -170,12 +173,13 @@ def accounts_rest(request):
                     'url': route_url('account_default', request,
                         portfolio_id=portfolio.id, account_id=aggregate_account.id),
                     'name': aggregate_account.definition.name,
+                    'code': aggregate_account.definition.code,
                     'class': 'aggregate-account',
                     'denomination_identity': aggregate_account.denomination.identity,
                     'balance': aggregate_account.sign_balance(ref_date),
                 })
             count += 1
-        if only_base_accounts is True:
+        if base_accounts is True:
             continue
         if count < start:
             count += 1
@@ -185,6 +189,7 @@ def accounts_rest(request):
                 'url': route_url('account_default', request,
                     portfolio_id=portfolio.id, account_id=total_account.id),
                 'name': total_account.definition.name,
+                'code': total_account.definition.code,
                 'class': 'total-account',
                 'denomination_identity': total_account.denomination.identity,
                 'balance': total_account.sign_balance(ref_date),
@@ -194,9 +199,71 @@ def accounts_rest(request):
     rows.append({
         'url': '#',
         'name': 'Current Profit/Loss',
+        'code': '....',
         'denomination_identity': revenue.denomination.identity,
         'balance': revenue.sign_balance(ref_date) - expenses.sign_balance(ref_date),
     })
+    return {'total': count, 'success': True, 'rows': rows, 'start': start, 'limit': end - start}
+
+def series_rest(request):
+    if request.method not in ('GET',):
+        raise NotImplementdError
+    id = int(request.matchdict['portfolio_id'])
+    portfolio = Portfolio.get_by_id(id)
+    if portfolio is None or portfolio.owner != get_current_user():
+        return HTTPUnauthorized()
+    start = int(request.params.get('start', 0) or 0)
+    end = start + int(request.params.get('limit', 50) or 50)
+    in_balance_sheet = 'true' == (request.params.get('in_balance_sheet', 'true') or 'true')
+    base_accounts = 'true' == (request.params.get('base_accounts', 'false') or 'false')
+    rows = []
+    count = 0
+#    for year in range(portfolio.opening_transaction.start_date.year, 2011):
+    for year in range(2003, 2011):
+        count += 1
+        if count < start or count >= end:
+            continue
+        yearend = date(year, 12, 31)
+        row= {
+            'date': yearend.isoformat(),
+        }
+        portfolio.make_or_sync_yearend(year - 1)
+        for total_account in portfolio.total_accounts():
+            if total_account.definition.in_balance_sheet != in_balance_sheet:
+                continue
+            for aggregate_account in total_account.children_accounts:
+#            for account in aggregate_account.children_accounts:
+#                asset_sign_balance = account.sign_balance(ref_date)
+#                if asset_sign_balance == 0:
+#                    continue
+#                if count < start:
+#                    count += 1
+#                    continue
+#                if count < end:
+#                    rows.append({
+#                        'url': route_url('account_default', request,
+#                            portfolio_id=portfolio.id, account_id=account.id),
+#                        'name': account.definition.name,
+#                        'denomination_identity': account.denomination.identity,
+#                        'balance': asset_sign_balance,
+#                    })
+#                count += 1
+#            if base_accounts is True:
+#                continue
+#            if count < start:
+#                count += 1
+#                continue
+#            if count < end:
+                row[aggregate_account.definition.code] = aggregate_account.balance(yearend)
+            # row[total_account.definition.code] = total_account.sign_balance(yearend)
+        rows.append(row)
+#    revenue, expenses = portfolio.total_income_statment_accounts()
+#    rows.append({
+#        'url': '#',
+#        'name': 'Current Profit/Loss',
+#        'denomination_identity': revenue.denomination.identity,
+#        'balance': revenue.sign_balance(ref_date) - expenses.sign_balance(ref_date),
+#    })
     return {'total': count, 'success': True, 'rows': rows, 'start': start, 'limit': end - start}
 
 def account_default(request):

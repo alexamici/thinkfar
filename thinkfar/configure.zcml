@@ -56,9 +56,23 @@
      />
 
   <route
+     name="portfolio_historical_balance"
+     path="/p/:portfolio_id/historical_balance.html"
+     view=".views.portfolio_historical_balance"
+     view_renderer="templates/portfolio_historical_balance.pt"
+     />
+
+  <route
      name="accounts_rest"
      path="/p/:portfolio_id/c"
      view=".views.accounts_rest"
+     renderer="json"
+     />
+
+  <route
+     name="series_rest"
+     path="/p/:portfolio_id/s"
+     view=".views.series_rest"
      renderer="json"
      />
 
