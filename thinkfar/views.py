@@ -135,7 +135,8 @@ def accounts_rest(request):
         ref_date = date.today()
     start = int(request.params.get('start', 0) or 0)
     end = start + int(request.params.get('limit', 50) or 50)
-    in_balance_sheet = 'true' is (request.params.get('in_balance_sheet', 'true') or 'true')
+    in_balance_sheet = 'true' == (request.params.get('in_balance_sheet', 'true') or 'true')
+    only_base_accounts = 'true' == (request.params.get('only_base_accounts', 'false') or 'false')
     rows = []
     count = 0
     portfolio.make_or_sync_yearend(ref_date.year - 1)
@@ -143,8 +144,8 @@ def accounts_rest(request):
         if total_account.definition.in_balance_sheet != in_balance_sheet:
             continue
         for aggregate_account in total_account.children_accounts:
-            for asset_account in aggregate_account.children_accounts:
-                asset_sign_balance = asset_account.sign_balance(ref_date)
+            for account in aggregate_account.children_accounts:
+                asset_sign_balance = account.sign_balance(ref_date)
                 if asset_sign_balance == 0:
                     continue
                 if count < start:
@@ -153,12 +154,14 @@ def accounts_rest(request):
                 if count < end:
                     rows.append({
                         'url': route_url('account_default', request,
-                            portfolio_id=portfolio.id, account_id=asset_account.id),
-                        'name': asset_account.definition.name,
-                        'denomination_identity': asset_account.denomination.identity,
+                            portfolio_id=portfolio.id, account_id=account.id),
+                        'name': account.definition.name,
+                        'denomination_identity': account.denomination.identity,
                         'balance': asset_sign_balance,
                     })
                 count += 1
+            if only_base_accounts is True:
+                continue
             if count < start:
                 count += 1
                 continue
@@ -172,6 +175,8 @@ def accounts_rest(request):
                     'balance': aggregate_account.sign_balance(ref_date),
                 })
             count += 1
+        if only_base_accounts is True:
+            continue
         if count < start:
             count += 1
             continue

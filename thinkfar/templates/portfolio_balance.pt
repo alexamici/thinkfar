@@ -13,7 +13,7 @@
   <script type="text/javascript">
     function main() {
         thinkfar_table(
-            '${route_url('accounts_rest', request, portfolio_id=portfolio.id)}',
+            '${route_url('accounts_rest', request, portfolio_id=portfolio.id)}?in_balance_sheet=true',
             '${user.nickname()} portfolio on ${date.isoformat()}',
             '${date.isoformat()}',
             [
@@ -44,6 +44,8 @@
       <div id="thinkfar-table-query"></div>
       <br />
       <div id="thinkfar-table-grid"></div>
+      <br />
+      <div id="thinkfar-chart"></div>
     </div>
   </tal:content>
 

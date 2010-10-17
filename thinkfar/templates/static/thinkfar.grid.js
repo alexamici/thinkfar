@@ -4,10 +4,6 @@ function accountNameRenderer(value, metaData, record, rowIndex, colIndex, store)
 };
 
 function thinkfar_table(rest_url, title, date, columns, limit){
-    var proxy = new Ext.data.HttpProxy({
-        url: rest_url
-    });
-
     var reader = new Ext.data.JsonReader({
         root: 'rows',
     }, [
@@ -25,7 +21,7 @@ function thinkfar_table(rest_url, title, date, columns, limit){
     var store = new Ext.data.Store({
         id: 'user',
         restful: true,
-        proxy: proxy,
+        url: rest_url,
         reader: reader
     });
 
@@ -43,6 +39,7 @@ function thinkfar_table(rest_url, title, date, columns, limit){
         title: title,
         autoScroll: true,
         autoHeight: true,
+        width: 700,
         store: store,
         columns : columns,
         autoExpandColumn: 'name',
@@ -57,6 +54,7 @@ function thinkfar_table(rest_url, title, date, columns, limit){
     var query = new Ext.form.FormPanel({
         title: 'Query',
         renderTo: 'thinkfar-table-query',
+        width: 700,
         items:[{
             xtype: 'datefield',
             fieldLabel: 'Date',
@@ -70,6 +68,46 @@ function thinkfar_table(rest_url, title, date, columns, limit){
             }
         }]
     });
+
+    Ext.chart.Chart.CHART_URL = '/s/ext/resources/charts.swf'
+
+    var chart_store = new Ext.data.Store({
+        id: 'user',
+        restful: true,
+        url: rest_url + '&only_base_accounts=true',
+        reader: reader
+    });
+
+    chart_store.load();
+
+    new Ext.Panel({
+        title: title,
+        renderTo: 'thinkfar-chart',
+        width: 700,
+        height: 400,
+        layout:'fit',
+        items: {
+            xtype: 'piechart',
+            store: chart_store,
+            categoryField: 'name',
+            dataField: 'balance',
+            extraStyle:
+            {
+                legend:
+                {
+                    display: 'bottom',
+                    padding: 5,
+                    font:
+                    {
+                        family: 'Tahoma',
+                        size: 13
+                    }
+                }
+            }
+        }
+    });
+
+    return store;
 };
 
 
