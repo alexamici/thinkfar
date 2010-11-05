@@ -197,8 +197,6 @@ def accounts_rest(request):
                     'balance': aggregate_account.sign_balance(ref_date),
                 })
             count += 1
-        if base_accounts is True:
-            continue
         if count < start:
             count += 1
             continue
