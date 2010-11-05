@@ -147,8 +147,25 @@ def accounts_rest(request):
             continue
         for aggregate_account in total_account.children_accounts:
             for account in aggregate_account.children_accounts:
-                asset_sign_balance = account.sign_balance(ref_date)
-                if asset_sign_balance == 0:
+                for asset_account in account.children_accounts:
+                    asset_sign_balance = asset_account.sign_balance(ref_date)
+                    if asset_sign_balance == 0:
+                        continue
+                    if count < start:
+                        count += 1
+                        continue
+                    if count < end:
+                        rows.append({
+                            'url': route_url('account_default', request,
+                                portfolio_id=portfolio.id, account_id=asset_account.id),
+                            'name': '%s - %s' % (asset_account.asset.name, asset_account.definition.name),
+                            'code': asset_account.definition.code,
+                            'denomination_identity': asset_account.denomination.identity,
+                            'balance': asset_sign_balance,
+                        })
+                count += 1
+                account_sign_balance = account.sign_balance(ref_date)
+                if account_sign_balance == 0:
                     continue
                 if count < start:
                     count += 1
@@ -159,8 +176,9 @@ def accounts_rest(request):
                             portfolio_id=portfolio.id, account_id=account.id),
                         'name': account.definition.name,
                         'code': account.definition.code,
+                        'class': 'account',
                         'denomination_identity': account.denomination.identity,
-                        'balance': asset_sign_balance,
+                        'balance': account_sign_balance,
                     })
                 count += 1
             if base_accounts is True:

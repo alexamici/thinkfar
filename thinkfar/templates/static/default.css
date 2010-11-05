@@ -188,11 +188,14 @@ input, textarea, select {
     margin: 0 1em;
 }
 
-.aggregate-account {
+.account {
     margin-left: 1em;
 }
-.total-account {
+.aggregate-account {
     margin-left: 2em;
+}
+.total-account {
+    margin-left: 3em;
 }
 
 /* Page */

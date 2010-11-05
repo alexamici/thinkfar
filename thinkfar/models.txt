@@ -25,7 +25,7 @@ Users have one or more portfolios of assets:
     >>> piper_belongings.default_denomination.name
     u'USD Cash'
     >>> piper_belongings.default_cash_account
-    <Account object denomination=u'USD' name=u'Deposits in local banks and institutions - local currency' code=u'1002' asset=<Asset object name=u'USD Bank Account' identity=u'Default USD Bank Account' portfolio=u'Piper Belongings' owner=u'syd@pf.com'> in_balance_sheet=True>
+    <Account object denomination=u'USD' name=u'Deposits in local banks and institutions' code=u'1002' asset=<Asset object name=u'USD Bank Account' identity=u'Default USD Bank Account' portfolio=u'Piper Belongings' owner=u'syd@pf.com'> in_balance_sheet=True>
     >>> piper_belongings.accounts(asset=piper_belongings.default_denomination).count()
     1
     >>> piper_belongings.account_by_code('1001', asset=piper_belongings.default_denomination)
@@ -62,6 +62,10 @@ Take a couple if you wish. They're on the dish.
     >>> clan.sell(amount=2., date=date(1967, 3, 24), value=2.)
     >>> clan.inventory.balance(date(1967, 3, 23))
     40.0
+    >>> clan.inventory.balance(date(1967, 3, 24))
+    38.0
+    >>> clan.inventory.partial_balance(start_date=date(1967, 3, 24), end_date=date(1967, 3, 25))
+    -2.0
 
 I'll give you anything, everything if you want things.
 

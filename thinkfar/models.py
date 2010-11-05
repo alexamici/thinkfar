@@ -28,6 +28,7 @@ class Portfolio(Model):
     description = TextProperty()
     opening_transaction = ReferenceProperty(collection_name='opening_transaction_of') # one-way relation to Transaction
     default_cash_account = ReferenceProperty(collection_name='default_cash_account_of') # one-way relation to Account
+    default_equity_account = ReferenceProperty(collection_name='default_equity_account_of') # one-way relation to Account
     default_denomination = ReferenceProperty(collection_name='default_denomination_of') # one-way relation to Asset
 
     @property
@@ -56,6 +57,11 @@ class Portfolio(Model):
             name=u'USD Bank Account', identity=u'Default USD Bank Account')
         usd_bank.put()
         self.default_cash_account = usd_bank.default_value_account
+
+        shares = Asset(portfolio=self, asset_model=AssetModel.get_by_name('Shares'),
+            name=u'Self Shares', identity=u'Self Shares')
+        shares.put()
+        self.default_equity_account = shares.default_value_account
 
         gold = Asset(portfolio=self, asset_model=AssetModel.get_by_name('Commodity Money'),
             name=u'Gold coins 1oz', identity=u'GOLD')
@@ -128,7 +134,7 @@ class Portfolio(Model):
         if start_date is None:
             assert end_date is None
             transaction = self.opening_transaction
-            debit_account = self.account_by_code('3500') # equity
+            debit_account = self.default_equity_account
         else:
             if end_date is None:
                 end_date = start_date
@@ -159,7 +165,7 @@ class Portfolio(Model):
             balance = account.balance(date(year, 12, 31))
             if balance == 0:
                 continue
-            yearend.add_entries(((account, - balance), (self.account_by_code('3500'), balance)))
+            yearend.add_entries(((account, - balance), (self.default_equity_account, balance)))
 
 class AssetModel(Model):
     name = StringProperty(required=True)
@@ -179,6 +185,7 @@ class AssetModel(Model):
         {'name': 'Credit Card', 'default_value_account_code': '2707'},
         {'name': 'Job', 'default_value_account_code': '2010', 'default_revenue_account_code': '8000'},
         {'name': 'Time', 'default_value_account_code': '2070'},
+        {'name': 'Shares', 'default_value_account_code': '3500'},
         {'name': 'Need', 'default_value_account_code': '3450', 'default_revenue_account_code': '9130'}, # ARGH!
         {'name': 'Mortgage', 'default_value_account_code': '3141'},
     )
@@ -418,6 +425,10 @@ class Account(Model):
     def is_asset_account(self):
         return self.asset is not None
 
+    @property
+    def is_aggregate_account(self):
+        return self.definition is not None and self.asset is None
+
     def __repr__(self):
         if self.definition is None:
             name = self.denomination.name
@@ -431,11 +442,14 @@ class Account(Model):
             (self.__class__.__name__, self.denomination.identity, name, code, self.asset, in_balance_sheet)
 
     def transactions(self):
+        assert self.is_aggregate_account == False
         return [te.transaction for te in self.transaction_entries]
 
     def balance(self, date):
-        balance = sum(a.balance(date) for a in self.children_accounts)
-        return 0. + balance + sum(te.balance(date) for te in self.transaction_entries)
+        children_balance = sum(a.balance(date) for a in self.children_accounts)
+        account_balance = sum(te.balance(date) for te in self.transaction_entries)
+        assert children_balance == 0 or account_balance == 0
+        return 0. + children_balance + account_balance
 
     def sign_balance(self, date):
         if (self.definition.is_liability or self.definition.is_revenue):
@@ -445,14 +459,9 @@ class Account(Model):
 
     def partial_balance(self, start_date, end_date):
         children_balance = sum(a.partial_balance(start_date, end_date) for a in self.children_accounts)
-        balance = 0. + children_balance + sum(te.partial_balance(start_date, end_date) for te in self.transaction_entries)
-        return balance
-
-    def total_credit(self, date):
-        return sum(te.amount for te in self.transaction_entries if te.transaction.date <= date and te.amount > 0.)
-    
-    def total_debit(self, date):
-        return sum(te.amount for te in self.transaction_entries if te.transaction.date <= date and te.amount < 0.)
+        account_balance =  + sum(te.partial_balance(start_date, end_date) for te in self.transaction_entries)
+        assert children_balance == 0 or account_balance == 0
+        return 0. + children_balance + account_balance
 
 class Transaction(Model):
     """An event in the double-entry book
@@ -484,6 +493,7 @@ class Transaction(Model):
             pass
             # raise ValueError('Unbalanced transaction: %r' % balance)
         for e in entries:
+            assert not e[0].is_aggregate_account, e
             te = TransactionEntry(transaction=self, account=e[0], amount=e[1])
             te.put()
 
