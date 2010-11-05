@@ -158,7 +158,7 @@ def accounts_rest(request):
                         rows.append({
                             'url': route_url('account_default', request,
                                 portfolio_id=portfolio.id, account_id=asset_account.id),
-                            'name': '%s - %s' % (asset_account.asset.name, asset_account.definition.name),
+                            'name': '%s - %s' % (asset_account.definition.name, asset_account.asset.name),
                             'code': asset_account.definition.code,
                             'denomination_identity': asset_account.denomination.identity,
                             'balance': asset_sign_balance,
@@ -166,6 +166,8 @@ def accounts_rest(request):
                 count += 1
                 account_sign_balance = account.sign_balance(ref_date)
                 if account_sign_balance == 0:
+                    continue
+                if base_accounts is True:
                     continue
                 if count < start:
                     count += 1
@@ -197,6 +199,8 @@ def accounts_rest(request):
                     'balance': aggregate_account.sign_balance(ref_date),
                 })
             count += 1
+        if base_accounts is True:
+            continue
         if count < start:
             count += 1
             continue
