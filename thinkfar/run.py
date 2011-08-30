@@ -7,10 +7,8 @@ def app(global_config=None, **settings):
     It is usually called by the PasteDeploy framework during 
     ``paster serve``.
     """
-    zcml_file = settings.get('configure_zcml', 'configure.zcml')
-    config = Configurator(root_factory=None, settings=settings)
+    config = Configurator(settings=settings)
     config.begin()
-    # config.scan()
-    # config.load_zcml(zcml_file)
+    config.scan()
     config.end()
     return config.make_wsgi_app()

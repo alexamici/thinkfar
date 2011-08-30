@@ -2,8 +2,9 @@
 from datetime import date
 
 from google.appengine.api.users import get_current_user, create_login_url, create_logout_url
-from repoze.bfg.chameleon_zpt import get_template
-from repoze.bfg.url import route_url
+from pyramid.chameleon_zpt import get_template
+from pyramid.url import route_url
+
 from webob.exc import HTTPUnauthorized
 from webob import Response
 
