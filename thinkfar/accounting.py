@@ -3,40 +3,57 @@
 """
 
 from google.appengine.ext.db import Model
-from google.appengine.ext.db import BooleanProperty, FloatProperty, DateProperty
+from google.appengine.ext.db import BooleanProperty, IntegerProperty, DateProperty
 from google.appengine.ext.db import TextProperty, StringProperty
-from google.appengine.ext.db import UserProperty, ReferenceProperty, SelfReferenceProperty
+from google.appengine.ext.db import UserProperty, ReferenceProperty
 from google.appengine.ext.db.polymodel import PolyModel
 
+from thinkfar.inventory import ItemSet
 
-class AccountClass(Model):
-	"""
-	Abstract definition of an accounts tree
 
-	Accounts trees are global and shared between all users.
-	Only a root account has no parent_account and scenarios
-	should point to a root account.
-	"""
-	uuid = StringProperty(required=True)
+class AccountTreeRoot(PolyModel):
+    uuid = StringProperty(required=True)
     name = StringProperty(required=True)
     description = TextProperty()
 
-    parent_account = SelfReferenceProperty(collection_name='children_accounts')
 
+class AggregateAccount(AccountTreeRoot):
+    """
+    Abstract definition of an aggregate accounts
+
+    Accounts trees are global and shared between all users.
+    Only a root account has no parent_account and scenarios
+    should point to a root account.
+    """
     is_asset = BooleanProperty(default=False)
     is_liability = BooleanProperty(default=False)
     is_revenue = BooleanProperty(default=False)
     is_expense = BooleanProperty(default=False)
 
-   	@property
+    parent_account = ReferenceProperty(AccountTreeRoot, collection_name='children_aggregate_accounts')
+
+    @property
     def is_balance_sheet(self):
         return self.is_asset or self.is_liability
 
 
-class Transaction(Model):
-	"""An event in the double-entry book
+class Account(AccountTreeRoot):
+    parent_account = ReferenceProperty(AggregateAccount, collection_name='children_accounts')
 
-    The transaction may have an time extension and in that case it 
+
+class Scenario(Model):
+    owner = UserProperty(required=True)
+
+    name = StringProperty(required=True, default=u'Default Portfolio')
+    description = TextProperty()
+
+    start_date = DateProperty(required=True)
+
+
+class Transaction(Model):
+    """An event in the double-entry book
+
+    The transaction may have a time extension and in that case it 
     really correspondes to a linear change in the account balances.
     """
     uid = StringProperty(required=True)
@@ -46,35 +63,32 @@ class Transaction(Model):
     start_date = DateProperty(required=True)
     end_date = DateProperty(required=True)
 
+    scenario = ReferenceProperty(Scenario, required=True, collection_name='transactions')
+
 
 class TransactionEntry(PolyModel):
-	transaction = ReferenceProperty(Transaction, required=True, collection_name='transaction_entries')
-	amount = IntegerProperty(required=True)
+    transaction = ReferenceProperty(Transaction, required=True, collection_name='transaction_entries')
+    amount = IntegerProperty(required=True)
 
-	def entry_partial_balance(self, start, end):
-	     transaction = self.transaction
-	     start_date = transaction.start_date > start_date and transaction.start_date or start_date
-	     end_date = transaction.end_date < end_date and transaction.end_date or end_date
-	     delta_days = (end_date - start_date).days
-	     if delta_days < 0:
-	         return 0.
-	     if (transaction.end_date - transaction.start_date).days == 0:
-	         return self.amount
-	     return self.amount / (transaction.end_date - transaction.start_date).days * delta_days
+    def partial_balance(self, start, end):
+        transaction = self.transaction
+        start_date = transaction.start_date > start and transaction.start_date or start
+        end_date = transaction.end_date < end and transaction.end_date or end
+        delta_days = (end_date - start_date).days
+        if delta_days < 0:
+            return 0.
+        if (transaction.end_date - transaction.start_date).days == 0:
+            return self.amount
+        return self.amount / (transaction.end_date - transaction.start_date).days * delta_days
 
 
 class AccountingTransactionEntry(TransactionEntry):
-	account = ReferenceProperty(AccountClass, required=True, collection_name='transactions')
+    account = ReferenceProperty(Account, required=True, collection_name='transaction_entries')
+    item_set = ReferenceProperty(ItemSet, required=True, collection_name='transaction_entries')
 
-
-class Scenario(Model):
-	owner = UserProperty(required=True)
-
-    name = StringProperty(required=True, default=u'Default Portfolio')
-    description = TextProperty()
-
-	start_date = DateProperty(required=True)
+class InventoryTransactionEntry(TransactionEntry):
+    item_set = ReferenceProperty(ItemSet, required=True, collection_name='inventory_transaction_entries')
 
 
 def user_scenarios(user, limit=None):
-	Scenario.all().filter('owner =', user).fetch(limit)
+    Scenario.all().filter('owner =', user).fetch(limit)
