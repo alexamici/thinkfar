@@ -63,7 +63,7 @@ class Transaction(Model):
     """An event in the double-entry book
 
     The transaction may have a time extension and in that case it 
-    really correspondes to a linear change in the account balances.
+    really corresponds to a linear change in the account balances.
     """
     uid = StringProperty(required=True)
     name = StringProperty()
