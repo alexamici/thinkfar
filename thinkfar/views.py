@@ -1,6 +1,7 @@
 
 from simplejson import dumps
 
+from pyramid.httpexceptions import HTTPNotFound
 from pyramid.response import Response
 from pyramid.view import view_config
 
@@ -19,4 +20,6 @@ def root_view(request):
 def accounting_trees(request):
 	uid = request.matchdict['uid']
 	tree = AccountingTreeRoot.get_by_key_name(uid)
+	if tree is None:
+		raise HTTPNotFound
 	return Response(dumps((tree.uid, tree.name)))
