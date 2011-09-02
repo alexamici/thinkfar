@@ -14,7 +14,9 @@ def app(global_config=None, **settings):
     """
     config = Configurator(settings=settings)
     config.begin()
-    config.add_route('accounting_trees', '/accounting_trees/{uid}')
+    config.add_route('accounting_trees', '/accounting_trees/{tree_uid}/index.html')
+    config.add_route('users', '/users/{user_uid}/index.html')
+    config.add_route('scenarios', '/users/{user_uid}/scenarios/{scenario_uid}/index.html')
     config.scan()
     config.end()
     return config.make_wsgi_app()

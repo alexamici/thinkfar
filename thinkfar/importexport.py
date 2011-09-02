@@ -1,6 +1,8 @@
 
-from .accounting import AccountingTreeRoot, TotalAccount, AggregateAccount, Account
+from google.appengine.api.users import User as GAE_User
 
+from .accounting import AccountingTreeRoot, TotalAccount, AggregateAccount, Account
+from .inventory import User
 
 __copyright__ = 'Copyright (c) 2010-2011 Alessandro Amici. All rights reserved.'
 __licence__ = 'GPLv3'
@@ -59,6 +61,10 @@ gifi_accounting_tree = (
 )
 
 
+init_users = [
+    {'uid': 'alexamici', 'principal': GAE_User('alexamici@gmail.com')}
+]
+
 
 def update_or_insert_batch(klasses, batch, key_prefix='', **kwds):
     assert len(klasses) > 0
@@ -84,3 +90,14 @@ def load_accounting_tree(uid, name, tree):
         root.setattrs(uid=uid, name=name)
     root.put()
     update_or_insert_batch([TotalAccount, AggregateAccount, Account], tree, key_prefix=uid, parent_account=root)
+
+
+def load_users(users):
+	for keys in users:
+		key_name = keys['uid']
+		user = User.get_by_key_name(key_name)
+		if user is None:
+			user = User(key_name=key_name, **keys)
+		else:
+			user.setattrs(**keys)
+		user.put()

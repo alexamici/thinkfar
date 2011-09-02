@@ -12,7 +12,12 @@ __licence__ = 'GPLv3'
 
 
 class User(Model):
+    uid = StringProperty(required=True)
     principal = UserProperty(required=True)
+
+    def setattrs(self, **kwds):
+        for key, value in kwds.items():
+            setattr(self, key, value)
 
 
 class ItemClass(Model):

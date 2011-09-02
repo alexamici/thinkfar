@@ -8,7 +8,7 @@ from google.appengine.ext.db import TextProperty, StringProperty
 from google.appengine.ext.db import UserProperty, ReferenceProperty
 from google.appengine.ext.db.polymodel import PolyModel
 
-from thinkfar.inventory import ItemSet
+from .inventory import ItemSet
 
 
 __copyright__ = 'Copyright (c) 2010-2011 Alessandro Amici. All rights reserved.'
