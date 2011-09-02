@@ -2,6 +2,10 @@
 from .accounting import AccountingTreeRoot, TotalAccount, AggregateAccount, Account
 
 
+__copyright__ = 'Copyright (c) 2010-2011 Alessandro Amici. All rights reserved.'
+__licence__ = 'GPLv3'
+
+
 # GIFI reference http://www.newlearner.com/courses/hts/bat4m/pdf/gifiguide.pdf
 gifi_accounting_tree = (
     {'uid': '2599', 'name': 'Total assets', 'is_asset': True, 'children': (

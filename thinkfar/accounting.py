@@ -11,6 +11,10 @@ from google.appengine.ext.db.polymodel import PolyModel
 from thinkfar.inventory import ItemSet
 
 
+__copyright__ = 'Copyright (c) 2010-2011 Alessandro Amici. All rights reserved.'
+__licence__ = 'GPLv3'
+
+
 class GenericAccount(PolyModel):
     uid = StringProperty(required=True)
     name = StringProperty(required=True)

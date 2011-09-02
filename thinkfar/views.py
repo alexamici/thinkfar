@@ -6,6 +6,11 @@ from pyramid.view import view_config
 
 from .accounting import AccountingTreeRoot
 
+
+__copyright__ = 'Copyright (c) 2011 Alessandro Amici. All rights reserved.'
+__licence__ = 'GPLv3'
+
+
 @view_config(request_method='GET')
 def root_view(request):
 	return Response('<h1>Think-Far!</h1>')

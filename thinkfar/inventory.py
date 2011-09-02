@@ -7,6 +7,10 @@ from google.appengine.ext.db import TextProperty, StringProperty
 from google.appengine.ext.db import UserProperty, ReferenceProperty
 
 
+__copyright__ = 'Copyright (c) 2010-2011 Alessandro Amici. All rights reserved.'
+__licence__ = 'GPLv3'
+
+
 class User(Model):
     principal = UserProperty(required=True)
 

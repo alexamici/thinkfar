@@ -2,6 +2,10 @@
 from pyramid.config import Configurator
 
 
+__copyright__ = 'Copyright (c) 2010-2011 Alessandro Amici. All rights reserved.'
+__licence__ = 'GPLv3'
+
+
 def app(global_config=None, **settings):
     """ This function returns a WSGI application.
 
