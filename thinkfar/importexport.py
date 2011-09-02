@@ -56,7 +56,7 @@ gifi_accounting_tree = (
 
 
 def load_accounting_tree(uuid, name, tree):
-    root = AccountingTreeRoot(uuid=uuid, name=name)
+    root = AccountingTreeRoot(uuid=uuid, name=name, key_name=uuid)
     root.put()
     for total_keys in tree:
         aggregate_children = total_keys.pop('children', [])
