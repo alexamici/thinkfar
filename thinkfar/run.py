@@ -10,7 +10,7 @@ def app(global_config=None, **settings):
     """
     config = Configurator(settings=settings)
     config.begin()
-    config.add_route('accounting_trees', '/accounting_trees/{uuid}')
+    config.add_route('accounting_trees', '/accounting_trees/{uid}')
     config.scan()
     config.end()
     return config.make_wsgi_app()

@@ -12,6 +12,6 @@ def root_view(request):
 
 @view_config(route_name='accounting_trees', request_method='GET')
 def accounting_trees(request):
-	uuid = request.matchdict['uuid']
-	tree = AccountingTreeRoot.get_by_key_name(uuid)
-	return Response(dumps((tree.uuid, tree.name)))
+	uid = request.matchdict['uid']
+	tree = AccountingTreeRoot.get_by_key_name(uid)
+	return Response(dumps((tree.uid, tree.name)))

@@ -18,7 +18,7 @@ class ItemClass(Model):
     It defines default behaviour of the item class, its accounts, etc.
     ItemClass'es are shared between all users (for now).
     """
-    uuid = StringProperty(required=True)
+    uid = StringProperty(required=True)
     name = StringProperty(required=True)
     description = TextProperty()
 
