@@ -48,9 +48,9 @@ def setup_test_portfolios():
     setup_average_joe_portfolio()
 
 def setup_average_joe_portfolio():
-    poor = setup_average_joe_base_portfolio('Poor Joe Portfolio')
-    average = setup_average_joe_base_portfolio('Average Joe Portfolio')
-    middle_class = setup_average_joe_base_portfolio('Middle-class Joe Portfolio')
+    setup_average_joe_base_portfolio('Poor Joe Portfolio')
+    # setup_average_joe_base_portfolio('Average Joe Portfolio')
+    # setup_average_joe_base_portfolio('Middle-class Joe Portfolio')
 
 def setup_average_joe_base_portfolio(name):
     joe_p = Portfolio(start_date=date(1970, 1, 1), name=name, owner=get_current_user())

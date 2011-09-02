@@ -11,13 +11,27 @@ from google.appengine.ext.db.polymodel import PolyModel
 from thinkfar.inventory import ItemSet
 
 
-class AccountTreeRoot(PolyModel):
+class GenericAccount(PolyModel):
     uuid = StringProperty(required=True)
     name = StringProperty(required=True)
     description = TextProperty()
 
+class AccountingTreeRoot(GenericAccount):
+    pass
 
-class AggregateAccount(AccountTreeRoot):
+class TotalAccount(GenericAccount):
+    is_asset = BooleanProperty(default=False)
+    is_liability = BooleanProperty(default=False)
+    is_revenue = BooleanProperty(default=False)
+    is_expense = BooleanProperty(default=False)
+
+    parent_account = ReferenceProperty(AccountingTreeRoot, collection_name='total_accounts')
+
+    @property
+    def is_balance_sheet(self):
+        return self.is_asset or self.is_liability
+
+class AggregateAccount(GenericAccount):
     """
     Abstract definition of an aggregate accounts
 
@@ -25,20 +39,10 @@ class AggregateAccount(AccountTreeRoot):
     Only a root account has no parent_account and scenarios
     should point to a root account.
     """
-    is_asset = BooleanProperty(default=False)
-    is_liability = BooleanProperty(default=False)
-    is_revenue = BooleanProperty(default=False)
-    is_expense = BooleanProperty(default=False)
+    parent_account = ReferenceProperty(TotalAccount, collection_name='aggregate_accounts')
 
-    parent_account = ReferenceProperty(AccountTreeRoot, collection_name='children_aggregate_accounts')
-
-    @property
-    def is_balance_sheet(self):
-        return self.is_asset or self.is_liability
-
-
-class Account(AccountTreeRoot):
-    parent_account = ReferenceProperty(AggregateAccount, collection_name='children_accounts')
+class Account(GenericAccount):
+    parent_account = ReferenceProperty(AggregateAccount, collection_name='accounts')
 
 
 class Scenario(Model):

@@ -236,7 +236,7 @@ def series_rest(request):
     start = int(request.params.get('start', 0) or 0)
     end = start + int(request.params.get('limit', 50) or 50)
     in_balance_sheet = 'true' == (request.params.get('in_balance_sheet', 'true') or 'true')
-    base_accounts = 'true' == (request.params.get('base_accounts', 'false') or 'false')
+    # base_accounts = 'true' == (request.params.get('base_accounts', 'false') or 'false')
     rows = []
     count = 0
 #    for year in range(portfolio.opening_transaction.start_date.year, 2011):
