@@ -1,0 +1,22 @@
+
+Users
+-----
+
+	>>> from thinkfar.backoffice import load_gifi_accounting_tree, load_init_users
+	>>> dummy = load_init_users(None)
+
+	>>> from thinkfar.inventory import User
+	>>> me = User.get_by_key_name('alexamici')
+	>>> me.principal.email()
+	u'alexamici@gmail.com'
+
+	>>> from thinkfar.inventory import ItemSet
+	>>> my_car = ItemSet(owner=me, uid='0123', name='My Car')
+	>>> my_car.description = 'A 2003 Honda'
+	>>> dummy = my_car.put()
+
+	>>> from datetime import date
+	>>> my_car.balance(date(2011,1,1))
+	0
+
+	>>> my_car.buy(date=date(2003, 2, 5), price_paid=15000, taxes_paid=3500, resell_value=10000)

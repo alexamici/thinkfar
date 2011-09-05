@@ -3,8 +3,8 @@ The inventory is a list of items compiled for some formal purpose.
 """
 
 from google.appengine.ext.db import Model
-from google.appengine.ext.db import TextProperty, StringProperty
-from google.appengine.ext.db import UserProperty, ReferenceProperty
+from google.appengine.ext.db import TextProperty, StringProperty, IntegerProperty
+from google.appengine.ext.db import DateProperty, UserProperty, ReferenceProperty
 
 
 __copyright__ = 'Copyright (c) 2010-2011 Alessandro Amici. All rights reserved.'
@@ -46,11 +46,45 @@ class ItemSet(Model):
     name = StringProperty(required=True)
     description = TextProperty()
 
+    def buy(self, date, price_paid, amount=1, taxes_paid=0, resell_value=0):
+        t = InventoryTransaction(
+            uid='test', item_set=self,
+            start_date=date, end_date=date, amount=amount,
+            from_cash=price_paid, to_taxes=taxes_paid, to_value=resell_value
+        )
+        t.put()
+
     def partial_balance(self, start, end):
         return sum(it.partial_balance(start,end) for it in self.inventory_transaction_entries)
     
     def balance(self, date):
         return sum(it.balance(date) for it in self.inventory_transaction_entries)
+
+
+class InventoryTransaction(Model):
+    """An event in the inventory
+
+    The transaction may have a time extension and in that case it 
+    really corresponds to a linear change in the inventory balances.
+    
+    A transaction that buys a car looks like:
+
+    InventoryTransaction(..., amount=1, from_cash=15000, to_taxes=3500, to_value=10000)
+    """
+    uid = StringProperty(required=True)
+    name = StringProperty()
+    description = TextProperty()
+
+    start_date = DateProperty(required=True)
+    end_date = DateProperty(required=True)
+
+    item_set = ReferenceProperty(ItemSet, required=True, collection_name='inventory_transaction')
+    
+    amount = IntegerProperty(required=True)
+    from_cash = IntegerProperty(required=True)
+    to_taxes = IntegerProperty(required=True)
+    to_value = IntegerProperty(required=True)
+
 
 
 def user_inventory(user, limit=None):
