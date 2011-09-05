@@ -14,9 +14,10 @@ def app(global_config=None, **settings):
     """
     config = Configurator(settings=settings)
     config.begin()
-    config.add_route('accounting_trees', '/accounting_trees/{tree_uid}/index.html')
-    config.add_route('users', '/users/{user_uid}/index.html')
-    config.add_route('scenarios', '/users/{user_uid}/scenarios/{scenario_uid}/index.html')
+    config.add_route('accounting_tree_view', '/accounting_trees/{tree_uid}.html')
+    config.add_route('accounting_tree_rest', '/accounting_trees/{tree_uid}')
+    config.add_route('user_rest', '/users/{user_uid}')
+    config.add_route('scenario_rest', '/users/{user_uid}/scenarios/{scenario_uid}')
     config.scan()
     config.end()
     return config.make_wsgi_app()

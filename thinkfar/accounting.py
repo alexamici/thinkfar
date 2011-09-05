@@ -94,6 +94,9 @@ class TransactionEntry(PolyModel):
             return self.amount
         return self.amount / (transaction.end_date - transaction.start_date).days * delta_days
 
+    def balance(self, date):
+        return partial_balance(self, self.transaction.start_date, date)
+
 
 class AccountingTransactionEntry(TransactionEntry):
     account = ReferenceProperty(Account, required=True, collection_name='transaction_entries')

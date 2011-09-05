@@ -48,6 +48,9 @@ class ItemSet(Model):
 
     def partial_balance(self, start, end):
         return sum(it.partial_balance(start,end) for it in self.inventory_transaction_entries)
+    
+    def balance(self, date):
+        return sum(it.balance(date) for it in self.inventory_transaction_entries)
 
 
 def user_inventory(user, limit=None):

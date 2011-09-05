@@ -17,7 +17,7 @@ __licence__ = 'GPLv3'
 def root_view(request):
 	return Response('<h1>Think-Far!</h1>')
 
-@view_config(route_name='accounting_trees', request_method='GET')
+@view_config(route_name='accounting_tree_view', request_method='GET')
 def accounting_trees(request):
 	tree_uid = request.matchdict['tree_uid']
 	tree = AccountingTreeRoot.get_by_key_name(tree_uid)
@@ -25,7 +25,15 @@ def accounting_trees(request):
 		raise HTTPNotFound
 	return Response(dumps((tree.uid, tree.name)))
 
-@view_config(route_name='users', request_method='GET')
+@view_config(route_name='accounting_tree_rest', request_method='GET')
+def accounting_trees(request):
+	tree_uid = request.matchdict['tree_uid']
+	tree = AccountingTreeRoot.get_by_key_name(tree_uid)
+	if tree is None:
+		raise HTTPNotFound
+	return Response(dumps((tree.uid, tree.name)))
+
+@view_config(route_name='user_rest', request_method='GET')
 def users(request):
 	user_uid = request.matchdict['user_uid']
 	user = User.get_by_key_name(user_uid)
