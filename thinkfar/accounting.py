@@ -89,7 +89,7 @@ class TransactionEntry(PolyModel):
         end_date = transaction.end_date < end and transaction.end_date or end
         delta_days = (end_date - start_date).days
         if delta_days < 0:
-            return 0.
+            return 0
         if (transaction.end_date - transaction.start_date).days == 0:
             return self.amount
         return self.amount / (transaction.end_date - transaction.start_date).days * delta_days

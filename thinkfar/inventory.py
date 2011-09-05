@@ -46,19 +46,31 @@ class ItemSet(Model):
     name = StringProperty(required=True)
     description = TextProperty()
 
-    def buy(self, date, price_paid, amount=1, taxes_paid=0, resell_value=0):
+    def buy(self, start_date, price_paid, end_date=None, amount=1, taxes_paid=0, resell_value=None):
+        if end_date is None:
+            end_date = start_date
         t = InventoryTransaction(
             uid='test', item_set=self,
-            start_date=date, end_date=date, amount=amount,
-            from_cash=price_paid, to_taxes=taxes_paid, to_value=resell_value
+            start_date=start_date, end_date=end_date, amount=amount,
+            from_cash=price_paid, to_taxes=taxes_paid, to_value=resell_value,
+        )
+        t.put()
+
+    def sell(self, start_date, resell_value, end_date=None, amount=1, taxes_paid=0):
+        if end_date is None:
+            end_date = start_date
+        t = InventoryTransaction(
+            uid='test', item_set=self,
+            start_date=start_date, end_date=end_date, amount=-amount,
+            from_cash=-resell_value, to_taxes=taxes_paid,
         )
         t.put()
 
     def partial_balance(self, start, end):
-        return sum(it.partial_balance(start,end) for it in self.inventory_transaction_entries)
+        return sum(it.partial_balance(start,end) for it in self.inventory_transactions)
     
     def balance(self, date):
-        return sum(it.balance(date) for it in self.inventory_transaction_entries)
+        return sum(it.balance(date) for it in self.inventory_transactions)
 
 
 class InventoryTransaction(Model):
@@ -78,13 +90,26 @@ class InventoryTransaction(Model):
     start_date = DateProperty(required=True)
     end_date = DateProperty(required=True)
 
-    item_set = ReferenceProperty(ItemSet, required=True, collection_name='inventory_transaction')
+    item_set = ReferenceProperty(ItemSet, required=True, collection_name='inventory_transactions')
     
     amount = IntegerProperty(required=True)
     from_cash = IntegerProperty(required=True)
     to_taxes = IntegerProperty(required=True)
-    to_value = IntegerProperty(required=True)
+    to_value = IntegerProperty()
 
+    def partial_balance(self, start, end):
+        start_date = self.start_date if (self.start_date > start) else start
+        end_date = self.end_date if (self.end_date < end) else end
+        delta_days = (end_date - start_date).days
+        if delta_days < 0:
+            return 0L
+        self_delta_days = (self.end_date - self.start_date).days
+        if self_delta_days == 0:
+            return self.amount
+        return self.amount * delta_days // self_delta_days
+
+    def balance(self, date):
+        return self.partial_balance(self.start_date, date)
 
 
 def user_inventory(user, limit=None):

@@ -11,12 +11,38 @@ Users
 	u'alexamici@gmail.com'
 
 	>>> from thinkfar.inventory import ItemSet
-	>>> my_car = ItemSet(owner=me, uid='0123', name='My Car')
-	>>> my_car.description = 'A 2003 Honda'
-	>>> dummy = my_car.put()
+	>>> car = ItemSet(owner=me, uid='0123', name='My Car')
+	>>> car.description = 'A 2003 Honda'
+	>>> dummy = car.put()
 
 	>>> from datetime import date
-	>>> my_car.balance(date(2011,1,1))
-	0
+	>>> car.buy(date(2003, 2, 5), price_paid=15000, taxes_paid=3500, resell_value=10000)
+	>>> car.sell(date(2012, 5, 5), resell_value=3000, taxes_paid=500)
 
-	>>> my_car.buy(date=date(2003, 2, 5), price_paid=15000, taxes_paid=3500, resell_value=10000)
+	>>> car.balance(date(2003, 2, 4))
+	0L
+	>>> car.balance(date(2003, 2, 5))
+	1L
+	>>> car.balance(date(2012, 5, 4))
+	1L
+	>>> car.balance(date(2012, 5, 5))
+	0L
+
+	>>> ge_plan = ItemSet(owner=me, uid='0124', name='GOOG shares')
+	>>> ge_plan.description = 'GOOG shares accumulation plan'
+	>>> dummy = ge_plan.put()
+
+Careful, a linear transaction starts having a balance the day AFTER
+its start_date!
+
+	>>> ge_plan.buy(start_date=date(2009, 12, 31), end_date=date(2010, 12, 31), amount=365, price_paid=15)
+	>>> ge_plan.balance(date(2009, 12, 31))
+	0L
+	>>> ge_plan.balance(date(2010, 1, 1))
+	1L
+	>>> ge_plan.balance(date(2010, 1, 31))
+	31L
+	>>> ge_plan.balance(date(2010, 12, 30))
+	364L
+	>>> ge_plan.balance(date(2010, 12, 31))
+	365L
