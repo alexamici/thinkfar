@@ -1,5 +1,0 @@
-
-    >>> from thinkfar.ledger import BalanceSheet
-    >>> balance_sheet = BalanceSheet(date=(2009, 12, 31))
-    >>> balance_sheet
-    <BalanceSheet date="2009-12-31">
