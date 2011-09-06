@@ -11,9 +11,20 @@ __copyright__ = 'Copyright (c) 2010-2011 Alessandro Amici. All rights reserved.'
 __licence__ = 'GPLv3'
 
 
+class Currency(Model):
+    uid = StringProperty(required=True)
+    name = StringProperty(required=True)
+    description = TextProperty()
+
+    def setattrs(self, **kwds):
+        for key, value in kwds.items():
+            setattr(self, key, value)
+
+
 class User(Model):
     uid = StringProperty(required=True)
     principal = UserProperty(required=True)
+    default_currency = ReferenceProperty(Currency)
 
     def setattrs(self, **kwds):
         for key, value in kwds.items():
@@ -46,25 +57,31 @@ class ItemSet(Model):
     name = StringProperty(required=True)
     description = TextProperty()
 
-    def buy(self, start_date, price_paid, end_date=None, amount=1, taxes_paid=0, resell_value=None):
+    def buy(self, start_date, price_paid, currency=None,
+        end_date=None, amount=1, taxes_paid=0, resell_value=None):
         if end_date is None:
             end_date = start_date
-        t = InventoryTransaction(
-            uid='test', item_set=self,
+        if currency is None:
+            currency = self.owner.default_currency
+        tx = InventoryTransaction(
+            uid='test', item_set=self, currency=currency,
             start_date=start_date, end_date=end_date, amount=amount,
             from_cash=price_paid, to_taxes=taxes_paid, to_value=resell_value,
         )
-        t.put()
+        tx.put()
 
-    def sell(self, start_date, resell_value, end_date=None, amount=1, taxes_paid=0):
+    def sell(self, start_date, resell_value,currency=None,
+        end_date=None, amount=1, taxes_paid=0):
+        if currency is None:
+            currency = self.owner.default_currency
         if end_date is None:
             end_date = start_date
-        t = InventoryTransaction(
-            uid='test', item_set=self,
+        tx = InventoryTransaction(
+            uid='test', item_set=self, currency=currency,
             start_date=start_date, end_date=end_date, amount=-amount,
             from_cash=-resell_value, to_taxes=taxes_paid,
         )
-        t.put()
+        tx.put()
 
     def partial_balance(self, start, end):
         return sum(it.partial_balance(start,end) for it in self.inventory_transactions)
@@ -91,8 +108,9 @@ class InventoryTransaction(Model):
     end_date = DateProperty(required=True)
 
     item_set = ReferenceProperty(ItemSet, required=True, collection_name='inventory_transactions')
-    
+
     amount = IntegerProperty(required=True)
+    currency = ReferenceProperty(Currency, required=True)
     from_cash = IntegerProperty(required=True)
     to_taxes = IntegerProperty(required=True)
     to_value = IntegerProperty()

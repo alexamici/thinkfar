@@ -2,13 +2,18 @@
 Users
 -----
 
-	>>> from thinkfar.backoffice import load_gifi_accounting_tree, load_init_users
+	>>> from thinkfar.backoffice import load_init_currencies
+	>>> dummy = load_init_currencies(None)
+
+	>>> from thinkfar.backoffice import load_init_users
 	>>> dummy = load_init_users(None)
 
 	>>> from thinkfar.inventory import User
 	>>> me = User.get_by_key_name('alexamici')
 	>>> me.principal.email()
 	u'alexamici@gmail.com'
+	>>> me.default_currency.uid
+	u'EUR'
 
 	>>> from thinkfar.inventory import ItemSet
 	>>> car = ItemSet(owner=me, uid='0123', name='My Car')
@@ -46,3 +51,12 @@ its start_date!
 	364L
 	>>> ge_plan.balance(date(2010, 12, 31))
 	365L
+
+	>>> ge_plan.sell(start_date=date(2029, 12, 31), end_date=date(2030, 12, 31), amount=365, resell_value=15)
+	>>> ge_plan.balance(date(2029, 12, 31))
+	365L
+	>>> ge_plan.balance(date(2030, 1, 1))
+	364L
+	>>> ge_plan.balance(date(2030, 12, 31))
+	0L
+
