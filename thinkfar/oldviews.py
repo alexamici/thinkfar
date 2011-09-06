@@ -2,7 +2,7 @@
 from datetime import date
 
 from google.appengine.api.users import get_current_user, create_login_url, create_logout_url
-from pyramid.chameleon_zpt import get_template
+from pyramid.renderers import get_renderer
 from pyramid.url import route_url
 
 from webob.exc import HTTPUnauthorized
@@ -10,6 +10,8 @@ from webob import Response
 
 from .initdb import initdb, setup_test_portfolios
 from .models import Portfolio, Asset
+
+get_template = lambda x: None
 
 # global limits
 per_user_portfolio_limit = 10
