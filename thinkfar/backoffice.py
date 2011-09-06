@@ -8,6 +8,10 @@ from .importexport import load_items, load_accounting_tree
 from .inventory import User, Currency
 
 
+__copyright__ = 'Copyright (c) 2010-2011 Alessandro Amici. All rights reserved.'
+__licence__ = 'GPLv3'
+
+
 # ISO 4217 - http://en.wikipedia.org/wiki/ISO_4217
 init_currencies =(
     {'uid': 'XAU', 'name': 'Gold (one troy ounce)'},
