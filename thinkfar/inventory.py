@@ -16,19 +16,11 @@ class Currency(Model):
     name = StringProperty(required=True)
     description = TextProperty()
 
-    def setattrs(self, **kwds):
-        for key, value in kwds.items():
-            setattr(self, key, value)
-
 
 class User(Model):
     uid = StringProperty(required=True)
     principal = UserProperty(required=True)
     default_currency = ReferenceProperty(Currency)
-
-    def setattrs(self, **kwds):
-        for key, value in kwds.items():
-            setattr(self, key, value)
 
 
 class ItemClass(Model):
