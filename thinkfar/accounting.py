@@ -102,9 +102,6 @@ class AccountingTransactionEntry(TransactionEntry):
     account = ReferenceProperty(Account, required=True, collection_name='transaction_entries')
     item_set = ReferenceProperty(ItemSet, required=True, collection_name='transaction_entries')
 
-class InventoryTransactionEntry(TransactionEntry):
-    item_set = ReferenceProperty(ItemSet, required=True, collection_name='inventory_transaction_entries')
-
 
 def user_scenarios(user, limit=None):
     Scenario.all().filter('owner =', user).fetch(limit)
