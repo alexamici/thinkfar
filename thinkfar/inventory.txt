@@ -2,11 +2,8 @@
 Users
 -----
 
-	>>> from thinkfar.backoffice import load_init_currencies
-	>>> dummy = load_init_currencies(None)
-
-	>>> from thinkfar.backoffice import load_init_users
-	>>> dummy = load_init_users(None)
+	>>> from thinkfar.backoffice import load_init
+	>>> dummy = load_init(None)
 
 	>>> from thinkfar.inventory import User
 	>>> me = User.get_by_key_name('alexamici')

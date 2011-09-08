@@ -5,7 +5,7 @@ from pyramid.response import Response
 from pyramid.view import view_config
 
 from .importexport import load_items, load_accounting_tree
-from .inventory import User, Currency
+from .inventory import User, Currency, ItemClass
 
 
 __copyright__ = 'Copyright (c) 2010-2011 Alessandro Amici. All rights reserved.'
@@ -22,6 +22,19 @@ init_currencies =(
     {'uid': 'JPY', 'name': 'Japanese yen'},
 )
 
+itemset_classes = (
+        {'uid': 'GIFI-1001', 'name': 'Legal Currency'},
+        {'uid': 'GIFI-1002', 'name': 'Bank Account', 'description': 'Denominated in the main legal currency'},
+        {'uid': 'GIFI-1126', 'name': 'Commodity'},
+        {'uid': 'GIFI-1600', 'name': 'Land'},
+        {'uid': 'GIFI-1680', 'name': 'Building'},
+        {'uid': 'GIFI-1740', 'name': 'Vehicle'},
+        {'uid': 'GIFI-2707', 'name': 'Credit Card'},
+        {'uid': 'GIFI-2010', 'name': 'Job'},
+        {'uid': 'GIFI-3500', 'name': 'Shares'},
+        {'uid': 'GIFI-3141', 'name': 'Mortgage'},
+    )
+
 # GIFI reference http://www.newlearner.com/courses/hts/bat4m/pdf/gifiguide.pdf
 gifi_accounting_tree = (
     {'uid': '2599', 'name': 'Total assets', 'is_asset': True, 'children': (
@@ -29,7 +42,7 @@ gifi_accounting_tree = (
             {'uid': '1001', 'name': 'Cash'},
             {'uid': '1002', 'name': 'Deposits in local banks and institutions'},
             {'uid': '1007', 'name': 'Other cash like instruments'},
-            {'uid': '1122', 'name': 'Inventory parts and supplies'},
+            {'uid': '1126', 'name': 'Raw materials'},
         )},
         {'uid': '2008', 'name': 'Total tangible capital assets', 'children': (
             {'uid': '1600', 'name': 'Land'},
@@ -85,14 +98,12 @@ def load_gifi_accounting_tree(request):
     load_accounting_tree('GIFI', 'GIFI', gifi_accounting_tree)
     return Response('Ok')
 
-@view_config(name='load_init_users', request_method='GET')
-def load_init_users(request):
+@view_config(name='load_init', request_method='GET')
+def load_init(request):
+    load_items(Currency, init_currencies)
+    load_items(ItemClass, itemset_classes)
     for user in init_users:
         user['default_currency'] = Currency.get_by_key_name(user.get('default_currency', 'EUR'))
     load_items(User, init_users)
     return Response('Ok')
 
-@view_config(name='load_init_currencies', request_method='GET')
-def load_init_currencies(request):
-    load_items(Currency, init_currencies)
-    return Response('Ok')
