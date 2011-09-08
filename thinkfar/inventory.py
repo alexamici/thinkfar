@@ -57,8 +57,8 @@ class ItemSet(Model):
     name = StringProperty(required=True)
     description = TextProperty()
 
-    def buy(self, start_date, price_paid, currency=None,
-        end_date=None, amount=1, taxes_paid=0, resell_value=None):
+    def buy(self, start_date, gross_price_paid, currency=None,
+        end_date=None, amount=1, taxes_paid=0, commissions_paid=0, resell_value=None):
         if end_date is None:
             end_date = start_date
         if currency is None:
@@ -66,12 +66,13 @@ class ItemSet(Model):
         tx = InventoryTransaction(
             uid='test', item_set=self, currency=currency,
             start_date=start_date, end_date=end_date, amount=amount,
-            from_cash=price_paid, to_taxes=taxes_paid, to_value=resell_value,
+            from_cash=gross_price_paid, to_taxes=taxes_paid,
+            to_commissions=commissions_paid, to_value=resell_value,
         )
         tx.put()
 
-    def sell(self, start_date, resell_value,currency=None,
-        end_date=None, amount=1, taxes_paid=0):
+    def sell(self, start_date, net_resell_value, currency=None,
+        end_date=None, amount=1, taxes_paid=0, commissions_paid=0):
         if currency is None:
             currency = self.owner.default_currency
         if end_date is None:
@@ -79,7 +80,8 @@ class ItemSet(Model):
         tx = InventoryTransaction(
             uid='test', item_set=self, currency=currency,
             start_date=start_date, end_date=end_date, amount=-amount,
-            from_cash=-resell_value, to_taxes=taxes_paid,
+            from_cash=-net_resell_value, to_taxes=taxes_paid,
+            to_commissions=commissions_paid,
         )
         tx.put()
 
@@ -113,6 +115,7 @@ class InventoryTransaction(Model):
     currency = ReferenceProperty(Currency, required=True)
     from_cash = IntegerProperty(required=True)
     to_taxes = IntegerProperty(required=True)
+    to_commissions = IntegerProperty(required=True)
     to_value = IntegerProperty()
 
     def partial_balance(self, start, end):

@@ -15,14 +15,17 @@ Users
 	>>> me.default_currency.uid
 	u'EUR'
 
+A simple itemset like a car
+---------------------------
+
 	>>> from thinkfar.inventory import ItemSet
 	>>> car = ItemSet(owner=me, uid='0123', name='My Car')
 	>>> car.description = 'A 2003 Honda'
 	>>> dummy = car.put()
 
 	>>> from datetime import date
-	>>> car.buy(date(2003, 2, 5), price_paid=15000, taxes_paid=3500, resell_value=10000)
-	>>> car.sell(date(2012, 5, 5), resell_value=3000, taxes_paid=500)
+	>>> car.buy(date(2003, 2, 5), gross_price_paid=15000, taxes_paid=3500, resell_value=10000)
+	>>> car.sell(date(2012, 5, 5), net_resell_value=3000, taxes_paid=50, commissions_paid=250)
 
 	>>> car.balance(date(2003, 2, 4))
 	0L
@@ -37,10 +40,17 @@ Users
 	>>> ge_plan.description = 'GOOG shares accumulation plan'
 	>>> dummy = ge_plan.put()
 
+A simple itemset with linear transactions
+-----------------------------------------
+
 Careful, a linear transaction starts having a balance the day AFTER
 its start_date!
 
-	>>> ge_plan.buy(start_date=date(2009, 12, 31), end_date=date(2010, 12, 31), amount=365, price_paid=15)
+Let's buy 365 shares of GE for EUR 15, one every day of the year with cumulative
+commission of EUR 55 (365 * 15 + 55 = 5530):
+
+	>>> ge_plan.buy(start_date=date(2009, 12, 31), end_date=date(2010, 12, 31),
+	...     amount=365, gross_price_paid=5530, commissions_paid=55)
 	>>> ge_plan.balance(date(2009, 12, 31))
 	0L
 	>>> ge_plan.balance(date(2010, 1, 1))
@@ -52,7 +62,11 @@ its start_date!
 	>>> ge_plan.balance(date(2010, 12, 31))
 	365L
 
-	>>> ge_plan.sell(start_date=date(2029, 12, 31), end_date=date(2030, 12, 31), amount=365, resell_value=15)
+twenty years later sell the shares one per day for EUR 20 with 20% capital gain taxes
+and EUR 55 commissions (365 * (15 + 5 * (1 - .2)) - 55 = 6880)
+
+	>>> ge_plan.sell(start_date=date(2029, 12, 31), end_date=date(2030, 12, 31),
+	...     amount=365, net_resell_value=6880, taxes_paid=365, commissions_paid=55)
 	>>> ge_plan.balance(date(2029, 12, 31))
 	365L
 	>>> ge_plan.balance(date(2030, 1, 1))
@@ -60,3 +74,5 @@ its start_date!
 	>>> ge_plan.balance(date(2030, 12, 31))
 	0L
 
+	>>> ge_plan.balance(date(2020, 12, 31))
+	365L
