@@ -95,7 +95,7 @@ class TransactionEntry(PolyModel):
         return self.amount / (transaction.end_date - transaction.start_date).days * delta_days
 
     def balance(self, date):
-        return partial_balance(self, self.transaction.start_date, date)
+        return self.partial_balance(self, self.transaction.start_date, date)
 
 
 class AccountingTransactionEntry(TransactionEntry):

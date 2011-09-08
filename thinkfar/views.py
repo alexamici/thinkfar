@@ -18,7 +18,7 @@ def root_view(request):
 	return Response('<h1>Think-Far!</h1>')
 
 @view_config(route_name='accounting_tree_view', request_method='GET')
-def accounting_trees(request):
+def accounting_tree_view(request):
 	tree_uid = request.matchdict['tree_uid']
 	tree = AccountingTreeRoot.get_by_key_name(tree_uid)
 	if tree is None:
@@ -26,7 +26,7 @@ def accounting_trees(request):
 	return Response(dumps((tree.uid, tree.name)))
 
 @view_config(route_name='accounting_tree_rest', request_method='GET')
-def accounting_trees(request):
+def accounting_tree_rest(request):
 	tree_uid = request.matchdict['tree_uid']
 	tree = AccountingTreeRoot.get_by_key_name(tree_uid)
 	if tree is None:
