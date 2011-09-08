@@ -19,7 +19,18 @@ class Currency(Model):
 
 class User(Model):
     uid = StringProperty(required=True)
+    name = StringProperty()
+
     principal = UserProperty(required=True)
+
+
+class Book(Model):
+    uid = StringProperty(required=True)
+    name = StringProperty()
+    description = TextProperty()
+
+    owner = ReferenceProperty(User, required=True, collection_name='books')
+    # accounting_tree = ReferenceProperty(None)
     default_currency = ReferenceProperty(Currency)
 
 
@@ -43,7 +54,7 @@ class ItemSet(Model):
     between scenarios, like past size, income and expenses,	and likely 
     future ones.
     """
-    owner = ReferenceProperty(User, required=True)
+    book = ReferenceProperty(Book, required=True, collection_name='inventory')
 
     uid = StringProperty(required=True)
     name = StringProperty(required=True)
@@ -54,7 +65,7 @@ class ItemSet(Model):
         if end_date is None:
             end_date = start_date
         if currency is None:
-            currency = self.owner.default_currency
+            currency = self.book.default_currency
         tx = InventoryTransaction(
             uid='test', item_set=self, currency=currency,
             start_date=start_date, end_date=end_date, amount=amount,
@@ -66,7 +77,7 @@ class ItemSet(Model):
     def sell(self, start_date, net_resell_value, currency=None,
         end_date=None, amount=1, taxes_paid=0, commissions_paid=0):
         if currency is None:
-            currency = self.owner.default_currency
+            currency = self.book.default_currency
         if end_date is None:
             end_date = start_date
         tx = InventoryTransaction(
@@ -89,7 +100,7 @@ class InventoryTransaction(Model):
 
     The transaction may have a time extension and in that case it 
     really corresponds to a linear change in the inventory balances.
-    
+
     A transaction that buys a car looks like:
 
     InventoryTransaction(..., amount=1, from_cash=15000, to_taxes=3500, to_value=10000)

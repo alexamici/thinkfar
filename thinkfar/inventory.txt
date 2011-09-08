@@ -9,14 +9,19 @@ Users
 	>>> me = User.get_by_key_name('alexamici')
 	>>> me.principal.email()
 	u'alexamici@gmail.com'
-	>>> me.default_currency.uid
+
+
+	>>> from thinkfar.inventory import Book, Currency
+	>>> book = Book(uid='default', owner=me, default_currency=Currency.get_by_key_name('EUR'))
+	>>> dummy = book.put()
+	>>> book.default_currency.uid
 	u'EUR'
 
 A simple itemset like a car
 ---------------------------
 
 	>>> from thinkfar.inventory import ItemSet
-	>>> car = ItemSet(owner=me, uid='0123', name='My Car')
+	>>> car = ItemSet(book=book, uid='0123', name='My Car')
 	>>> car.description = 'A 2003 Honda'
 	>>> dummy = car.put()
 
@@ -33,12 +38,12 @@ A simple itemset like a car
 	>>> car.balance(date(2012, 5, 5))
 	0L
 
-	>>> ge_plan = ItemSet(owner=me, uid='0124', name='GOOG shares')
-	>>> ge_plan.description = 'GOOG shares accumulation plan'
-	>>> dummy = ge_plan.put()
-
 A simple itemset with linear transactions
 -----------------------------------------
+
+	>>> ge_plan = ItemSet(book=book, uid='0124', name='GOOG shares')
+	>>> ge_plan.description = 'GOOG shares accumulation plan'
+	>>> dummy = ge_plan.put()
 
 Careful, a linear transaction starts having a balance the day AFTER
 its start_date!
