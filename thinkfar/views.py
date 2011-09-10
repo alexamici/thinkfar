@@ -19,7 +19,7 @@ def root_view(request):
 @view_config(route_name='accounting_tree_view', request_method='GET')
 def accounting_tree_view(request):
 	tree_uid = request.matchdict['tree_uid']
-	tree = AccountingTreeRoot.get_by_key_name(tree_uid)
+	tree = AccountingUniverse.get_by_key_name(tree_uid)
 	if tree is None:
 		raise HTTPNotFound
 	return Response(dumps((tree.uid, tree.name)))
