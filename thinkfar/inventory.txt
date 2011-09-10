@@ -10,9 +10,12 @@ Users
 	>>> me.principal.email()
 	u'alexamici@gmail.com'
 
+	>>> from thinkfar.inventory import Currency, AccountingUniverse
+	>>> universe = AccountingUniverse.get_by_key_name('GIFI')
+	>>> currency = Currency.get_by_key_name('EUR')
 
-	>>> from thinkfar.inventory import Book, Currency
-	>>> book = Book(uid='default', owner=me, currency=Currency.get_by_key_name('EUR'))
+	>>> from thinkfar.inventory import Book
+	>>> book = Book(uid='default', owner=me, currency=currency, accounting_universe=universe)
 	>>> dummy = book.put()
 	>>> book.currency.uid
 	u'EUR'

@@ -4,8 +4,8 @@ from google.appengine.api.users import User as GAE_User
 from pyramid.response import Response
 from pyramid.view import view_config
 
-from .importexport import load_items, load_accounting_tree
-from .inventory import User, Currency, ItemClass
+from .importexport import load_items, load_accounting_universe
+from .inventory import User, Currency, AccountingUniverse, ItemClass
 
 
 __copyright__ = 'Copyright (c) 2010-2011 Alessandro Amici. All rights reserved.'
@@ -22,18 +22,23 @@ init_currencies =(
     {'uid': 'JPY', 'name': 'Japanese yen'},
 )
 
-itemset_classes = (
-        {'uid': 'GIFI-1001', 'name': 'Legal Currency'},
-        {'uid': 'GIFI-1002', 'name': 'Bank Account', 'description': 'Denominated in the main legal currency'},
-        {'uid': 'GIFI-1126', 'name': 'Commodity'},
-        {'uid': 'GIFI-1600', 'name': 'Land'},
-        {'uid': 'GIFI-1680', 'name': 'Building'},
-        {'uid': 'GIFI-1740', 'name': 'Vehicle'},
-        {'uid': 'GIFI-2707', 'name': 'Credit Card'},
-        {'uid': 'GIFI-2010', 'name': 'Job'},
-        {'uid': 'GIFI-3500', 'name': 'Shares'},
-        {'uid': 'GIFI-3141', 'name': 'Mortgage'},
-    )
+init_accounting_universes = (
+    {'uid': 'GIFI', 'name': 'General Index of Financial Information',
+        'description': 'GIFI reference http://www.newlearner.com/courses/hts/bat4m/pdf/gifiguide.pdf'},
+)
+
+gifi_item_classes = (
+    {'uid': 'GIFI-1001', 'name': 'Legal Currency'},
+    {'uid': 'GIFI-1002', 'name': 'Bank Account', 'description': 'Denominated in the main legal currency'},
+    {'uid': 'GIFI-1126', 'name': 'Commodity'},
+    {'uid': 'GIFI-1600', 'name': 'Land'},
+    {'uid': 'GIFI-1680', 'name': 'Building'},
+    {'uid': 'GIFI-1740', 'name': 'Vehicle'},
+    {'uid': 'GIFI-2707', 'name': 'Credit Card'},
+    {'uid': 'GIFI-2010', 'name': 'Job'},
+    {'uid': 'GIFI-3500', 'name': 'Shares'},
+    {'uid': 'GIFI-3141', 'name': 'Mortgage'},
+)
 
 # GIFI reference http://www.newlearner.com/courses/hts/bat4m/pdf/gifiguide.pdf
 gifi_accounting_tree = (
@@ -88,22 +93,22 @@ gifi_accounting_tree = (
 )
 
 
-init_users = [
-    {'uid': 'alexamici', 'principal': GAE_User('alexamici@gmail.com'), 'default_currency': 'EUR'}
-]
+init_users = (
+    {'uid': 'alexamici', 'principal': GAE_User('alexamici@gmail.com'), 'default_currency': 'EUR'},
+)
 
 
-@view_config(name='load_gifi_accounting_tree', request_method='GET')
-def load_gifi_accounting_tree(request):
-    load_accounting_tree('GIFI', 'GIFI', gifi_accounting_tree)
+@view_config(name='load_gifi_accounting_universe', request_method='GET')
+def load_gifi_accounting_universe(request):
+    root = AccountingUniverse.get_by_key_name('GIFI')
+    load_accounting_universe(root, gifi_accounting_tree, gifi_item_classes)
+    load_items(ItemClass, gifi_item_classes, accounting_universe=root)
     return Response('Ok')
 
 @view_config(name='load_init', request_method='GET')
 def load_init(request):
     load_items(Currency, init_currencies)
-    load_items(ItemClass, itemset_classes)
-    for user in init_users:
-        user['default_currency'] = Currency.get_by_key_name(user.get('default_currency', 'EUR'))
     load_items(User, init_users)
+    load_items(AccountingUniverse, init_accounting_universes)
     return Response('Ok')
 

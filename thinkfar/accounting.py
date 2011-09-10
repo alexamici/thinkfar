@@ -20,10 +20,6 @@ class GenericAccount(PolyModel):
     name = StringProperty(required=True)
     description = TextProperty()
 
-    def setattrs(self, **kwds):
-        for key, value in kwds.items():
-            setattr(self, key, value)
-
 
 class TotalAccount(GenericAccount):
     is_asset = BooleanProperty(default=False)
@@ -31,7 +27,7 @@ class TotalAccount(GenericAccount):
     is_revenue = BooleanProperty(default=False)
     is_expense = BooleanProperty(default=False)
 
-    parent_account = ReferenceProperty(AccountingUniverse, collection_name='total_accounts')
+    accounting_universe = ReferenceProperty(AccountingUniverse, collection_name='total_accounts')
 
     @property
     def is_balance_sheet(self):

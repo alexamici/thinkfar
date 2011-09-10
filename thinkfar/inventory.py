@@ -36,8 +36,8 @@ class Book(Model):
     description = TextProperty()
 
     owner = ReferenceProperty(User, required=True, collection_name='books')
-    accounting_universe = ReferenceProperty(AccountingUniverse)
-    currency = ReferenceProperty(Currency)
+    accounting_universe = ReferenceProperty(AccountingUniverse, required=True)
+    currency = ReferenceProperty(Currency, required=True)
 
 
 class ItemClass(Model):

@@ -1,6 +1,6 @@
 
-from .accounting import AccountingTreeRoot, TotalAccount, AggregateAccount, Account
-
+from .accounting import TotalAccount, AggregateAccount, Account
+from .inventory import AccountingUniverse, ItemClass
 
 __copyright__ = 'Copyright (c) 2010-2011 Alessandro Amici. All rights reserved.'
 __licence__ = 'GPLv3'
@@ -23,14 +23,8 @@ def update_or_insert_batch(klasses, items, key_prefix='', **kargs):
             update_or_insert_batch(klasses[1:], children, key_prefix=key_prefix, parent_account=item)
 
 
-def load_accounting_tree(uid, name, tree):
-    root = AccountingTreeRoot.get_by_key_name(uid)
-    if root is None:
-        root = AccountingTreeRoot(key_name=uid, uid=uid, name=name)
-    else:
-        root.setattrs(uid=uid, name=name)
-    root.put()
-    update_or_insert_batch([TotalAccount, AggregateAccount, Account], tree, key_prefix=uid, parent_account=root)
+def load_accounting_universe(root, accounting_tree, item_classes):
+    update_or_insert_batch([TotalAccount, AggregateAccount, Account], tree, key_prefix=uid, accounting_universe=root)
 
 
 def load_items(klass, items, **kargs):

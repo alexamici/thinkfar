@@ -5,8 +5,7 @@ from pyramid.httpexceptions import HTTPNotFound
 from pyramid.response import Response
 from pyramid.view import view_config
 
-from .accounting import AccountingTreeRoot
-from .inventory import User
+from .inventory import User, AccountingUniverse
 
 
 __copyright__ = 'Copyright (c) 2011 Alessandro Amici. All rights reserved.'
@@ -28,7 +27,7 @@ def accounting_tree_view(request):
 @view_config(route_name='accounting_tree_rest', request_method='GET')
 def accounting_tree_rest(request):
 	tree_uid = request.matchdict['tree_uid']
-	tree = AccountingTreeRoot.get_by_key_name(tree_uid)
+	tree = AccountingUniverse.get_by_key_name(tree_uid)
 	if tree is None:
 		raise HTTPNotFound
 	return Response(dumps((tree.uid, tree.name)))
