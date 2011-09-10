@@ -72,31 +72,21 @@ class ItemSet(Model):
     name = StringProperty(required=True)
     description = TextProperty()
 
-    def buy(self, start_date, gross_price_paid, currency=None,
-        end_date=None, amount=1, taxes_paid=0, commissions_paid=0, resell_value=None):
-        if end_date is None:
+    def acquire(self, start_date, end_date=None, amount=1):
+    	if end_date is None:
             end_date = start_date
-        if currency is None:
-            currency = self.book.currency
         tx = InventoryTransaction(
-            uid='test', item_set=self, currency=currency,
-            start_date=start_date, end_date=end_date, amount=amount,
-            from_cash=gross_price_paid, to_taxes=taxes_paid,
-            to_commissions=commissions_paid, to_value=resell_value,
+            uid='test', item_set=self, amount=amount,
+            start_date=start_date, end_date=end_date,
         )
         tx.put()
 
-    def sell(self, start_date, net_resell_value, currency=None,
-        end_date=None, amount=1, taxes_paid=0, commissions_paid=0):
-        if currency is None:
-            currency = self.book.currency
-        if end_date is None:
+    def dismiss(self, start_date, end_date=None, amount=1):
+    	if end_date is None:
             end_date = start_date
         tx = InventoryTransaction(
-            uid='test', item_set=self, currency=currency,
-            start_date=start_date, end_date=end_date, amount=-amount,
-            from_cash=-net_resell_value, to_taxes=taxes_paid,
-            to_commissions=commissions_paid,
+            uid='test', item_set=self, amount=-amount,
+            start_date=start_date, end_date=end_date,
         )
         tx.put()
 
@@ -112,10 +102,6 @@ class InventoryTransaction(Model):
 
     The transaction may have a time extension and in that case it 
     really corresponds to a linear change in the inventory balances.
-
-    A transaction that buys a car looks like:
-
-    InventoryTransaction(..., amount=1, from_cash=15000, to_taxes=3500, to_value=10000)
     """
     uid = StringProperty(required=True)
     name = StringProperty()
@@ -127,11 +113,6 @@ class InventoryTransaction(Model):
     item_set = ReferenceProperty(ItemSet, required=True, collection_name='inventory_transactions')
 
     amount = IntegerProperty(required=True)
-    currency = ReferenceProperty(Currency, required=True)
-    from_cash = IntegerProperty(required=True)
-    to_taxes = IntegerProperty(required=True)
-    to_commissions = IntegerProperty(required=True)
-    to_value = IntegerProperty()
 
     def partial_balance(self, start, end):
         start_date = self.start_date if (self.start_date > start) else start
@@ -147,6 +128,3 @@ class InventoryTransaction(Model):
     def balance(self, date):
         return self.partial_balance(self.start_date, date)
 
-
-def user_inventory(user, limit=None):
-    ItemSet.all().filter('owner =', user).fetch(limit)
