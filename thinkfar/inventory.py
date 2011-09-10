@@ -127,4 +127,3 @@ class InventoryTransaction(Model):
 
     def balance(self, date):
         return self.partial_balance(self.start_date, date)
-

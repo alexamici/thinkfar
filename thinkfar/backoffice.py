@@ -4,7 +4,8 @@ from google.appengine.api.users import User as GAE_User
 from pyramid.response import Response
 from pyramid.view import view_config
 
-from .importexport import load_items, load_accounting_tree
+from .accounting import load_accounting_tree
+from .importexport import load_items
 from .inventory import User, Currency, AccountingUniverse, ItemClass
 
 
@@ -102,7 +103,6 @@ init_users = (
 def load_gifi_accounting_universe(request):
     root = AccountingUniverse.get_by_key_name('GIFI')
     load_accounting_tree(root, gifi_accounting_tree)
-    load_items(ItemClass, gifi_item_classes, accounting_universe=root)
     return Response('Ok')
 
 @view_config(name='load_init', request_method='GET')
@@ -110,5 +110,7 @@ def load_init(request):
     load_items(Currency, init_currencies)
     load_items(User, init_users)
     load_items(AccountingUniverse, init_accounting_universes)
+    root = AccountingUniverse.get_by_key_name('GIFI')
+    load_items(ItemClass, gifi_item_classes, accounting_universe=root)
     return Response('Ok')
 

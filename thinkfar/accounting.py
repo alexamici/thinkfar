@@ -8,6 +8,7 @@ from google.appengine.ext.db import TextProperty, StringProperty
 from google.appengine.ext.db import UserProperty, ReferenceProperty
 from google.appengine.ext.db.polymodel import PolyModel
 
+from .importexport import load_items
 from .inventory import ItemSet, AccountingUniverse
 
 
@@ -98,3 +99,10 @@ class AccountingTransactionEntry(TransactionEntry):
 
 def user_scenarios(user, limit=None):
     Scenario.all().filter('owner =', user).fetch(limit)
+
+
+def load_accounting_tree(root, accounting_tree):
+    load_items(TotalAccount, accounting_tree,
+        key_prefix=root.uid + '/', accounting_universe=root,
+        children_classes=[AggregateAccount, Account])
+

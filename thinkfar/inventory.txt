@@ -2,9 +2,8 @@
 Users
 -----
 
-	>>> from thinkfar.backoffice import load_init, load_gifi_accounting_universe
+	>>> from thinkfar.backoffice import load_init
 	>>> dummy = load_init(None)
-	>>> dummy = load_gifi_accounting_universe(None)
 
 	>>> from thinkfar.inventory import User
 	>>> me = User.get_by_key_name('alexamici')
