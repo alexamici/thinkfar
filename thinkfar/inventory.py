@@ -24,14 +24,20 @@ class User(Model):
     principal = UserProperty(required=True)
 
 
+class AccountingUniverse(Model):
+    uid = StringProperty(required=True)
+    name = StringProperty(required=True)
+    description = TextProperty()
+
+
 class Book(Model):
     uid = StringProperty(required=True)
     name = StringProperty()
     description = TextProperty()
 
     owner = ReferenceProperty(User, required=True, collection_name='books')
-    # accounting_tree = ReferenceProperty(None)
-    default_currency = ReferenceProperty(Currency)
+    accounting_universe = ReferenceProperty(AccountingUniverse)
+    currency = ReferenceProperty(Currency)
 
 
 class ItemClass(Model):
@@ -44,6 +50,8 @@ class ItemClass(Model):
     uid = StringProperty(required=True)
     name = StringProperty(required=True)
     description = TextProperty()
+
+    accounting_universe = ReferenceProperty(AccountingUniverse, collection_name='item_classes')
 
 
 class ItemSet(Model):
@@ -65,7 +73,7 @@ class ItemSet(Model):
         if end_date is None:
             end_date = start_date
         if currency is None:
-            currency = self.book.default_currency
+            currency = self.book.currency
         tx = InventoryTransaction(
             uid='test', item_set=self, currency=currency,
             start_date=start_date, end_date=end_date, amount=amount,
@@ -77,7 +85,7 @@ class ItemSet(Model):
     def sell(self, start_date, net_resell_value, currency=None,
         end_date=None, amount=1, taxes_paid=0, commissions_paid=0):
         if currency is None:
-            currency = self.book.default_currency
+            currency = self.book.currency
         if end_date is None:
             end_date = start_date
         tx = InventoryTransaction(

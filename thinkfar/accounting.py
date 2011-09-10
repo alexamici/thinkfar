@@ -8,7 +8,7 @@ from google.appengine.ext.db import TextProperty, StringProperty
 from google.appengine.ext.db import UserProperty, ReferenceProperty
 from google.appengine.ext.db.polymodel import PolyModel
 
-from .inventory import ItemSet
+from .inventory import ItemSet, AccountingUniverse
 
 
 __copyright__ = 'Copyright (c) 2010-2011 Alessandro Amici. All rights reserved.'
@@ -25,16 +25,13 @@ class GenericAccount(PolyModel):
             setattr(self, key, value)
 
 
-class AccountingTreeRoot(GenericAccount):
-    pass
-
 class TotalAccount(GenericAccount):
     is_asset = BooleanProperty(default=False)
     is_liability = BooleanProperty(default=False)
     is_revenue = BooleanProperty(default=False)
     is_expense = BooleanProperty(default=False)
 
-    parent_account = ReferenceProperty(AccountingTreeRoot, collection_name='total_accounts')
+    parent_account = ReferenceProperty(AccountingUniverse, collection_name='total_accounts')
 
     @property
     def is_balance_sheet(self):

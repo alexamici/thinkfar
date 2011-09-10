@@ -12,9 +12,9 @@ Users
 
 
 	>>> from thinkfar.inventory import Book, Currency
-	>>> book = Book(uid='default', owner=me, default_currency=Currency.get_by_key_name('EUR'))
+	>>> book = Book(uid='default', owner=me, currency=Currency.get_by_key_name('EUR'))
 	>>> dummy = book.put()
-	>>> book.default_currency.uid
+	>>> book.currency.uid
 	u'EUR'
 
 A simple itemset like a car
