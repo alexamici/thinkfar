@@ -53,6 +53,9 @@ class ItemClass(Model):
 
     accounting_universe = ReferenceProperty(AccountingUniverse, collection_name='item_classes')
 
+    def create_itemset(self, book, uid, name, description=None):
+    	return ItemSet(book=book, item_class=self, uid=uid, name=name, description=description)
+
 
 class ItemSet(Model):
     """
@@ -63,6 +66,7 @@ class ItemSet(Model):
     future ones.
     """
     book = ReferenceProperty(Book, required=True, collection_name='inventory')
+    item_class = ReferenceProperty(ItemClass, required=True)
 
     uid = StringProperty(required=True)
     name = StringProperty(required=True)

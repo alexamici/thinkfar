@@ -2,8 +2,9 @@
 Users
 -----
 
-	>>> from thinkfar.backoffice import load_init
+	>>> from thinkfar.backoffice import load_init, load_gifi_accounting_universe
 	>>> dummy = load_init(None)
+	>>> dummy = load_gifi_accounting_universe(None)
 
 	>>> from thinkfar.inventory import User
 	>>> me = User.get_by_key_name('alexamici')
@@ -23,8 +24,9 @@ Users
 A simple itemset like a car
 ---------------------------
 
-	>>> from thinkfar.inventory import ItemSet
-	>>> car = ItemSet(book=book, uid='0123', name='My Car')
+	>>> from thinkfar.inventory import ItemClass, ItemSet
+	>>> car_class = ItemClass.get_by_key_name('GIFI-1740')
+	>>> car = car_class.create_itemset(book=book, uid='0123', name='My Car')
 	>>> car.description = 'A 2003 Honda'
 	>>> dummy = car.put()
 
@@ -44,8 +46,9 @@ A simple itemset like a car
 A simple itemset with linear transactions
 -----------------------------------------
 
-	>>> ge_plan = ItemSet(book=book, uid='0124', name='GOOG shares')
-	>>> ge_plan.description = 'GOOG shares accumulation plan'
+	>>> shares_class = ItemClass.get_by_key_name('GIFI-3500')
+	>>> ge_plan = shares_class.create_itemset(book=book, uid='0124', name='GE shares')
+	>>> ge_plan.description = 'GE shares accumulation plan'
 	>>> dummy = ge_plan.put()
 
 Careful, a linear transaction starts having a balance the day AFTER

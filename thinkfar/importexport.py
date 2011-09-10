@@ -23,8 +23,8 @@ def update_or_insert_batch(klasses, items, key_prefix='', **kargs):
             update_or_insert_batch(klasses[1:], children, key_prefix=key_prefix, parent_account=item)
 
 
-def load_accounting_universe(root, accounting_tree, item_classes):
-    update_or_insert_batch([TotalAccount, AggregateAccount, Account], tree, key_prefix=uid, accounting_universe=root)
+def load_accounting_tree(root, accounting_tree):
+    update_or_insert_batch([TotalAccount, AggregateAccount, Account], accounting_tree, key_prefix=root.uid, accounting_universe=root)
 
 
 def load_items(klass, items, **kargs):
