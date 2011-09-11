@@ -1,45 +1,17 @@
 
-from google.appengine.api.users import User as GAE_User
 
 from pyramid.response import Response
 from pyramid.view import view_config
 
-from .accounting import load_accounting_tree
-from .importexport import load_items
-from .inventory import User, Currency, AccountingUniverse, ItemClass
+from ..accounting import load_accounting_tree
+from ..inventory import AccountingUniverse
+
+from .inventory import init_datastore
 
 
 __copyright__ = 'Copyright (c) 2010-2011 Alessandro Amici. All rights reserved.'
 __licence__ = 'GPLv3'
 
-
-# ISO 4217 - http://en.wikipedia.org/wiki/ISO_4217
-init_currencies =(
-    {'uid': 'XAU', 'name': 'Gold (one troy ounce)'},
-    {'uid': 'XAG', 'name': 'Silver (one troy ounce)'},
-    {'uid': 'USD', 'name': 'United States dollar'},
-    {'uid': 'EUR', 'name': 'Euro'},
-    {'uid': 'GBP', 'name': 'Pound sterling'},
-    {'uid': 'JPY', 'name': 'Japanese yen'},
-)
-
-init_accounting_universes = (
-    {'uid': 'GIFI', 'name': 'General Index of Financial Information',
-        'description': 'GIFI reference http://www.newlearner.com/courses/hts/bat4m/pdf/gifiguide.pdf'},
-)
-
-gifi_item_classes = (
-    {'uid': 'GIFI-1001', 'name': 'Legal Currency'},
-    {'uid': 'GIFI-1002', 'name': 'Bank Account', 'description': 'Denominated in the main legal currency'},
-    {'uid': 'GIFI-1126', 'name': 'Commodity'},
-    {'uid': 'GIFI-1600', 'name': 'Land'},
-    {'uid': 'GIFI-1680', 'name': 'Building'},
-    {'uid': 'GIFI-1740', 'name': 'Vehicle'},
-    {'uid': 'GIFI-2707', 'name': 'Credit Card'},
-    {'uid': 'GIFI-2010', 'name': 'Job'},
-    {'uid': 'GIFI-3500', 'name': 'Shares'},
-    {'uid': 'GIFI-3141', 'name': 'Mortgage'},
-)
 
 # GIFI reference http://www.newlearner.com/courses/hts/bat4m/pdf/gifiguide.pdf
 gifi_accounting_tree = (
@@ -94,11 +66,6 @@ gifi_accounting_tree = (
 )
 
 
-init_users = (
-    {'uid': 'alexamici', 'principal': GAE_User('alexamici@gmail.com'), 'default_currency': 'EUR'},
-)
-
-
 @view_config(name='load_gifi_accounting_universe', request_method='GET')
 def load_gifi_accounting_universe(request):
     root = AccountingUniverse.get_by_key_name('GIFI')
@@ -107,10 +74,6 @@ def load_gifi_accounting_universe(request):
 
 @view_config(name='load_init', request_method='GET')
 def load_init(request):
-    load_items(Currency, init_currencies)
-    load_items(User, init_users)
-    load_items(AccountingUniverse, init_accounting_universes)
-    root = AccountingUniverse.get_by_key_name('GIFI')
-    load_items(ItemClass, gifi_item_classes, accounting_universe=root)
+    init_datastore()
     return Response('Ok')
 
