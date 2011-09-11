@@ -51,10 +51,12 @@ gifi_accounting_tree = (
     )},
     {'uid': '9368', 'name': 'Total expenses', 'is_expense': True, 'children': (
         {'uid': '9367', 'name': 'Total operating expenses', 'children': (
+            {'uid': '8690', 'name': 'Insurance'},
             {'uid': '8710', 'name': 'Interest and bank charges'},
             {'uid': '8764', 'name': 'Government fees'},
             {'uid': '8870', 'name': 'Transfer fees'},
             {'uid': '8961', 'name': 'Repairs and maintenance - buildings'},
+            {'uid': '8962', 'name': 'Repairs and maintenance - vehicles'},
             {'uid': '9180', 'name': 'Property taxes'},
             {'uid': '9130', 'name': 'Supplies'},
             {'uid': '9990', 'name': 'Current income taxes'},
@@ -62,6 +64,16 @@ gifi_accounting_tree = (
     )},
 )
 
+
+#'transaction_definitions': [
+#    'buy:9180,8870,1600',
+#    'sell:9180,8870,1600',
+#    'costs:8870,8961',
+#    'revenues:8141,9990']
+#'transaction_definitions': [
+#    'buy:9180,8870,1740',
+#    'sell:9180,8870,1600',
+#    'costs:8690,8961']
 
 def init_gifi_accounting_universe():
     root = AccountingUniverse.get_by_key_name('GIFI')

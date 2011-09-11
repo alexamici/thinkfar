@@ -9,7 +9,7 @@ from google.appengine.ext.db import UserProperty, ReferenceProperty
 from google.appengine.ext.db.polymodel import PolyModel
 
 from .importexport import load_items
-from .inventory import ItemSet, AccountingUniverse
+from .inventory import ItemClass, ItemSet, AccountingUniverse
 
 
 __copyright__ = 'Copyright (c) 2010-2011 Alessandro Amici. All rights reserved.'
@@ -55,6 +55,18 @@ class Scenario(Model):
     description = TextProperty()
 
     start_date = DateProperty(required=True)
+
+
+class TransactionTemplate(Model):
+    item_class = ReferenceProperty(ItemClass, required=True, collection_name='transaction_templates')
+
+    uid = StringProperty(required=True)
+    name = StringProperty()
+    description = TextProperty()
+
+    template_type = StringProperty(required=True,
+        choices=['buy', 'sell', 'yearly_costs', 'yearly_revenues'])
+    template_definition = StringProperty(required=True)
 
 
 class Transaction(Model):

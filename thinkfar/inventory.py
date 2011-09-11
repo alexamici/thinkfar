@@ -54,7 +54,7 @@ class ItemClass(Model):
     accounting_universe = ReferenceProperty(AccountingUniverse, collection_name='item_classes')
 
     def create_itemset(self, book, uid, name, description=None):
-    	return ItemSet(book=book, item_class=self, uid=uid, name=name, description=description)
+        return ItemSet(book=book, item_class=self, uid=uid, name=name, description=description)
 
 
 class ItemSet(Model):
@@ -82,7 +82,7 @@ class ItemSet(Model):
         tx.put()
 
     def dismiss(self, start_date, end_date=None, amount=1):
-    	if end_date is None:
+        if end_date is None:
             end_date = start_date
         tx = InventoryTransaction(
             uid='test', item_set=self, amount=-amount,
@@ -95,6 +95,15 @@ class ItemSet(Model):
     
     def balance(self, date):
         return sum(it.balance(date) for it in self.inventory_transactions)
+
+    def buy(self, start_date, gross_price_paid, amount=1, taxes_paid=0, fees_paid=0, resell_value=None, end_date=None):
+        if end_date is None:
+            end_date = start_date
+        for template in self.item_class.transaction_templates:
+            if template.template_type == 'buy':
+                pass
+        else:
+            raise TypeError
 
 
 class InventoryTransaction(Model):
