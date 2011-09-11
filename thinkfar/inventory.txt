@@ -2,15 +2,14 @@
 Users
 -----
 
-	>>> from thinkfar.backoffice import load_init
-	>>> dummy = load_init(None)
+	>>> from thinkfar.backoffice.inventory import init_datastore
+	>>> dummy = init_datastore()
 
-	>>> from thinkfar.inventory import User
+	>>> from thinkfar.inventory import User, Currency, AccountingUniverse
 	>>> me = User.get_by_key_name('alexamici')
 	>>> me.principal.email()
 	u'alexamici@gmail.com'
 
-	>>> from thinkfar.inventory import Currency, AccountingUniverse
 	>>> universe = AccountingUniverse.get_by_key_name('GIFI')
 	>>> currency = Currency.get_by_key_name('EUR')
 
