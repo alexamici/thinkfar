@@ -4,15 +4,15 @@ Users
 
 	>>> from thinkfar.backoffice.inventory import init_datastore
 	>>> dummy = init_datastore()
-	>>> from thinkfar.backoffice.views import load_gifi_accounting_universe
-	>>> dummy = load_gifi_accounting_universe(None)
 
-	>>> from thinkfar.inventory import User
+	>>> from thinkfar.backoffice.accounting import init_gifi_accounting_universe
+	>>> dummy = init_gifi_accounting_universe()
+
+	>>> from thinkfar.inventory import User, Currency, AccountingUniverse
 	>>> me = User.get_by_key_name('alexamici')
 	>>> me.principal.email()
 	u'alexamici@gmail.com'
 
-	>>> from thinkfar.inventory import Currency, AccountingUniverse
 	>>> universe = AccountingUniverse.get_by_key_name('GIFI')
 	>>> currency = Currency.get_by_key_name('EUR')
 
@@ -26,7 +26,7 @@ A simple itemset like a car
 ---------------------------
 
 	>>> from thinkfar.inventory import ItemClass, ItemSet
-	>>> car_class = ItemClass.get_by_key_name('GIFI-1740')
+	>>> car_class = ItemClass.get_by_key_name('GIFI/1740')
 	>>> car = car_class.create_itemset(book=book, uid='0123', name='My Car')
 	>>> car.description = 'A 2003 Honda'
 	>>> dummy = car.put()
@@ -38,7 +38,7 @@ A simple itemset like a car
 A simple itemset with linear transactions
 -----------------------------------------
 
-	>>> shares_class = ItemClass.get_by_key_name('GIFI-3500')
+	>>> shares_class = ItemClass.get_by_key_name('GIFI/3500')
 	>>> ge_plan = shares_class.create_itemset(book=book, uid='0124', name='GE shares')
 	>>> ge_plan.description = 'GE shares accumulation plan'
 	>>> dummy = ge_plan.put()
