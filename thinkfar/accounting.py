@@ -91,9 +91,7 @@ class TransactionTemplate(Model):
     name = StringProperty()
     description = TextProperty()
 
-    template_type = StringProperty(required=True,
-        choices=['buy', 'sell', 'yearly_costs', 'yearly_revenues'])
-    template_definition = StringProperty(required=True)
+    definition = StringProperty(required=True)
 
 
 class Transaction(Model):

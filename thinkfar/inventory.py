@@ -49,6 +49,7 @@ class ItemSet(Model):
     future ones.
     """
     book = ReferenceProperty(Book, required=True, collection_name='inventory')
+    # the intended reference_class is thinkfar.accounting.ItemClass
     item_class = ReferenceProperty()
 
     uid = StringProperty(required=True)
