@@ -81,3 +81,12 @@ twenty years later sell the shares one per day:
 
 	>>> ge_plan.balance(date(2020, 12, 31))
 	365L
+
+Summaries
+---------
+
+	>>> sorted(itemset.name for itemset in book.inventory)
+	[u'GE shares', u'My Car']
+
+	>>> sorted((itemset.item_class.name, itemset.name) for itemset in book.inventory)
+	[(u'Shares', u'GE shares'), (u'Vehicle', u'My Car')]
