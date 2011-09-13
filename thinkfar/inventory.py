@@ -40,23 +40,6 @@ class Book(Model):
     currency = ReferenceProperty(Currency, required=True)
 
 
-class ItemClass(Model):
-    """
-    A broad class of inventory items, i.e. 'a share' or 'a car'
-
-    It defines default behavior of the item class, its accounts, etc.
-    ItemClass'es are shared between all users (for now).
-    """
-    uid = StringProperty(required=True)
-    name = StringProperty(required=True)
-    description = TextProperty()
-
-    accounting_universe = ReferenceProperty(AccountingUniverse, collection_name='item_classes')
-
-    def create_itemset(self, book, uid, name, description=None):
-        return ItemSet(book=book, item_class=self, uid=uid, name=name, description=description)
-
-
 class ItemSet(Model):
     """
     An entry into the inventory, i.e. 'GOOG shares' or 'my Honda Civic'
@@ -66,7 +49,7 @@ class ItemSet(Model):
     future ones.
     """
     book = ReferenceProperty(Book, required=True, collection_name='inventory')
-    item_class = ReferenceProperty(ItemClass, required=True)
+    item_class = ReferenceProperty()
 
     uid = StringProperty(required=True)
     name = StringProperty(required=True)
@@ -95,15 +78,6 @@ class ItemSet(Model):
     
     def balance(self, date):
         return sum(it.balance(date) for it in self.inventory_transactions)
-
-    def buy(self, start_date, gross_price_paid, amount=1, taxes_paid=0, fees_paid=0, resell_value=None, end_date=None):
-        if end_date is None:
-            end_date = start_date
-        for template in self.item_class.transaction_templates:
-            if template.template_type == 'buy':
-                pass
-        else:
-            raise TypeError
 
 
 class InventoryTransaction(Model):

@@ -25,14 +25,17 @@ Users
 A simple itemset like a car
 ---------------------------
 
-	>>> from thinkfar.inventory import ItemClass
+	>>> from thinkfar.accounting import ItemClass
 	>>> car_class = ItemClass.get_by_key_name('GIFI/1740')
 	>>> car = car_class.create_itemset(book=book, uid='0123', name='My Car')
 	>>> car.description = 'A 2003 Honda'
 	>>> dummy = car.put()
 
 	>>> from datetime import date
-	>>> car.buy(date(2003, 2, 5), gross_price_paid=15000, taxes_paid=3500, resell_value=10000)
+	>>> car.item_class.transaction_templates_uids()
+	[]
+	>>> # [u'buy', u'sell']
+	>>> # car.buy(date(2003, 2, 5), gross_price_paid=15000, taxes_paid=3500, resell_value=10000)
 	>>> # car.sell(date(2012, 5, 5), net_resell_value=3000, taxes_paid=50, commissions_paid=250)
 
 A simple itemset with linear transactions

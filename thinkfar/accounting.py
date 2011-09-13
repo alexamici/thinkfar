@@ -9,7 +9,7 @@ from google.appengine.ext.db import UserProperty, ReferenceProperty
 from google.appengine.ext.db.polymodel import PolyModel
 
 from .importexport import load_items
-from .inventory import ItemClass, ItemSet, AccountingUniverse
+from .inventory import ItemSet, AccountingUniverse
 
 
 __copyright__ = 'Copyright (c) 2010-2011 Alessandro Amici. All rights reserved.'
@@ -55,6 +55,33 @@ class Scenario(Model):
     description = TextProperty()
 
     start_date = DateProperty(required=True)
+
+
+class ItemClass(Model):
+    """
+    A broad class of inventory items, i.e. 'a share' or 'a car'
+
+    It defines default behavior of the item class, its accounts, etc.
+    ItemClass'es are shared between all users (for now).
+    """
+    uid = StringProperty(required=True)
+    name = StringProperty(required=True)
+    description = TextProperty()
+
+    accounting_universe = ReferenceProperty(AccountingUniverse, collection_name='item_classes')
+
+    def create_itemset(self, book, uid, name, description=None):
+        return ItemSet(book=book, item_class=self, uid=uid, name=name, description=description)
+
+    def transaction_templates_uids(self):
+        return sorted(tt.uid for tt in self.transaction_templates)
+
+    def transaction_template(self, uid):
+        for tt in self.transaction_templates:
+            if tt.uid == uid:
+                return tt
+        else:
+            raise KeyError(uid)
 
 
 class TransactionTemplate(Model):

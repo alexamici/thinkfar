@@ -22,9 +22,8 @@ Users
 A simple itemset like a car
 ---------------------------
 
-	>>> from thinkfar.inventory import ItemClass, ItemSet
-	>>> car_class = ItemClass.get_by_key_name('GIFI/1740')
-	>>> car = car_class.create_itemset(book=book, uid='0123', name='My Car')
+	>>> from thinkfar.inventory import ItemSet
+	>>> car = ItemSet(book=book, uid='0123', name='My Car')
 	>>> car.description = 'A 2003 Honda'
 	>>> dummy = car.put()
 
@@ -47,8 +46,7 @@ A simple itemset like a car
 A simple itemset with linear transactions
 -----------------------------------------
 
-	>>> shares_class = ItemClass.get_by_key_name('GIFI/3500')
-	>>> ge_plan = shares_class.create_itemset(book=book, uid='0124', name='GE shares')
+	>>> ge_plan = ItemSet(book=book, uid='0124', name='GE shares')
 	>>> ge_plan.description = 'GE shares accumulation plan'
 	>>> dummy = ge_plan.put()
 
@@ -88,5 +86,3 @@ Summaries
 	>>> sorted(itemset.name for itemset in book.inventory)
 	[u'GE shares', u'My Car']
 
-	>>> sorted((itemset.item_class.name, itemset.name) for itemset in book.inventory)
-	[(u'Shares', u'GE shares'), (u'Vehicle', u'My Car')]

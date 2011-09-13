@@ -1,11 +1,25 @@
 
-from ..accounting import load_accounting_tree
+from ..accounting import ItemClass, load_accounting_tree
+from ..importexport import load_items
 from ..inventory import AccountingUniverse
 
 
 __copyright__ = 'Copyright (c) 2010-2011 Alessandro Amici. All rights reserved.'
 __licence__ = 'GPLv3'
 
+
+gifi_item_classes = (
+    {'uid': '1001', 'name': 'Legal Currency'},
+    {'uid': '1002', 'name': 'Bank Account', 'description': 'Denominated in the main legal currency'},
+    {'uid': '1126', 'name': 'Commodity'},
+    {'uid': '1600', 'name': 'Land'},
+    {'uid': '1680', 'name': 'Building'},
+    {'uid': '1740', 'name': 'Vehicle'},
+    {'uid': '2707', 'name': 'Credit Card'},
+    {'uid': '2010', 'name': 'Job'},
+    {'uid': '3500', 'name': 'Shares'},
+    {'uid': '3141', 'name': 'Mortgage'},
+)
 
 # GIFI reference http://www.newlearner.com/courses/hts/bat4m/pdf/gifiguide.pdf
 gifi_accounting_tree = (
@@ -77,4 +91,5 @@ gifi_accounting_tree = (
 
 def init_gifi_accounting_universe():
     root = AccountingUniverse.get_by_key_name('GIFI')
+    load_items(ItemClass, gifi_item_classes, key_prefix='GIFI/', accounting_universe=root)
     load_accounting_tree(root, gifi_accounting_tree)
