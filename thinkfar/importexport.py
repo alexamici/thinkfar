@@ -3,7 +3,7 @@ __copyright__ = 'Copyright (c) 2010-2011 Alessandro Amici. All rights reserved.'
 __licence__ = 'GPLv3'
 
 
-def load_items(klass, items, key_prefix='', children_classes=[], **kargs):
+def load_items(klass, items, key_prefix='', children_classes=[], parent_key='parent_account', **kargs):
     for keys in items:
         children = keys.pop('children', [])
         key_name = '%s%s' % (key_prefix, keys['uid'])
@@ -16,4 +16,9 @@ def load_items(klass, items, key_prefix='', children_classes=[], **kargs):
                 setattr(item, key, value)
         item.put()
         if len(children) > 0:
-            load_items(children_classes[0], children, key_prefix=key_prefix, parent_account=item, children_classes=children_classes[1:])
+            kwargs_children = {
+            	parent_key: item,
+            	'key_prefix': key_prefix,
+            	'children_classes': children_classes[1:]
+            }
+            load_items(children_classes[0], children, **kwargs_children)
