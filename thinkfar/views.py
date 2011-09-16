@@ -10,6 +10,7 @@ from .inventory import User, AccountingUniverse
 
 __copyright__ = 'Copyright (c) 2011 Alessandro Amici. All rights reserved.'
 __licence__ = 'GPLv3'
+__version__ = '0.0'
 
 
 @view_config(request_method='GET')

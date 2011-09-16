@@ -5,7 +5,7 @@
 from google.appengine.ext.db import Model
 from google.appengine.ext.db import BooleanProperty, IntegerProperty, DateProperty
 from google.appengine.ext.db import TextProperty, StringProperty
-from google.appengine.ext.db import UserProperty, ReferenceProperty
+from google.appengine.ext.db import UserProperty, ReferenceProperty, StringListProperty
 from google.appengine.ext.db.polymodel import PolyModel
 
 from .importexport import load_items
@@ -14,6 +14,7 @@ from .inventory import ItemSet, AccountingUniverse
 
 __copyright__ = 'Copyright (c) 2010-2011 Alessandro Amici. All rights reserved.'
 __licence__ = 'GPLv3'
+__version__ = '0.7-pre-alpha'
 
 
 class GenericAccount(PolyModel):
@@ -74,7 +75,7 @@ class ItemClass(Model):
         return ItemSet(book=book, item_class=self, uid=uid, name=name, description=description)
 
     def transaction_templates_uids(self):
-        return sorted(tt.uid for tt in self.transaction_templates)
+        return [tt.uid for tt in self.transaction_templates.order('uid')]
 
     def transaction_template(self, uid):
         for tt in self.transaction_templates:
@@ -91,7 +92,32 @@ class TransactionTemplate(Model):
     name = StringProperty()
     description = TextProperty()
 
-    definition = StringProperty(required=True)
+    allowed_kargs = StringListProperty()
+    target_accounts_uids = StringListProperty()
+
+    def __call__(self, *args, **keys):
+        method = getattr(self, self.uid)
+        return method(*args, **keys)
+    
+    def buy(self, item_set, start_date, gross_price_paid=None, currency=None,
+        end_date=None, amount=1, taxes_paid=0, fees_paid=0, resell_value=None):
+        if currency is None:
+            currency = item_set.book.currency
+        if end_date is None:
+            end_date = start_date
+        item_set.acquire(start_date=start_date, end_date=end_date, amount=amount)
+        tx = Transaction(uid='test', start_date=start_date, end_date=end_date)
+        tx.put()
+
+    def sell(self, item_set, start_date, net_resell_value=None, currency=None,
+        end_date=None, amount=1, taxes_paid=0, fees_paid=0):
+        if currency is None:
+            currency = item_set.book.currency
+        if end_date is None:
+            end_date = start_date
+        item_set.dismiss(start_date=start_date, end_date=end_date, amount=amount)
+        tx = Transaction(uid='test', start_date=start_date, end_date=end_date)
+        tx.put()
 
 
 class Transaction(Model):
@@ -107,7 +133,7 @@ class Transaction(Model):
     start_date = DateProperty(required=True)
     end_date = DateProperty(required=True)
 
-    scenario = ReferenceProperty(Scenario, required=True, collection_name='transactions')
+    # scenario = ReferenceProperty(Scenario, required=True, collection_name='transactions')
 
 
 class TransactionEntry(PolyModel):

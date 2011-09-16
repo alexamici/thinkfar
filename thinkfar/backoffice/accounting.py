@@ -15,8 +15,10 @@ gifi_item_classes = (
     {'uid': '1600', 'name': 'Land'},
     {'uid': '1680', 'name': 'Building'},
     {'uid': '1740', 'name': 'Vehicle', 'children': (
-        {'uid': 'buy', 'definition': '9180|8870|1600'},
-        {'uid': 'sell', 'definition': '9180|8870|1600'}
+        {'uid': 'buy', 'allowed_kargs': ['gross_price_paid', 'taxes_paid', 'fees_paid', 'resell_value'],
+            'definition': ['GIFI/9990', 'GIFI/8870', 'GIFI/1740']},
+        {'uid': 'sell', 'allowed_kargs': ['gross_price_paid', 'taxes_paid', 'fees_paid', 'resell_value'],
+            'definition': ['GIFI/9990', 'GIFI/8870', 'GIFI/1740']},
     )},
     {'uid': '2707', 'name': 'Credit Card'},
     {'uid': '2010', 'name': 'Job'},

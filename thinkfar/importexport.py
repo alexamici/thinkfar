@@ -1,6 +1,7 @@
 
 __copyright__ = 'Copyright (c) 2010-2011 Alessandro Amici. All rights reserved.'
 __licence__ = 'GPLv3'
+__version__ = '0.7-pre-alpha'
 
 
 def load_items(klass, items, key_prefix='', children_classes=[], parent_key='parent_account', **kargs):

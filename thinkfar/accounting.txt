@@ -34,14 +34,26 @@ A simple itemset like a car
 	>>> from datetime import date
 	>>> car.item_class.transaction_templates_uids()
 	[u'buy', u'sell']
-	>>> car.item_class.transaction_template('buy').definition
-	u'9180|8870|1600'
-	>>> car.item_class.transaction_template('fake') # doctests: +ELLIPSIS
+	
+	>>> buy_a_car = car.item_class.transaction_template('fake') # doctests: +ELLIPSIS
 	Traceback (most recent call last):
 	  ...
 	KeyError: 'fake'
-	>>> # car.buy(date(2003, 2, 5), gross_price_paid=15000, taxes_paid=3500, resell_value=10000)
-	>>> # car.sell(date(2012, 5, 5), net_resell_value=3000, taxes_paid=50, commissions_paid=250)
+	>>> buy_a_car = car.item_class.transaction_template('buy')
+	>>> buy_a_car.allowed_kargs
+	[u'gross_price_paid', u'taxes_paid', u'fees_paid', u'resell_value']
+	>>> buy_a_car(car, date(2003, 2, 5), gross_price_paid=15000, taxes_paid=3500, resell_value=10000)
+	>>> car.balance(date(2003, 2, 4))
+	0L
+	>>> car.balance(date(2003, 2, 5))
+	1L
+
+	>>> sell_a_car = car.item_class.transaction_template('sell')
+	>>> sell_a_car.sell(car, date(2012, 5, 5), net_resell_value=3000, taxes_paid=50, fees_paid=250)
+	>>> car.balance(date(2012, 5, 4))
+	1L
+	>>> car.balance(date(2012, 5, 5))
+	0L
 
 A simple itemset with linear transactions
 -----------------------------------------

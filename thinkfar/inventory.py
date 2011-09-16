@@ -9,6 +9,7 @@ from google.appengine.ext.db import DateProperty, UserProperty, ReferencePropert
 
 __copyright__ = 'Copyright (c) 2010-2011 Alessandro Amici. All rights reserved.'
 __licence__ = 'GPLv3'
+__version__ = '0.8-alpha'
 
 
 class Currency(Model):
@@ -38,6 +39,8 @@ class Book(Model):
     owner = ReferenceProperty(User, required=True, collection_name='books')
     accounting_universe = ReferenceProperty(AccountingUniverse, required=True)
     currency = ReferenceProperty(Currency, required=True)
+    default_cash_account = ReferenceProperty(collection_name='default_cash_account_of')
+    default_equity_account = ReferenceProperty(collection_name='default_equity_account_of')
 
 
 class ItemSet(Model):
