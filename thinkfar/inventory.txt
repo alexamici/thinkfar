@@ -10,6 +10,11 @@ Users
 	>>> me.principal.email()
 	u'alexamici@gmail.com'
 
+	>>> too_short_uid = User(uid='short', principal=me.principal)    # doctests: +ELLIPSIS
+	Traceback (most recent call last):
+	  ...
+	IndexError: string index out of range
+
 	>>> universe = AccountingUniverse.get_by_key_name('GIFI')
 	>>> currency = Currency.get_by_key_name('EUR')
 

@@ -19,7 +19,7 @@ class Currency(Model):
 
 
 class User(Model):
-    uid = StringProperty(required=True)
+    uid = StringProperty(required=True, validator=lambda x: x[5])
     name = StringProperty()
 
     principal = UserProperty(required=True)

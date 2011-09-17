@@ -35,7 +35,7 @@ A simple itemset like a car
 	>>> car.item_class.transaction_templates_uids()
 	[u'buy', u'sell']
 	
-	>>> buy_a_car = car.item_class.transaction_template('fake') # doctests: +ELLIPSIS
+	>>> buy_a_car = car.item_class.transaction_template('fake')    # doctests: +ELLIPSIS
 	Traceback (most recent call last):
 	  ...
 	KeyError: 'fake'
