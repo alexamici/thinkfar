@@ -33,7 +33,7 @@ class AccountingUniverse(Model):
 
 class Book(Model):
     uid = StringProperty(required=True)
-    name = StringProperty()
+    name = StringProperty(required=True)
     description = TextProperty()
 
     owner = ReferenceProperty(User, required=True, collection_name='books')

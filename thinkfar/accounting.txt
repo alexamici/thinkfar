@@ -17,7 +17,7 @@ Users
 	>>> currency = Currency.get_by_key_name('EUR')
 
 	>>> from thinkfar.inventory import Book
-	>>> book = Book(uid='default', owner=me, currency=currency, accounting_universe=universe)
+	>>> book = Book(uid='test', name='Test Book', owner=me, currency=currency, accounting_universe=universe)
 	>>> dummy = book.put()
 	>>> book.currency.uid
 	u'EUR'

@@ -25,7 +25,7 @@ setup(
     author='Alessandro Amici',
     author_email='alexamici@gmail.com',
     url='',
-    keywords='web wsgi bfg',
+    keywords='web wsgi pyramid',
     packages=find_packages(),
     include_package_data=True,
     zip_safe=False,

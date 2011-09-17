@@ -2,7 +2,7 @@
 from google.appengine.api.users import User as GAE_User
 
 from ..importexport import load_items
-from ..inventory import User, Currency, AccountingUniverse
+from ..inventory import User, Currency, AccountingUniverse, Book
 
 
 __copyright__ = 'Copyright (c) 2010-2011 Alessandro Amici. All rights reserved.'
@@ -20,7 +20,9 @@ init_currencies =(
 )
 
 init_users = (
-    {'uid': 'alexamici', 'principal': GAE_User('alexamici@gmail.com'), 'default_currency': 'EUR'},
+    {'uid': 'alexamici', 'principal': GAE_User('alexamici@gmail.com'), 'default_currency': 'EUR', 'children': (
+        {'uid': 'default', 'name': 'Default'},
+    )},
 )
 
 init_accounting_universes = (
@@ -31,5 +33,7 @@ init_accounting_universes = (
 
 def init_datastore():
     load_items(Currency, init_currencies)
-    load_items(User, init_users)
+    eur = Currency.get_by_key_name('EUR')
     load_items(AccountingUniverse, init_accounting_universes)
+    root = AccountingUniverse.get_by_key_name('GIFI')
+    load_items(User, init_users, children_classes=[Book], parent_key='owner', accounting_universe=root, currency=eur)

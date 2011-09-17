@@ -15,6 +15,8 @@ def app(global_config=None, **settings):
     config = Configurator(settings=settings)
     config.begin()
     config.add_route('accounting_universe_index_html', '/u/{accounting_universe_uid}')
+    config.add_route('inventory_index_html', '/{user_uid}/b/{book_uid}/invetory')
+    config.add_route('books_json', '/{user_uid}/b.json')
     config.add_route('book_index_html', '/{user_uid}/b/{book_uid}')
     config.add_route('user_index_html', '/{user_uid}')
     config.scan()

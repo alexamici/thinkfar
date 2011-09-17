@@ -17,9 +17,9 @@ def load_items(klass, items, key_prefix='', children_classes=[], parent_key='par
                 setattr(item, key, value)
         item.put()
         if len(children) > 0:
-            kwargs_children = {
-            	parent_key: item,
-            	'key_prefix': key_prefix,
-            	'children_classes': children_classes[1:]
-            }
+            kwargs_children = kargs.copy()
+            kwargs_children.update({
+                parent_key: item,
+                'children_classes': children_classes[1:],
+            })
             load_items(children_classes[0], children, **kwargs_children)
