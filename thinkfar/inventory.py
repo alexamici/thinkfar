@@ -42,6 +42,16 @@ class Book(Model):
     default_cash_account = ReferenceProperty(collection_name='default_cash_account_of')
     default_equity_account = ReferenceProperty(collection_name='default_equity_account_of')
 
+    user_books_limit = 10
+
+    def __init__(self, *args, **keys):
+        try:
+            if keys['owner'].books.count() >= self.user_books_limit:
+                raise ValueError('user_books_limit exceeded')
+        except (KeyError, AttributeError):
+            pass
+        super(Book, self).__init__(*args, **keys)
+
 
 class ItemSet(Model):
     """

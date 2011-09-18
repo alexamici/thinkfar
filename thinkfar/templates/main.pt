@@ -2,35 +2,37 @@
     xmlns:tal="http://xml.zope.org/namespaces/tal"
     xmlns:metal="http://xml.zope.org/namespaces/metal"
     define-macro="main">
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
-  <meta http-equiv="content-type" content="text/html; charset=utf-8" />
-  <tal:head metal:define-slot="head"></tal:head>
-  <link rel="stylesheet" type="text/css" href="${request.application_url}/s/default.css" />
-  <title>${title} - thinkfar</title>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" charset="utf-8" href="http://cdn.sencha.io/ext-4.0.2a/resources/css/ext-all.css" />
+    <link rel="stylesheet" type="text/css" charset="utf-8" href="${request.application_url}/s/default.css" />
+    <script type="text/javascript" charset="utf-8" src="http://cdn.sencha.io/ext-4.0.2a/ext-all.js"></script>
+    <tal:head metal:define-slot="head"></tal:head>
+    <title>${title} - thinkfar</title>
 </head>
 <body>
-  <div id="logo">
-    <h1>thinkfar</h1>
-    <h2>think beyond the end of your nose</h2>
-  </div>
-  <div id="header">
-    <div id="menu">
-      <ul>
-        <li><a href="${request.application_url}">Home</a></li>
-        <li><a href="${loggedin_url}">${loggedin_label}</a></li>
-      </ul>
+    <div id="logo">
+        <h1>thinkfar</h1>
+        <h2>think beyond the end of your nose</h2>
     </div>
-  </div>
-  <div id="wrapper">
-    <div id="page">
-      <tal:content metal:define-slot="content"></tal:content>
-      <div style="clear: both;">&nbsp;</div>
+    <div id="header">
+        <div id="menu">
+            <ul>
+                <li><a href="${request.application_url}">Home</a></li>
+                <li><a href="${loggedin_url}">${loggedin_label}</a></li>
+            </ul>
+        </div>
     </div>
-  </div>
-  <div id="footer">
-    <p id="legal">Copyright (c) 2010 Alessandro Amici. All Rights Reserved.</p>
-  </div>
+    <div id="wrapper">
+        <div id="page">
+            <tal:content metal:define-slot="content"></tal:content>
+            <div style="clear: both;">&nbsp;</div>
+        </div>
+    </div>
+    <div id="footer">
+        <p id="legal">Copyright (c) 2010-2011 Alessandro Amici. All Rights Reserved.</p>
+    </div>
 </body>
 </html>
 </metal:main>

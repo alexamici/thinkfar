@@ -19,8 +19,9 @@ Users
 	>>> currency = Currency.get_by_key_name('EUR')
 
 	>>> from thinkfar.inventory import Book
-	>>> book = Book(uid='test', name='Test', owner=me, currency=currency, accounting_universe=universe)
-	>>> dummy = book.put()
+	>>> book = Book(uid='test', name='Test Book', owner=me, currency=currency, accounting_universe=universe)
+	>>> book_key = book.put()
+	>>> book = Book.get(book_key)
 	>>> book.currency.uid
 	u'EUR'
 
@@ -91,3 +92,12 @@ Summaries
 	>>> sorted(itemset.name for itemset in book.inventory)
 	[u'GE shares', u'My Car']
 
+Books limit
+-----------
+
+	>>> for uid in ['%d' % i for i in range(Book.user_books_limit)]:    # doctests: +ELLIPSIS
+	...     book = Book(uid=uid, name=uid, owner=me, currency=currency, accounting_universe=universe)
+	...     dummy = book.put()
+	Traceback (most recent call last):
+	  ...
+	ValueError: user_books_limit exceeded
