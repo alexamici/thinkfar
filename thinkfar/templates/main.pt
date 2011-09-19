@@ -1,5 +1,5 @@
-<metal:main
-    xmlns:tal="http://xml.zope.org/namespaces/tal"
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<metal:main xmlns:tal="http://xml.zope.org/namespaces/tal"
     xmlns:metal="http://xml.zope.org/namespaces/metal"
     define-macro="main">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
@@ -8,8 +8,9 @@
     <link rel="stylesheet" type="text/css" charset="utf-8" href="http://cdn.sencha.io/ext-4.0.2a/resources/css/ext-all.css" />
     <link rel="stylesheet" type="text/css" charset="utf-8" href="${request.application_url}/s/default.css" />
     <script type="text/javascript" charset="utf-8" src="http://cdn.sencha.io/ext-4.0.2a/ext-all.js"></script>
-    <tal:head metal:define-slot="head"></tal:head>
-    <title>${title} - thinkfar</title>
+    <tal:head metal:define-slot="head">
+        <title>${title} - thinkfar</title>
+    </tal:head>
 </head>
 <body>
     <div id="logo">
@@ -26,7 +27,14 @@
     </div>
     <div id="wrapper">
         <div id="page">
-            <tal:content metal:define-slot="content"></tal:content>
+            <metal:content metal:define-slot="content">
+                <div id="content">
+                    <h2 class="title"></h2>
+                    <div id="thinkfar-table-query"></div>
+                    <br />
+                    <div id="thinkfar-table-grid"></div>
+                </div>
+            </metal:content>
             <div style="clear: both;">&nbsp;</div>
         </div>
     </div>
