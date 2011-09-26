@@ -1,4 +1,6 @@
 
+from datetime import date
+
 from pyramid.httpexceptions import HTTPNotFound
 from pyramid.view import view_config
 
@@ -47,6 +49,8 @@ def books_json(request, page=1, start=0, limit=25):
 def inventory_json(request, page=1, start=0, limit=25):
     user_uid = request.matchdict['user_uid']
     book_uid = request.matchdict['book_uid']
+    isodate = request.params.get('date', date.today().isoformat())
+    ref_date = date(*map(int, isodate.split('-')))
     user = User.get_by_key_name(user_uid)
     if user is None:
         raise HTTPNotFound
@@ -59,7 +63,7 @@ def inventory_json(request, page=1, start=0, limit=25):
             'uid': itemset.uid,
             'name': itemset.name, 
             'accounting_universe_uid': itemset.item_class.uid,
-            'inventory_count': itemset.balance(),
+            'inventory_count': itemset.balance(ref_date),
         } for itemset in itemsets
     ]
     return retval
