@@ -9,7 +9,7 @@ from google.appengine.ext.db import UserProperty, ReferenceProperty, StringListP
 from google.appengine.ext.db.polymodel import PolyModel
 
 from .importexport import load_items
-from .inventory import ItemSet, AccountingUniverse
+from .inventory import ItemSet, AccountingUniverse, InventoryTransaction
 
 
 __copyright__ = 'Copyright (c) 2010-2011 Alessandro Amici. All rights reserved.'
@@ -105,9 +105,15 @@ class TransactionTemplate(Model):
             currency = item_set.book.currency
         if end_date is None:
             end_date = start_date
-        item_set.acquire(start_date=start_date, end_date=end_date, amount=amount)
-        tx = Transaction(uid='test', start_date=start_date, end_date=end_date)
-        tx.put()
+        itx = item_set.acquire(start_date=start_date, end_date=end_date, amount=amount)
+#        tx = Transaction(itx)
+#        for karg in allowed_kargs:
+#            value = locals()[karg]
+#            account = ???self.target_accounts_uids(karg)
+#            if value:
+#                tx.add_entry(cash_account, value, currency=currency)
+#        tx.balance_with(default_equity_account)
+
 
     def sell(self, item_set, start_date, net_resell_value=None, currency=None,
         end_date=None, amount=1, taxes_paid=0, fees_paid=0):
@@ -115,29 +121,23 @@ class TransactionTemplate(Model):
             currency = item_set.book.currency
         if end_date is None:
             end_date = start_date
-        item_set.dismiss(start_date=start_date, end_date=end_date, amount=amount)
-        tx = Transaction(uid='test', start_date=start_date, end_date=end_date)
-        tx.put()
+        itx = item_set.dismiss(start_date=start_date, end_date=end_date, amount=amount)
 
 
-class Transaction(Model):
+class Transaction(object):
     """An event in the double-entry book
 
     The transaction may have a time extension and in that case it 
     really corresponds to a linear change in the account balances.
     """
-    uid = StringProperty(required=True)
-    name = StringProperty()
-    description = TextProperty()
-
-    start_date = DateProperty(required=True)
-    end_date = DateProperty(required=True)
-
-    # scenario = ReferenceProperty(Scenario, required=True, collection_name='transactions')
+    def __init__(self, context):
+        assert isinstance(context, InvetoryTransaction)
+        self.context = context
 
 
 class TransactionEntry(PolyModel):
-    transaction = ReferenceProperty(Transaction, required=True, collection_name='transaction_entries')
+    transaction = ReferenceProperty(InventoryTransaction, required=True, collection_name='transaction_entries')
+    account = ReferenceProperty(Account, required=True, collection_name='transaction_entries')
     amount = IntegerProperty(required=True)
 
     def partial_balance(self, start, end):
@@ -153,11 +153,6 @@ class TransactionEntry(PolyModel):
 
     def balance(self, date):
         return self.partial_balance(self, self.transaction.start_date, date)
-
-
-class AccountingTransactionEntry(TransactionEntry):
-    account = ReferenceProperty(Account, required=True, collection_name='transaction_entries')
-    item_set = ReferenceProperty(ItemSet, required=True, collection_name='transaction_entries')
 
 
 def user_scenarios(user, limit=None):
