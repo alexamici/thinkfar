@@ -67,3 +67,32 @@ def inventory_json(request, page=1, start=0, limit=25):
         } for itemset in itemsets
     ]
     return retval
+
+
+@view_config(route_name='itemset_transactions_json', renderer='json', request_method='GET')
+@extjs_rest
+def itemset_transactions_json(request, page=1, start=0, limit=25):
+    user_uid = request.matchdict['user_uid']
+    book_uid = request.matchdict['book_uid']
+    itemset_uid = request.matchdict['itemset_uid']
+    isodate = request.params.get('date', date.today().isoformat())
+    ref_date = date(*map(int, isodate.split('-')))
+    user = User.get_by_key_name(user_uid)
+    if user is None:
+        raise HTTPNotFound
+    books = user.books.filter('uid =', book_uid).fetch(2)
+    if len(books) != 1:
+        raise HTTPNotFound
+    itemsets = books[0].inventory.filter('uid =', itemset_uid).fetch(2)
+    if len(itemsets) != 1:
+        raise HTTPNotFound
+    transactions = itemsets[0].inventory_transactions.fetch(min(limit, book_itemsets_limit), offset=start)
+    retval = [
+        {
+            'uid': transaction.start_date.isoformat(),
+            'name': transaction.end_date.isoformat(), 
+            'accounting_universe_uid': transaction.name,
+            'inventory_count': transaction.amount,
+        } for transaction in transactions
+    ]
+    return retval

@@ -19,9 +19,11 @@ def app(global_config=None, **settings):
 
     config.add_route('accounting_universe_index_html', '/u/{accounting_universe_uid}')
 
-    config.add_route('books_json', '/{user_uid}/b.json')
+    config.add_route('itemset_transactions_json', '/{user_uid}/b/{book_uid}/i/{itemset_uid}/t.json')
+    config.add_route('itemset_html', '/{user_uid}/b/{book_uid}/i/{itemset_uid}')
     config.add_route('inventory_json', '/{user_uid}/b/{book_uid}/i.json')
     config.add_route('book_index_html', '/{user_uid}/b/{book_uid}')
+    config.add_route('books_json', '/{user_uid}/b.json')
     config.add_route('user_index_html', '/{user_uid}')
     config.scan()
     config.end()
