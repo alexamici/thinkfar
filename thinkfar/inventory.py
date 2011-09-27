@@ -69,23 +69,31 @@ class ItemSet(Model):
     name = StringProperty(required=True)
     description = TextProperty()
 
-    def acquire(self, start_date, end_date=None, amount=1):
+    def acquire(self, start_date, uid=None, end_date=None, amount=1, **kargs):
     	if end_date is None:
             end_date = start_date
-        tx = InventoryTransaction(
-            uid='test', item_set=self, amount=amount,
+        if uid is None:
+            uid = start_date.isoformat()
+        itx = InventoryTransaction(
+            uid=uid, item_set=self, amount=amount,
             start_date=start_date, end_date=end_date,
+            **kargs
         )
-        tx.put()
+        itx.put()
+        return itx
 
-    def dismiss(self, start_date, end_date=None, amount=1):
+    def dismiss(self, start_date, uid=None, end_date=None, amount=1, **kargs):
         if end_date is None:
             end_date = start_date
-        tx = InventoryTransaction(
-            uid='test', item_set=self, amount=-amount,
+        if uid is None:
+            uid = start_date.isoformat()
+        itx = InventoryTransaction(
+            uid=uid, item_set=self, amount=-amount,
             start_date=start_date, end_date=end_date,
+            **kargs
         )
-        tx.put()
+        itx.put()
+        return itx
 
     def partial_balance(self, start, end):
         return sum(it.partial_balance(start,end) for it in self.inventory_transactions)
