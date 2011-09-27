@@ -35,7 +35,6 @@ Ext.onReady(function() {
     });
 
     var grid = Ext.create('Ext.grid.Panel', {
-        title: 'Books',
         store: store,
         columns: [
             {header: 'Uid', dataIndex: 'uid'},
