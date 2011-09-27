@@ -99,20 +99,23 @@ class TransactionTemplate(Model):
         method = getattr(self, self.uid)
         return method(*args, **keys)
     
-    def buy(self, item_set, start_date, gross_price_paid=None, currency=None,
+    def buy(self, item_set, start_date, gross_price_paid=0, currency=None,
         end_date=None, amount=1, taxes_paid=0, fees_paid=0, resell_value=None):
         if currency is None:
             currency = item_set.book.currency
         if end_date is None:
             end_date = start_date
+        if resell_value is None:
+            resell_value = gross_price_paid - taxes_paid - fees_paid
         itx = item_set.acquire(start_date=start_date, end_date=end_date, amount=amount)
-#        tx = Transaction(itx)
-#        for karg in allowed_kargs:
-#            value = locals()[karg]
-#            account = ???self.target_accounts_uids(karg)
-#            if value:
-#                tx.add_entry(cash_account, value, currency=currency)
-#        tx.balance_with(default_equity_account)
+        tx = Transaction(itx)
+        for i, karg in enumerate(self.allowed_kargs):
+            value = locals()[karg]
+            account = Account.get_by_key_name(self.target_accounts_uids[i])
+            if value:
+                tx.add_entry(account, value, currency)
+        unrealized_profitloss_account = None
+        tx.balance_with(unrealized_profitloss_account)
 
 
     def sell(self, item_set, start_date, net_resell_value=None, currency=None,
@@ -131,9 +134,16 @@ class Transaction(object):
     really corresponds to a linear change in the account balances.
     """
     def __init__(self, context):
-        assert isinstance(context, InvetoryTransaction)
+        assert isinstance(context, InventoryTransaction)
         self.context = context
 
+    def add_entry(self, account, amount, currency):
+        te = TransactionEntry(transaction=self.context, account=account, amount=amount)
+        te.put()
+        return te
+
+    def balance_with(self, unrealize_profitloss):
+        pass
 
 class TransactionEntry(PolyModel):
     transaction = ReferenceProperty(InventoryTransaction, required=True, collection_name='transaction_entries')
