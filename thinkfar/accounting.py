@@ -112,10 +112,10 @@ class TransactionTemplate(Model):
         for i, karg in enumerate(self.allowed_kargs):
             value = locals()[karg]
             account = Account.get_by_key_name(self.target_accounts_uids[i])
-            if value:
-                tx.add_entry(account, value, currency)
+            tx.add_entry(account, value, currency)
         unrealized_profitloss_account = None
         tx.balance_with(unrealized_profitloss_account)
+        return tx
 
 
     def sell(self, item_set, start_date, net_resell_value=None, currency=None,
@@ -138,12 +138,18 @@ class Transaction(object):
         self.context = context
 
     def add_entry(self, account, amount, currency):
+        if amount is None or amount == 0:
+            return None
         te = TransactionEntry(transaction=self.context, account=account, amount=amount)
         te.put()
         return te
 
     def balance_with(self, unrealize_profitloss):
         pass
+
+    def summary(self, date):
+        summary = [(te.account.uid,te.balance(date)) for te in self.context.transaction_entries]
+        return filter(lambda x: x[1] != 0, summary)
 
 class TransactionEntry(PolyModel):
     transaction = ReferenceProperty(InventoryTransaction, required=True, collection_name='transaction_entries')
@@ -162,7 +168,7 @@ class TransactionEntry(PolyModel):
         return self.amount / (transaction.end_date - transaction.start_date).days * delta_days
 
     def balance(self, date):
-        return self.partial_balance(self, self.transaction.start_date, date)
+        return self.partial_balance(self.transaction.start_date, date)
 
 
 def user_scenarios(user, limit=None):
