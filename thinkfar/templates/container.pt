@@ -1,0 +1,53 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html
+    xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"
+    xmlns:tal="http://xml.zope.org/namespaces/tal"
+    xmlns:metal="http://xml.zope.org/namespaces/metal"
+    metal:use-macro="main.macros['main']">
+<head>
+	<metal:head metal:fill-slot="head">
+    	<title>${title} - thinkfar</title>
+        <script type="text/javascript">
+Ext.require([
+    'Ext.data.*'
+]);
+
+Ext.define('Item', {
+    extend: 'Ext.data.Model',
+    fields: ${item_fields}
+});
+
+Ext.onReady(function() {
+    Ext.QuickTips.init();
+
+    var store = Ext.create('Ext.data.Store', {
+        model: 'Item',
+        proxy: {
+            type: 'ajax',
+            url : '${items_url}',
+        },
+        autoLoad: true
+    });
+
+    var grid = Ext.create('Ext.grid.Panel', {
+        store: store,
+        columns: ${item_columns},
+        height: 500,
+        width: 600,
+        renderTo: 'thinkfar-table-grid'
+    });
+})
+        </script>
+    </metal:head>
+</head>
+<body>
+	<metal:content metal:fill-slot="content">
+        <div id="content">
+            <h2 class="title">${container.__class__.__name__}: ${container.uid} - ${container.name}</h2>
+            <div id="thinkfar-table-query"></div>
+            <br />
+            <div id="thinkfar-table-grid"></div>
+        </div>
+    </metal:content>
+</body>
+</html>

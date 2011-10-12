@@ -18,6 +18,7 @@ def app(global_config=None, **settings):
     config.add_static_view(name='s', path='templates/static')
 
     config.add_route('accounting_universe_index_html', '/u/{accounting_universe_uid}')
+    config.add_route('accounts_json', '/u/{accounting_universe_uid}/a.json')
 
     config.add_route('itemset_transactions_json', '/{user_uid}/b/{book_uid}/i/{itemset_uid}/t.json')
     config.add_route('itemset_html', '/{user_uid}/b/{book_uid}/i/{itemset_uid}')
