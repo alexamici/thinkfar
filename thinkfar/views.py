@@ -72,7 +72,7 @@ def book_index_html(request, init_namespace):
     return namespace
 
 
-@view_config(route_name='user_index_html', request_method='GET', renderer='templates/user_index_html.pt')
+@view_config(route_name='user_index_html', request_method='GET', renderer='templates/container.pt')
 @common_template
 def user_index_html(request, init_namespace):
     user_uid = request.matchdict['user_uid']
@@ -80,5 +80,13 @@ def user_index_html(request, init_namespace):
     if user is None:
         raise HTTPNotFound
     namespace = init_namespace.copy()
-    namespace.update({'user': user})
+    fields = ['uid', 'name', 'accounting_universe_uid', 'inventory_count']
+    item_fields = [{'name': n, 'type': 'string'} for n in fields]
+    item_fields[3]['type'] = 'int'
+    namespace.update({
+        'container': user,
+        'item_fields': dumps(item_fields),
+        'items_url': '/%s/b.json' % user_uid,
+        'item_columns': dumps([{'header': n.capitalize(), 'dataIndex': n} for n in fields]),
+    })
     return namespace
