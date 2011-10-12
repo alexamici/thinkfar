@@ -99,8 +99,8 @@ def inventory_json(request, page=1, start=0, limit=25):
         {
             'uid': itemset.uid,
             'name': itemset.name, 
-            'accounting_universe_uid': itemset.item_class.uid,
-            'inventory_count': itemset.balance(ref_date),
+            'item_class_uid': itemset.item_class.uid,
+            'item_count': itemset.balance(ref_date),
         } for itemset in itemsets
     ]
     return retval

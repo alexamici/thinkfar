@@ -30,6 +30,7 @@ Ext.onReady(function() {
     });
 
     var grid = Ext.create('Ext.grid.Panel', {
+        title: '${items_title}',
         store: store,
         columns: ${item_columns},
         height: 500,

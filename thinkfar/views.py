@@ -51,12 +51,13 @@ def accounting_universe_index_html(request, init_namespace):
         'container': accounting_universe, 
         'item_fields': dumps([{'name': n, 'type': 'string'} for n in fields]),
         'items_url': '/u/%s/a.json' % accounting_universe_uid,
+        'items_title': 'Accounts',
         'item_columns': dumps([{'header': n.capitalize(), 'dataIndex': n} for n in fields]),
     })
     return namespace
 
 
-@view_config(route_name='book_index_html', request_method='GET', renderer='templates/book_index_html.pt')
+@view_config(route_name='book_index_html', request_method='GET', renderer='templates/container.pt')
 @common_template
 def book_index_html(request, init_namespace):
     user_uid = request.matchdict['user_uid']
@@ -68,7 +69,16 @@ def book_index_html(request, init_namespace):
     if len(books) != 1:
         raise HTTPNotFound
     namespace = init_namespace.copy()
-    namespace.update({'user': user, 'book': books[0]})
+    fields = ['uid', 'name', 'item_class_uid', 'item_count']
+    item_fields = [{'name': n, 'type': 'string'} for n in fields]
+    item_fields[3]['type'] = 'int'
+    namespace.update({
+        'container': user,
+        'item_fields': dumps(item_fields),
+        'items_url': '/%s/b/%s/i.json' % (user_uid, book_uid),
+        'items_title': 'Inventory',
+        'item_columns': dumps([{'header': n.capitalize(), 'dataIndex': n} for n in fields]),
+    })
     return namespace
 
 
@@ -87,6 +97,7 @@ def user_index_html(request, init_namespace):
         'container': user,
         'item_fields': dumps(item_fields),
         'items_url': '/%s/b.json' % user_uid,
+        'items_title': 'Accounting Books',
         'item_columns': dumps([{'header': n.capitalize(), 'dataIndex': n} for n in fields]),
     })
     return namespace
