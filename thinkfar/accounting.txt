@@ -2,71 +2,71 @@
 Users
 -----
 
-	>>> from thinkfar.backoffice.inventory import init_datastore
-	>>> dummy = init_datastore()
+    >>> from thinkfar.backoffice.inventory import init_datastore
+    >>> dummy = init_datastore()
 
-	>>> from thinkfar.backoffice.accounting import init_gifi_accounting_universe
-	>>> dummy = init_gifi_accounting_universe()
+    >>> from thinkfar.backoffice.accounting import init_gifi_accounting_universe
+    >>> dummy = init_gifi_accounting_universe()
 
-	>>> from thinkfar.inventory import User, Currency, AccountingUniverse
-	>>> me = User.get_by_key_name('alexamici')
-	>>> me.principal.email()
-	u'alexamici@gmail.com'
+    >>> from thinkfar.inventory import User, Currency, AccountingUniverse
+    >>> me = User.get_by_key_name('alexamici')
+    >>> me.principal.email()
+    u'alexamici@gmail.com'
 
-	>>> universe = AccountingUniverse.get_by_key_name('GIFI')
-	>>> currency = Currency.get_by_key_name('EUR')
+    >>> universe = AccountingUniverse.get_by_key_name('GIFI')
+    >>> currency = Currency.get_by_key_name('EUR')
 
-	>>> from thinkfar.inventory import Book
-	>>> book = Book(uid='test', name='Test Book', owner=me, currency=currency, accounting_universe=universe)
-	>>> dummy = book.put()
-	>>> book.currency.uid
-	u'EUR'
+    >>> from thinkfar.inventory import Book
+    >>> book = Book(uid='test', name='Test Book', owner=me, currency=currency, accounting_universe=universe)
+    >>> dummy = book.put()
+    >>> book.currency.uid
+    u'EUR'
 
 A simple itemset like a car
 ---------------------------
 
-	>>> from thinkfar.accounting import ItemClass
-	>>> car_class = ItemClass.get_by_key_name('GIFI/1740')
-	>>> car = car_class.create_itemset(book=book, uid='0123', name='My Car')
-	>>> car.description = 'A 2003 Honda'
-	>>> dummy = car.put()
+    >>> from thinkfar.accounting import ItemClass
+    >>> car_class = ItemClass.get_by_key_name('GIFI/1740')
+    >>> car = car_class.create_itemset(book=book, uid='0123', name='My Car')
+    >>> car.description = 'A 2003 Honda'
+    >>> dummy = car.put()
 
-	>>> from datetime import date
-	>>> car.item_class.transaction_templates_uids()
-	[u'buy', u'sell']
-	
-	>>> buy_a_car = car.item_class.transaction_template('fake')    # doctests: +ELLIPSIS
-	Traceback (most recent call last):
-	  ...
-	KeyError: 'fake'
-	>>> buy_a_car = car.item_class.transaction_template('buy')
-	>>> buy_a_car.allowed_kargs
-	[u'gross_price_paid', u'taxes_paid', u'fees_paid', u'resell_value']
-	>>> tx = buy_a_car(car, date(2003, 2, 5), gross_price_paid=15000, taxes_paid=3500, resell_value=10000)
-	>>> car.balance(date(2003, 2, 4))
-	0L
-	>>> car.balance(date(2003, 2, 5))
-	1L
+    >>> from datetime import date
+    >>> car.item_class.transaction_templates_uids()
+    [u'buy', u'sell']
+    
+    >>> buy_a_car = car.item_class.transaction_template('fake')    # doctests: +ELLIPSIS
+    Traceback (most recent call last):
+      ...
+    KeyError: 'fake'
+    >>> buy_a_car = car.item_class.transaction_template('buy')
+    >>> buy_a_car.allowed_kargs
+    [u'gross_price_paid', u'taxes_paid', u'fees_paid', u'resell_value']
+    >>> tx = buy_a_car(car, date(2003, 2, 5), gross_price_paid=15000, taxes_paid=3500, resell_value=10000)
+    >>> car.balance(date(2003, 2, 4))
+    0L
+    >>> car.balance(date(2003, 2, 5))
+    1L
 
     >>> tx.summary(date(2003, 2, 4))
     []
     >>> tx.summary(date(2003, 2, 5))
     [(u'1002', 15000L), (u'9990', 3500L), (u'1740', 10000L)]
 
-	>>> sell_a_car = car.item_class.transaction_template('sell')
-	>>> sell_a_car.sell(car, date(2012, 5, 5), net_resell_value=3000, taxes_paid=50, fees_paid=250)
-	>>> car.balance(date(2012, 5, 4))
-	1L
-	>>> car.balance(date(2012, 5, 5))
-	0L
+    >>> sell_a_car = car.item_class.transaction_template('sell')
+    >>> sell_a_car.sell(car, date(2012, 5, 5), net_resell_value=3000, taxes_paid=50, fees_paid=250)
+    >>> car.balance(date(2012, 5, 4))
+    1L
+    >>> car.balance(date(2012, 5, 5))
+    0L
 
 A simple itemset with linear transactions
 -----------------------------------------
 
-	>>> shares_class = ItemClass.get_by_key_name('GIFI/3500')
-	>>> ge_plan = shares_class.create_itemset(book=book, uid='0124', name='GE shares')
-	>>> ge_plan.description = 'GE shares accumulation plan'
-	>>> dummy = ge_plan.put()
+    >>> shares_class = ItemClass.get_by_key_name('GIFI/3500')
+    >>> ge_plan = shares_class.create_itemset(book=book, uid='0124', name='GE shares')
+    >>> ge_plan.description = 'GE shares accumulation plan'
+    >>> dummy = ge_plan.put()
 
 Careful, a linear transaction starts having a balance the day AFTER
 its start_date!
@@ -74,9 +74,9 @@ its start_date!
 Let's buy 365 shares of GE for EUR 15, one every day of the year with cumulative
 commission of EUR 55 (365 * 15 + 55 = 5530):
 
-	>>> # ge_plan.buy(start_date=date(2009, 12, 31), end_date=date(2010, 12, 31), amount=365, gross_price_paid=5530, commissions_paid=55)
+    >>> # ge_plan.buy(start_date=date(2009, 12, 31), end_date=date(2010, 12, 31), amount=365, gross_price_paid=5530, commissions_paid=55)
 
 twenty years later sell the shares one per day for EUR 20 with 20% capital gain taxes
 and EUR 55 commissions (365 * (15 + 5 * (1 - .2)) - 55 = 6880)
 
-	>>> # ge_plan.sell(start_date=date(2029, 12, 31), end_date=date(2030, 12, 31), amount=365, net_resell_value=6880, taxes_paid=365, commissions_paid=55)
+    >>> # ge_plan.sell(start_date=date(2029, 12, 31), end_date=date(2030, 12, 31), amount=365, net_resell_value=6880, taxes_paid=365, commissions_paid=55)
