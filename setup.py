@@ -8,7 +8,7 @@ CHANGES = open(os.path.join(here, 'CHANGES.txt')).read()
 
 requires = [
     'setuptools',
-    'pyramid',
+    'webapp2',
 ]
 
 setup(
@@ -25,16 +25,13 @@ setup(
     author='Alessandro Amici',
     author_email='alexamici@gmail.com',
     url='',
-    keywords='web wsgi pyramid',
+    keywords='web wsgi webapp2',
     packages=find_packages(),
     include_package_data=True,
     zip_safe=False,
     install_requires=requires,
     tests_require=requires,
     test_suite="thinkfar",
-    entry_points = """\
-        [paste.app_factory]
-        app = thinkfar.run:app
-    """
+    entry_points = ""
 )
 
