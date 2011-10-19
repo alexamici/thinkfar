@@ -4,8 +4,10 @@ from datetime import date
 from webapp2 import RequestHandler
 from webapp2_extras.json import encode
 
+# dummy migration helpers
 def view_config(*args, **keys):
     return lambda x: None
+HTTPNotFound = ValueError
 
 from .inventory import User, Book
 from .accounting import AccountingUniverse
@@ -21,21 +23,20 @@ book_itemsets_limit = 100
 
 
 def extjs_rest(func):
-    def extjs_rest_wrapper(self):
+    def extjs_rest_wrapper(self, *args):
         start = int(self.request.get('start', 0) or 0)
         limit = int(self.request.get('limit', 25) or 25)
         page = int(self.request.get('page', 1) or 1)
-        return func(self, page=page, start=start, limit=limit)
+        return func(self, page=page, start=start, limit=limit, *args)
     return extjs_rest_wrapper
 
 
 # @view_config(route_name='accounts_json', renderer='json', request_method='GET')
 class AccountsJSON(RequestHandler):
     @extjs_rest
-    def get(self, page=1, start=0, limit=25):
-        self.response.out.write(page)
-        return
-        accounting_universe_uid = request.matchdict['accounting_universe_uid']
+    def get(self, accounting_universe_uid, page=1, start=0, limit=25):
+        self.response.out.write(encode(page))
+        request = self.request
         accounting_universe = AccountingUniverse.get_by_key_name(accounting_universe_uid)
         if accounting_universe is None:
             raise HTTPNotFound
@@ -119,7 +120,7 @@ def itemset_transactions_json(request, page=1, start=0, limit=25):
     book_uid = request.matchdict['book_uid']
     itemset_uid = request.matchdict['itemset_uid']
     isodate = request.params.get('date', date.today().isoformat())
-    ref_date = date(*map(int, isodate.split('-')))
+    # ref_date = date(*map(int, isodate.split('-')))
     user = User.get_by_key_name(user_uid)
     if user is None:
         raise HTTPNotFound

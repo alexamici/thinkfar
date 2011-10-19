@@ -12,7 +12,8 @@ class Test(RequestHandler):
         self.response.out.write('Hello, webapp2 World!')
 
 routes = [
-    (r'/', 'thinkfar.rest.AccountsJSON'),
+    (r'/', 'thinkfar.views.RootIndexHtml'),
+    (r'/u/(.*)/a.json', 'thinkfar.rest.AccountsJSON'),
 ]
 
 config = {}

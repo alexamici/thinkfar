@@ -3,10 +3,12 @@ from simplejson import dumps
 
 from google.appengine.api.users import get_current_user, create_login_url, create_logout_url
 
-from pyramid.httpexceptions import HTTPNotFound
-from pyramid.renderers import get_renderer
-from pyramid.response import Response
-from pyramid.view import view_config
+from webapp2 import RequestHandler
+
+# dummy migration helpers
+def view_config(*args, **keys):
+    return lambda x: None
+HTTPNotFound = ValueError
 
 from .inventory import User, AccountingUniverse
 
@@ -21,7 +23,7 @@ def init_namespace():
     loggedin_url = current_user and create_logout_url('/') or create_login_url('/')
     loggedin_label = current_user and ('Log out %s' % current_user.nickname()) or 'Log in'
     title = 'thinkfar'
-    main = get_renderer('templates/main.pt').implementation()
+    main = None # main template
     return locals()
 
 
@@ -32,10 +34,10 @@ def common_template(view):
     return wrapped_view
 
 
-@view_config(request_method='GET', renderer='templates/main.pt')
-@common_template
-def index_html(request, init_namespace):
-    return init_namespace
+class RootIndexHtml(RequestHandler):
+    @common_template
+    def get(self, init_namespace):
+        self.response.out.write('Ok')
 
 
 @view_config(route_name='accounting_universe_index_html', request_method='GET', renderer='templates/container.pt')

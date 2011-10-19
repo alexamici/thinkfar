@@ -125,6 +125,7 @@ class TransactionTemplate(Model):
         if end_date is None:
             end_date = start_date
         itx = item_set.dismiss(start_date=start_date, end_date=end_date, amount=amount)
+        return itx
 
 
 class Transaction(object):
