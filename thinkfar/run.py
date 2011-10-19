@@ -1,19 +1,15 @@
 
-from webapp2 import WSGIApplication, RequestHandler
+from webapp2 import WSGIApplication, Route
 
 
 __copyright__ = 'Copyright (c) 2010-2011 Alessandro Amici. All rights reserved.'
 __licence__ = 'GPLv3'
 
 
-class Test(RequestHandler):
-    def get(self):
-        self.response.headers['Content-Type'] = 'text/plain'
-        self.response.out.write('Hello, webapp2 World!')
-
 routes = [
-    (r'/', 'thinkfar.views.RootIndexHtml'),
-    (r'/u/(.*)/a.json', 'thinkfar.rest.AccountsJSON'),
+    Route(r'/', handler='thinkfar.views.RootIndexHtml'),
+    Route(r'/u/<accounting_universe_uid:>/a.json', handler='thinkfar.rest.accounts_json', methods=['GET']),
+    Route(r'/<user_uid:......+>', handler='thinkfar.views.UserIndexHtml'),
 ]
 
 config = {}

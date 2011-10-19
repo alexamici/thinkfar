@@ -1,7 +1,7 @@
 
 from datetime import date
 
-from webapp2 import RequestHandler
+from webapp2 import RequestHandler, Response
 from webapp2_extras.json import encode
 
 # dummy migration helpers
@@ -23,50 +23,50 @@ book_itemsets_limit = 100
 
 
 def extjs_rest(func):
-    def extjs_rest_wrapper(self, *args):
-        start = int(self.request.get('start', 0) or 0)
-        limit = int(self.request.get('limit', 25) or 25)
-        page = int(self.request.get('page', 1) or 1)
-        return func(self, page=page, start=start, limit=limit, *args)
+    def extjs_rest_wrapper(request, *args, **keys):
+        start = int(request.get('start', 0) or 0)
+        limit = int(request.get('limit', 25) or 25)
+        page = int(request.get('page', 1) or 1)
+        return func(request, page=page, start=start, limit=limit, *args, **keys)
     return extjs_rest_wrapper
 
 
 # @view_config(route_name='accounts_json', renderer='json', request_method='GET')
-class AccountsJSON(RequestHandler):
-    @extjs_rest
-    def get(self, accounting_universe_uid, page=1, start=0, limit=25):
-        self.response.out.write(encode(page))
-        request = self.request
-        accounting_universe = AccountingUniverse.get_by_key_name(accounting_universe_uid)
-        if accounting_universe is None:
-            raise HTTPNotFound
-        
-        retval = []
-        for total_account in accounting_universe.total_accounts:
-            for aggregate_account in total_account.aggregate_accounts:
-                for simple_account in aggregate_account.accounts:
-                    account = {
-                        'uid': simple_account.uid,
-                        'name': simple_account.name,
-                        'description': simple_account.description,
-                        'parent': simple_account.parent_account.uid,
-                    }
-                    retval.append(account)
+
+@extjs_rest
+def accounts_json(request, accounting_universe_uid, page=1, start=0, limit=25):
+    response = Response()
+    response.out.write(encode(page))
+    accounting_universe = AccountingUniverse.get_by_key_name(accounting_universe_uid)
+    if accounting_universe is None:
+        raise HTTPNotFound
+    
+    retval = []
+    for total_account in accounting_universe.total_accounts:
+        for aggregate_account in total_account.aggregate_accounts:
+            for simple_account in aggregate_account.accounts:
                 account = {
-                    'uid': aggregate_account.uid,
-                    'name': '* ' + aggregate_account.name,
-                    'description': aggregate_account.description,
-                    'parent': aggregate_account.parent_account.uid,
+                    'uid': simple_account.uid,
+                    'name': simple_account.name,
+                    'description': simple_account.description,
+                    'parent': simple_account.parent_account.uid,
                 }
                 retval.append(account)
             account = {
-                'uid': total_account.uid,
-                'name': '** ' + total_account.name,
-                'description': total_account.description,
-                'parent': None,
+                'uid': aggregate_account.uid,
+                'name': '* ' + aggregate_account.name,
+                'description': aggregate_account.description,
+                'parent': aggregate_account.parent_account.uid,
             }
             retval.append(account)
-        return retval
+        account = {
+            'uid': total_account.uid,
+            'name': '** ' + total_account.name,
+            'description': total_account.description,
+            'parent': None,
+        }
+        retval.append(account)
+    return retval
 
 
 @view_config(route_name='books_json', renderer='json', request_method='GET')
