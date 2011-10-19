@@ -1,7 +1,6 @@
 
 
-from pyramid.response import Response
-from pyramid.view import view_config
+from webapp2 import Response
 
 from .accounting import init_gifi_accounting_universe
 from .inventory import init_datastore
@@ -11,18 +10,12 @@ __copyright__ = 'Copyright (c) 2010-2011 Alessandro Amici. All rights reserved.'
 __licence__ = 'GPLv3'
 
 
-@view_config(name='init_gifi_accounting_universe', request_method='GET')
-def init_gifi_accounting_universe_view(request):
+def init_datastore_view(request):
+    init_datastore()
     init_gifi_accounting_universe()
     return Response('Ok')
 
-@view_config(name='init_datastore', request_method='GET')
-def init_datastore_view(request):
-    init_datastore()
-    return Response('Ok')
-
-@view_config(name='init_testdata', request_method='GET')
-def init_testdata(request):
+def init_testdata_view(request):
     from datetime import date
 
     from thinkfar.inventory import User
