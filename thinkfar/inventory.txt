@@ -18,86 +18,89 @@ Users
     >>> universe = AccountingUniverse.get_by_key_name('GIFI')
     >>> currency = Currency.get_by_key_name('EUR')
 
-	>>> from thinkfar.inventory import Book
-	>>> book = Book(uid='test', name='Test Book', owner=me, currency=currency, accounting_universe=universe)
-	>>> book_key = book.put()
-	>>> book = Book.get(book_key)
-	>>> book.currency.uid
-	u'EUR'
+    >>> from thinkfar.inventory import Book
+    >>> book = Book(uid='test', name='Test Book', owner=me, currency=currency, accounting_universe=universe)
+    >>> book_key = book.put()
+    >>> book = Book.get(book_key)
+    >>> book.currency.uid
+    u'EUR'
 
 A simple itemset like a car
 ---------------------------
 
-	>>> from thinkfar.inventory import ItemSet
-	>>> car = ItemSet(book=book, uid='0123', name='My Car')
-	>>> car.description = 'A 2003 Honda'
-	>>> dummy = car.put()
+    >>> from thinkfar.inventory import ItemSet
+    >>> car = ItemSet(book=book, uid='0123', name='My Car')
+    >>> car.description = 'A 2003 Honda'
+    >>> dummy = car.put()
 
-	>>> from datetime import date
-	>>> itx = car.acquire(date(2003, 2, 5))
-	>>> itx = car.dismiss(date(2012, 5, 5))
+    >>> from datetime import date
+    >>> car.balance(date(2003, 2, 5))
+    0L
 
-	>>> car.balance(date(2003, 2, 4))
-	0L
-	>>> car.balance(date(2003, 2, 5))
-	1L
-	>>> car.balance(date(2012, 5, 4))
-	1L
-	>>> car.balance(date(2012, 5, 5))
-	0L
+    >>> itx = car.acquire(date(2003, 2, 5))
+    >>> itx = car.dismiss(date(2012, 5, 5))
 
-	>>> car.partial_balance(start=date(2012, 5, 4), end=date(2012, 5, 5))
-	-1L
+    >>> car.balance(date(2003, 2, 4))
+    0L
+    >>> car.balance(date(2003, 2, 5))
+    1L
+    >>> car.balance(date(2012, 5, 4))
+    1L
+    >>> car.balance(date(2012, 5, 5))
+    0L
+
+    >>> car.partial_balance(start=date(2012, 5, 4), end=date(2012, 5, 5))
+    -1L
 
 A simple itemset with linear transactions
 -----------------------------------------
 
-	>>> ge_plan = ItemSet(book=book, uid='0124', name='GE shares')
-	>>> ge_plan.description = 'GE shares accumulation plan'
-	>>> dummy = ge_plan.put()
+    >>> ge_plan = ItemSet(book=book, uid='0124', name='GE shares')
+    >>> ge_plan.description = 'GE shares accumulation plan'
+    >>> dummy = ge_plan.put()
 
 Careful, a linear transaction starts having a balance the day AFTER
 its start_date!
 
 Let's buy 365 shares of GE, one every day of the year:
 
-	>>> itx = ge_plan.acquire(start_date=date(2009, 12, 31), end_date=date(2010, 12, 31), amount=365)
-	>>> ge_plan.balance(date(2009, 12, 31))
-	0L
-	>>> ge_plan.balance(date(2010, 1, 1))
-	1L
-	>>> ge_plan.balance(date(2010, 1, 31))
-	31L
-	>>> ge_plan.balance(date(2010, 12, 30))
-	364L
-	>>> ge_plan.balance(date(2010, 12, 31))
-	365L
+    >>> itx = ge_plan.acquire(start_date=date(2009, 12, 31), end_date=date(2010, 12, 31), amount=365)
+    >>> ge_plan.balance(date(2009, 12, 31))
+    0L
+    >>> ge_plan.balance(date(2010, 1, 1))
+    1L
+    >>> ge_plan.balance(date(2010, 1, 31))
+    31L
+    >>> ge_plan.balance(date(2010, 12, 30))
+    364L
+    >>> ge_plan.balance(date(2010, 12, 31))
+    365L
 
 twenty years later sell the shares one per day:
 
-	>>> itx = ge_plan.dismiss(start_date=date(2029, 12, 31), end_date=date(2030, 12, 31), amount=365)
-	>>> ge_plan.balance(date(2029, 12, 31))
-	365L
-	>>> ge_plan.balance(date(2030, 1, 1))
-	364L
-	>>> ge_plan.balance(date(2030, 12, 31))
-	0L
+    >>> itx = ge_plan.dismiss(start_date=date(2029, 12, 31), end_date=date(2030, 12, 31), amount=365)
+    >>> ge_plan.balance(date(2029, 12, 31))
+    365L
+    >>> ge_plan.balance(date(2030, 1, 1))
+    364L
+    >>> ge_plan.balance(date(2030, 12, 31))
+    0L
 
-	>>> ge_plan.balance(date(2020, 12, 31))
-	365L
+    >>> ge_plan.balance(date(2020, 12, 31))
+    365L
 
 Summaries
 ---------
 
-	>>> sorted(itemset.name for itemset in book.inventory)
-	[u'GE shares', u'My Car']
+    >>> sorted(itemset.name for itemset in book.inventory)
+    [u'GE shares', u'My Car']
 
 Books limit
 -----------
 
-	>>> for uid in ['%d' % i for i in range(Book.user_books_limit)]:    # doctests: +ELLIPSIS
-	...     book = Book(uid=uid, name=uid, owner=me, currency=currency, accounting_universe=universe)
-	...     dummy = book.put()
-	Traceback (most recent call last):
-	  ...
-	ValueError: user_books_limit exceeded
+    >>> for uid in ['%d' % i for i in range(Book.user_books_limit)]:    # doctests: +ELLIPSIS
+    ...     book = Book(uid=uid, name=uid, owner=me, currency=currency, accounting_universe=universe)
+    ...     dummy = book.put()
+    Traceback (most recent call last):
+      ...
+    ValueError: user_books_limit exceeded

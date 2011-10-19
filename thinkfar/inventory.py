@@ -96,10 +96,10 @@ class ItemSet(Model):
         return itx
 
     def partial_balance(self, start, end):
-        return sum(it.partial_balance(start,end) for it in self.inventory_transactions)
+        return sum(it.partial_balance(start,end) for it in self.inventory_transactions) or 0L
     
     def balance(self, date):
-        return sum(it.balance(date) for it in self.inventory_transactions)
+        return sum(it.balance(date) for it in self.inventory_transactions) or 0L
 
 
 class InventoryTransaction(Model):
