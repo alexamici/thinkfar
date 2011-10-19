@@ -2,21 +2,21 @@
 Users
 -----
 
-	>>> from thinkfar.backoffice.inventory import init_datastore
-	>>> dummy = init_datastore()
+    >>> from thinkfar.backoffice.inventory import init_datastore
+    >>> dummy = init_datastore()
 
-	>>> from thinkfar.inventory import User, Currency, AccountingUniverse
-	>>> me = User.get_by_key_name('alexamici')
-	>>> me.principal.email()
-	u'alexamici@gmail.com'
+    >>> from thinkfar.inventory import User, Currency, AccountingUniverse
+    >>> me = User.get_by_key_name('alexamici')
+    >>> me.principal.email()
+    u'alexamici@gmail.com'
 
-	>>> too_short_uid = User(uid='short', principal=me.principal)    # doctests: +ELLIPSIS
-	Traceback (most recent call last):
-	  ...
-	IndexError: string index out of range
+    >>> too_short_uid = User(uid='short', principal=me.principal)    # doctests: +ELLIPSIS
+    Traceback (most recent call last):
+      ...
+    IndexError: string index out of range
 
-	>>> universe = AccountingUniverse.get_by_key_name('GIFI')
-	>>> currency = Currency.get_by_key_name('EUR')
+    >>> universe = AccountingUniverse.get_by_key_name('GIFI')
+    >>> currency = Currency.get_by_key_name('EUR')
 
 	>>> from thinkfar.inventory import Book
 	>>> book = Book(uid='test', name='Test Book', owner=me, currency=currency, accounting_universe=universe)
