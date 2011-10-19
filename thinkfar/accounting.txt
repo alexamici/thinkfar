@@ -54,7 +54,7 @@ A simple itemset like a car
     [(u'1002', 15000L), (u'9990', 3500L), (u'1740', 10000L)]
 
     >>> sell_a_car = car.item_class.transaction_template('sell')
-    >>> sell_a_car.sell(car, date(2012, 5, 5), net_resell_value=3000, taxes_paid=50, fees_paid=250)
+    >>> tx = sell_a_car.sell(car, date(2012, 5, 5), net_resell_value=3000, taxes_paid=50, fees_paid=250)
     >>> car.balance(date(2012, 5, 4))
     1L
     >>> car.balance(date(2012, 5, 5))

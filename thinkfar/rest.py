@@ -36,7 +36,6 @@ def extjs_rest(func):
 @extjs_rest
 def accounts_json(request, accounting_universe_uid, page=1, start=0, limit=25):
     response = Response()
-    response.out.write(encode(page))
     accounting_universe = AccountingUniverse.get_by_key_name(accounting_universe_uid)
     if accounting_universe is None:
         raise HTTPNotFound
@@ -66,7 +65,7 @@ def accounts_json(request, accounting_universe_uid, page=1, start=0, limit=25):
             'parent': None,
         }
         retval.append(account)
-    return retval
+    response.out.write(encode(retval))
 
 
 @view_config(route_name='books_json', renderer='json', request_method='GET')
