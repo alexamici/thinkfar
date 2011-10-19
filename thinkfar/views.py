@@ -1,9 +1,12 @@
 
+from os.path import join, dirname
 from simplejson import dumps
 
 from google.appengine.api.users import get_current_user, create_login_url, create_logout_url
 
 from webapp2 import RequestHandler
+from chameleon import PageTemplateLoader
+
 
 # dummy migration helpers
 def view_config(*args, **keys):
@@ -18,26 +21,32 @@ __licence__ = 'GPLv3'
 __version__ = '0.0'
 
 
-def init_namespace():
-    current_user = get_current_user()
-    loggedin_url = current_user and create_logout_url('/') or create_login_url('/')
-    loggedin_label = current_user and ('Log out %s' % current_user.nickname()) or 'Log in'
-    title = 'thinkfar'
-    main = None # main template
-    return locals()
+# default chamaleon templates folder
+templates = PageTemplateLoader(join(dirname(__file__), "templates"))
 
 
 def common_template(view):
-    namespace = init_namespace()
-    def wrapped_view(request):
-    	return view(request, namespace)    
+    def wrapped_view(self):
+        current_user = get_current_user()
+        init_namespace = {
+            'current_user': current_user,
+            'loggedin_url': current_user and create_logout_url('/') or create_login_url('/'),
+            'loggedin_label': current_user and ('Log out %s' % current_user.nickname()) or 'Log in',
+            'title': 'thinkfar',
+            'main': templates['main.pt'],
+            'request': self.request,
+        }
+        return view(self, init_namespace)    
     return wrapped_view
 
 
 class RootIndexHtml(RequestHandler):
+    template_name = 'main.pt'
+
     @common_template
     def get(self, init_namespace):
-        self.response.out.write('Ok')
+        template = templates[self.template_name]
+        self.response.out.write(template(**init_namespace))
 
 
 @view_config(route_name='accounting_universe_index_html', request_method='GET', renderer='templates/container.pt')
