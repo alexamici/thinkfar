@@ -4,9 +4,10 @@ __licence__ = 'GPLv3'
 __version__ = '0.7-pre-alpha'
 
 
-def load_items(klass, items, key_prefix='', children_classes=[], parent_key='parent_account', **kargs):
+def load_items(definition, key_prefix='', parent_key='parent_account', **kargs):
+    klass, items = definition
     for keys in items:
-        children = keys.pop('children', [])
+        children = keys.pop('children', [None, []])
         key_name = '%s%s' % (key_prefix, keys['uid'])
         keys.update(kargs)
         item = klass.get_by_key_name(key_name)
@@ -16,11 +17,10 @@ def load_items(klass, items, key_prefix='', children_classes=[], parent_key='par
             for key, value in keys.items():
                 setattr(item, key, value)
         item.put()
-        if len(children) > 0:
+        if len(children[1]) > 0:
             kwargs_children = kargs.copy()
             kwargs_children.update({
                 'key_prefix': key_prefix,
                 parent_key: item,
-                'children_classes': children_classes[1:],
             })
-            load_items(children_classes[0], children, **kwargs_children)
+            load_items(children, **kwargs_children)
