@@ -177,7 +177,4 @@ def user_scenarios(user, limit=None):
 
 
 def load_accounting_tree(root, accounting_tree):
-    load_items(TotalAccount, accounting_tree,
-        key_prefix=root.uid + '/', accounting_universe=root,
-        children_classes=[AggregateAccount, Account])
-
+    load_items(accounting_tree, key_prefix=root.uid + '/', accounting_universe=root)
